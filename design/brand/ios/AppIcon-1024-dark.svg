@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- iOS 18+ dark appearance: transparent background (the system supplies the dark backdrop), dark-theme mark colours. -->
+  <g transform="translate(512 512) scale(9.6) translate(-50 -53.49)">
+    <circle cx="50" cy="39.52" r="24" fill="#8DBEF2"/>
+    <circle cx="62.1" cy="60.478" r="24" fill="#B9A3EE"/>
+    <circle cx="37.9" cy="60.478" r="24" fill="#6CCFCB"/>
+    <path fill="#A4A2EC" d="M74 39.636A24 24 0 0 0 50 39.752A24 24 0 0 1 61.9 60.362A24 24 0 0 0 74 39.636Z"/>
+    <path fill="#74B4DA" d="M26 39.636A24 24 0 0 1 50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 1 26 39.636Z"/>
+    <path fill="#A6B6DC" d="M38.1 60.362A24 24 0 0 0 50 81.205A24 24 0 0 0 61.9 60.362A24 24 0 0 1 38.1 60.362Z"/>
+    <path fill="#EEF4FB" d="M50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 0 61.9 60.362A24 24 0 0 0 50 39.752Z"/>
+  </g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-labelledby="t">
+  <title id="t">OZONE</title>
+  <!-- For dark backgrounds -->
+  <circle cx="50" cy="39.52" r="24" fill="#8DBEF2"/>
+  <circle cx="62.1" cy="60.478" r="24" fill="#B9A3EE"/>
+  <circle cx="37.9" cy="60.478" r="24" fill="#6CCFCB"/>
+  <path fill="#A4A2EC" d="M74 39.636A24 24 0 0 0 50 39.752A24 24 0 0 1 61.9 60.362A24 24 0 0 0 74 39.636Z"/>
+  <path fill="#74B4DA" d="M26 39.636A24 24 0 0 1 50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 1 26 39.636Z"/>
+  <path fill="#A6B6DC" d="M38.1 60.362A24 24 0 0 0 50 81.205A24 24 0 0 0 61.9 60.362A24 24 0 0 1 38.1 60.362Z"/>
+  <path fill="#EEF4FB" d="M50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 0 61.9 60.362A24 24 0 0 0 50 39.752Z"/>
+</svg>

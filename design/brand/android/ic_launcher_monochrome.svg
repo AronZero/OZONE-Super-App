@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <!-- Android 13+ themed icon layer. The system recolours it; only the alpha shape matters. -->
+  <g transform="translate(54 54) scale(0.8) translate(-50 -53.49)">
+    <path fill="#000000" fill-rule="evenodd" d="M26 39.636A24 24 0 1 1 74 39.636A24 24 0 1 1 50 81.205A24 24 0 1 1 26 39.636Z M50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 0 61.9 60.362A24 24 0 0 0 50 39.752Z"/>
+  </g>
+</svg>

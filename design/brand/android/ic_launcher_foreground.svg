@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <!-- Adaptive icon foreground. Mark fits inside the 66 dp safe zone (radius ~30.4 dp). Transparent background. -->
+  <g transform="translate(54 54) scale(0.8) translate(-50 -53.49)">
+    <circle cx="50" cy="39.52" r="24" fill="#3B7DC4"/>
+    <circle cx="62.1" cy="60.478" r="24" fill="#7A5CC6"/>
+    <circle cx="37.9" cy="60.478" r="24" fill="#2E9C9A"/>
+    <path fill="#5150AE" d="M74 39.636A24 24 0 0 0 50 39.752A24 24 0 0 1 61.9 60.362A24 24 0 0 0 74 39.636Z"/>
+    <path fill="#2A6FA0" d="M26 39.636A24 24 0 0 1 50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 1 26 39.636Z"/>
+    <path fill="#55669E" d="M38.1 60.362A24 24 0 0 0 50 81.205A24 24 0 0 0 61.9 60.362A24 24 0 0 1 38.1 60.362Z"/>
+    <path fill="#1C3466" d="M50 39.752A24 24 0 0 0 38.1 60.362A24 24 0 0 0 61.9 60.362A24 24 0 0 0 50 39.752Z"/>
+  </g>
+</svg>
