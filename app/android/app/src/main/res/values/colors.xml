@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand pale, icon and splash only (design/brand/README.md). -->
+    <color name="ic_launcher_background">#E2ECF7</color>
+    <color name="splash_background">#E2ECF7</color>
+    <color name="canvas">#F3F5F2</color>
+</resources>

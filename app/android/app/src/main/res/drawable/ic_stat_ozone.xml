@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from design/brand/android/ic_stat_ozone.svg (notification icon, white silhouette). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <group android:scaleX="0.29" android:scaleY="0.29" android:translateX="-2.5" android:translateY="-3.5121">
+        <path android:fillColor="#FFFFFF" android:fillType="evenOdd" android:pathData="M26,39.636A24,24 0 1,1 74,39.636A24,24 0 1,1 50,81.205A24,24 0 1,1 26,39.636Z M50,39.752A24,24 0 0,0 38.1,60.362A24,24 0 0,0 61.9,60.362A24,24 0 0,0 50,39.752Z"/>
+    </group>
+</vector>
