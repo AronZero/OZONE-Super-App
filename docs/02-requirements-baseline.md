@@ -21,7 +21,9 @@ Approved 13 Oct 2026. This file supersedes the earlier analysis boards on the de
 - Search sits in the top bar of every main screen. Settings opens from Home.
 - Dashboard: preset widgets with reorder, show/hide and reset only (no free-form layout and no sizes).
 - Global search is grouped by tool and opens the exact record. **Locked notes are never indexed or searched.**
-- Theme: System, Light or Dark. Optional app lock. A "Hide amounts" toggle (`₱ ••••`).
+- Theme: System, Light or Dark. A "Hide amounts" toggle (`₱ ••••`).
+- Optional **app lock** using the phone's own screen lock (fingerprint, face or phone PIN/password); no separate OZONE PIN.
+  Relocks after 1 minute in the background by default (Immediately / 1 min / 5 min). Needs a phone screen lock to be set.
 
 ## Savings
 

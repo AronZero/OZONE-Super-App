@@ -1,0 +1,16 @@
+# Built APKs for the owner (never committed)
+dist/
+
+# Secrets and signing (the release key lives in %USERPROFILE%\.ozone-keys, outside the repo)
+*.jks
+*.keystore
+*.p12
+key.properties
+.env
+.env.*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

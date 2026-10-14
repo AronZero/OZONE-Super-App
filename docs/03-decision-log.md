@@ -55,6 +55,34 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | Components | Approved |
 | Wave 1 screens | Approved |
 | Wave 2 review | Expense filters are enough; Library stats and Notes home stay as designed |
+| App lock method (14 Oct) | The phone's own screen lock; no separate OZONE PIN |
+| App lock relock (14 Oct) | After 1 minute in the background by default; Immediately / 1 min / 5 min (rec.) |
+| Folders and tags (14 Oct) | One "Folders & tags" screen with two tabs; tags can be renamed, merged and deleted (rec.) |
+| Wave 3 review pace (14 Oct) | Build all of Wave 3, then one review |
+| Wave 3 review (14 Oct) | Approved; Settings uses a cog icon; Edit bar preview shows tool icons |
+
+## Task F (build specification)
+
+| # | Topic | Decision |
+|---|---|---|
+| F-Q1 | Spec format | Markdown in `docs/spec/` plus one canvas board per part |
+| F-Q2 | Audience | Claude Code builds it milestone by milestone; must stay readable for a Flutter developer without AI |
+| F-Q3 | Technical choices | Claude proposes well-known, verified, safe packages in one table for approval |
+| F-Q4 | Devices | Android 8+ and iOS 15+; reference phone Samsung Galaxy A03, Android 13 |
+| F-Q5 | Review pace | Review after each part (F1, F2, F3) |
+| F1-1 | Zero balance | Allowed |
+| F1-2 | Active account names | Must be unique (rec.) |
+| F1-3 | Import without Account ID | Match by exact account name, else Check (rec.) |
+| F1-4 | Changed rows on import | Default Keep mine; newer side labelled (rec.) |
+| F1-5 | "Needs a balance" | From the 25th, and through the next month if the month ended Carried (rec.) |
+| F1-6 | New accounts in change | Not counted; a note says so (rec.) |
+| F1 | Data spec | **Approved** 14 Oct 2026 |
+| F2-1 | Android app lock privacy | Blank app-switcher preview and screenshots blocked while app lock is on (rec.) |
+| F2-2 | First-run reminder screen | Add "Get a month-end reminder?" after Welcome (rec.) |
+| F2 | Behaviour spec | **Approved** 14 Oct 2026 |
+| F3-1 | Distribution | Signed `.apk` built on the PC and copied to the phone to install by hand; no app store for now (rec.) |
+| F3-2 | PC setup | Owner installs Flutter SDK + Android Studio before M0, with step-by-step help (rec.) |
+| F3 | Build spec | **Approved** 14 Oct 2026. **Task F complete.** |
 
 ## Open
 
