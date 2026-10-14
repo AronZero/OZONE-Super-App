@@ -87,6 +87,16 @@ abstract final class SettingKeys {
     (j) => [for (final e in j! as List<Object?>) e! as String].take(3).toList(),
   );
 
+  /// Values hidden from suggestions in Settings › Lists, per list.
+  static final listsHidden = SettingKey<Map<String, List<String>>>(
+    'lists.hidden',
+    const {'vendor': [], 'platform': [], 'type': []},
+    (j) => {
+      for (final e in (j! as Map<String, Object?>).entries)
+        e.key: [for (final v in e.value! as List<Object?>) v! as String],
+    },
+  );
+
   static final appLock = SettingKey<AppLockSetting>(
     'app_lock',
     const AppLockSetting(on: false, relockAfterS: 60),

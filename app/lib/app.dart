@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'app_router.dart';
 import 'core/data/settings_repo.dart';
 import 'core/state/providers.dart';
+import 'core/state/today.dart';
 import 'core/ui/theme/app_theme.dart';
 import 'core/ui/theme/tokens.dart';
 import 'shell/ui/lock_gate/lock_gate.dart';
@@ -32,6 +33,7 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Pending Undo deletes are committed when OZONE goes to the background (F2-02 §6).
     if (state == AppLifecycleState.paused) ref.read(undoControllerProvider).flush();
+    if (state == AppLifecycleState.resumed) ref.read(todayProvider.notifier).refresh();
   }
 
   @override

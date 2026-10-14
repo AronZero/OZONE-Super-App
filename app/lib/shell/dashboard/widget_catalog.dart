@@ -1,8 +1,8 @@
 import '../../core/ui/theme/tokens.dart';
 
 /// Names and owners of the preset dashboard widgets (docs/04, W1–W10).
-/// From M2 on, each tool registers its own widgets through the tool registry;
-/// this catalog keeps their display names in one place until then.
+/// Tools supply each widget's content through the tool registry (from M2);
+/// this catalog keeps every widget's display name in one place.
 class WidgetInfo {
   const WidgetInfo(this.name, this.detail, this.tint, this.milestone);
   final String name;

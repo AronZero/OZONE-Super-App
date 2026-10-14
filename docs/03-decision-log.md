@@ -84,6 +84,17 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | F3-2 | PC setup | Owner installs Flutter SDK + Android Studio before M0, with step-by-step help (rec.) |
 | F3 | Build spec | **Approved** 14 Oct 2026. **Task F complete.** |
 
+## Build
+
+| # | Topic | Decision |
+|---|---|---|
+| M1 | Core and shell | **Approved** 14 Oct 2026 |
+| M2-1 | Add / Edit account | Sheet: Name, Platform, Type, Starting balance, "Balance as of" (default today, past allowed), Remarks. Edit has no balance or date (rec.) |
+| M2-2 | Single balance update | Tap one in Account detail › All updates to edit balance, remarks or "unchanged"; delete with Undo. The date stays fixed (rec.) |
+| M2-3 | Savings Home widgets | Total savings and Savings trend are built in M2 with Needs attention (balances), not M7 (rec.) |
+| M2-4 | Accounts order | By balance, highest first, as on W1 · Savings; no manual reorder (rec.) |
+| M2 | Savings | **Approved** 14 Oct 2026 |
+
 ## Open
 
 - Trademark search for "OZONE", needed only before any public app-store release.

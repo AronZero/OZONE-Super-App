@@ -37,7 +37,7 @@ GoRouter buildRouter() => GoRouter(
             ]),
             for (final t in toolRegistry)
               StatefulShellBranch(routes: [
-                GoRoute(path: t.routeBase, builder: (context, state) => t.home(context)),
+                GoRoute(path: t.routeBase, builder: (context, state) => t.home(context), routes: t.routes(_rootKey)),
               ]),
             StatefulShellBranch(routes: [
               GoRoute(path: '/tools', builder: (context, state) => const ToolsScreen()),

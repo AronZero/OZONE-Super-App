@@ -56,3 +56,9 @@ as long as they're signed with the same key.
 - Widget tests use an in-memory database (`test/helpers/harness.dart`). Close it with `closeApp()`, which closes the
   database inside the test clock. `tester.runAsync(db.close)` hangs.
 - Emulator for PC testing: AVD `OZONE_A03_API33` (Android 13, 720 × 1600, 3 GB), test PIN 1234.
+- Tools plug in through `ToolDefinition` (`lib/shell/tool_registry.dart`): `routes` (screens that hide the bar use the
+  root navigator key), `widgets` (Home dashboard content by widget ID) and `attention` (Needs attention lines).
+- "Today" comes from `todayProvider` (`lib/core/state/today.dart`), refreshed at midnight and on resume. Widget tests
+  pin it with `FixedToday` (the harness uses 13 Oct 2026, the date on the W1 boards).
+- Screenshots of the emulator come out blank while app lock is on (`FLAG_SECURE`, by design). Turn the lock off in
+  Settings › Security for screenshots and back on afterwards.

@@ -49,6 +49,9 @@ class LocalDate implements Comparable<LocalDate> {
   String get monthShort => _months[month - 1];
   String get monthName => _monthsLong[month - 1];
 
+  /// `Oct 2026`, for month rows.
+  String get monthShortYear => '${_months[month - 1]} $year';
+
   LocalDate get monthStart => LocalDate(year, month, 1);
   LocalDate get monthEnd => LocalDate(year, month, daysInMonth(year, month));
 

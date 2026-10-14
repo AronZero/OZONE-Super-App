@@ -7,7 +7,9 @@ import 'package:ozone/app.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/data/settings_repo.dart';
 import 'package:ozone/core/security/app_lock_service.dart';
+import 'package:ozone/core/domain/dates.dart';
 import 'package:ozone/core/state/providers.dart';
+import 'package:ozone/core/state/today.dart';
 
 /// A fake phone screen lock for tests.
 class FakeDeviceAuth implements DeviceAuth {
@@ -31,12 +33,17 @@ AppDatabase memoryDb() {
 }
 
 /// Pumps the whole app on an in-memory database.
-Future<(AppDatabase, AppLockService)> pumpApp(WidgetTester tester, {AppDatabase? db}) async {
+/// [today] defaults to 13 Oct 2026, the date on the W1 boards.
+Future<(AppDatabase, AppLockService)> pumpApp(WidgetTester tester, {AppDatabase? db, LocalDate? today}) async {
   final d = db ?? memoryDb();
   final lock = AppLockService(SettingsRepo(d), FakeDeviceAuth());
   await tester.runAsync(lock.start);
   await tester.pumpWidget(ProviderScope(
-    overrides: [databaseProvider.overrideWithValue(d), appLockServiceProvider.overrideWithValue(lock)],
+    overrides: [
+      databaseProvider.overrideWithValue(d),
+      appLockServiceProvider.overrideWithValue(lock),
+      todayProvider.overrideWith(() => FixedToday(today ?? LocalDate(2026, 10, 13))),
+    ],
     child: const OzoneApp(),
   ));
   await settle(tester);

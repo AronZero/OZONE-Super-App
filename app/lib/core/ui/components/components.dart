@@ -286,7 +286,7 @@ class ChoiceChips<T> extends StatelessWidget {
 
 /// Full-width shell button: ink (primary) or sunken (secondary).
 class OzoneButton extends StatelessWidget {
-  const OzoneButton({super.key, required this.label, required this.onPressed, this.primary = true, this.icon, this.color});
+  const OzoneButton({super.key, required this.label, required this.onPressed, this.primary = true, this.icon, this.color, this.foreground, this.height = 52});
 
   final String label;
   final VoidCallback? onPressed;
@@ -294,13 +294,17 @@ class OzoneButton extends StatelessWidget {
   final IconData? icon;
   final Color? color;
 
+  /// Text colour on [color] (tool accents use `onAccent`).
+  final Color? foreground;
+  final double height;
+
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final bg = color ?? (primary ? c.ink : c.surfaceSunken);
-    final fg = primary ? c.canvas : c.ink;
+    final fg = foreground ?? (primary ? c.canvas : c.ink);
     return SizedBox(
-      height: 52,
+      height: height,
       width: double.infinity,
       child: FilledButton(
         onPressed: onPressed,
