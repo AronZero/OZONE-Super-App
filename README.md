@@ -4,7 +4,7 @@ A personal, private, offline-only mobile app that bundles three tools: **Finance
 **Library** (books) and **Notes** (with a locked vault). It's built with Flutter, Android first with iOS kept ready.
 It has no account, no cloud and no internet permission. Backups are `.xlsx` workbooks you export yourself.
 
-Status: design and specification are approved, and the app is being built milestone by milestone (M0, M1 and M2 approved).
+Status: design and specification are approved, and the app is being built milestone by milestone (M0–M3 approved).
 
 | Where | What |
 |---|---|

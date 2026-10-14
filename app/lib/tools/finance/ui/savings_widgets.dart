@@ -21,8 +21,8 @@ class TotalSavingsWidget extends ConsumerWidget {
     final today = ref.watch(todayProvider);
     final t = ref.watch(savingsThisMonthProvider).value;
     final carried = t == null || t.carried == 0 ? '' : (t.allCarried ? ' · all carried' : ' · includes ${t.carried} carried');
-    return _Tile(
-      onTap: () => context.go('/finance'),
+    return FinanceWidgetTile(
+      onTap: () => context.go('/finance?tab=savings'),
       semantics: t?.total == null ? 'Total savings, no accounts yet' : 'Total savings ${Money.spoken(t!.total!)}',
       children: [
         Row(children: [
@@ -52,9 +52,9 @@ class SavingsTrendWidget extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final today = ref.watch(todayProvider);
     final months = ref.watch(savingsTwelveMonthsProvider).value ?? const [];
-    return _Tile(
+    return FinanceWidgetTile(
       onTap: () {
-        context.go('/finance');
+        context.go('/finance?tab=savings');
         context.push('/finance/savings/history');
       },
       children: [
@@ -74,8 +74,9 @@ class SavingsTrendWidget extends ConsumerWidget {
   }
 }
 
-class _Tile extends StatelessWidget {
-  const _Tile({required this.onTap, required this.children, this.semantics});
+/// A tinted, tappable Home widget card for Finance.
+class FinanceWidgetTile extends StatelessWidget {
+  const FinanceWidgetTile({super.key, required this.onTap, required this.children, this.semantics});
   final VoidCallback onTap;
   final List<Widget> children;
   final String? semantics;

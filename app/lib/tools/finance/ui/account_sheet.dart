@@ -9,8 +9,8 @@ import '../../../core/state/today.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
-import '../../../core/ui/theme/tokens.dart';
-import '../data/savings_repo.dart';
+import '../data/lists_repo.dart';
+import '../state/finance_providers.dart';
 import '../domain/savings_rules.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
@@ -47,9 +47,9 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
   @override
   void initState() {
     super.initState();
-    final repo = ref.read(savingsRepoProvider);
-    repo.suggestions(SuggestionField.platform).then((v) => mounted ? setState(() => _platforms = v) : null);
-    repo.suggestions(SuggestionField.type).then((v) => mounted ? setState(() => _types = v) : null);
+    final lists = ref.read(listsRepoProvider);
+    lists.suggestions(ListField.platform).then((v) => mounted ? setState(() => _platforms = v) : null);
+    lists.suggestions(ListField.type).then((v) => mounted ? setState(() => _types = v) : null);
   }
 
   @override
@@ -188,47 +188,26 @@ class _SuggestField extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    final c = OzoneThemeColors.of(context);
-    final typed = controller.text.trim().toLowerCase();
-    final shown = [
-      for (final s in suggestions)
-        if (s.toLowerCase() != typed && s.toLowerCase().startsWith(typed)) s,
-    ].take(5).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        OzoneTextField(
-          label: '$label (optional)',
-          controller: controller,
-          error: error,
-          hint: hint,
-          onChanged: onChanged,
-          textInputAction: TextInputAction.next,
-        ),
-        if (shown.isNotEmpty) ...[
-          const SizedBox(height: Space.s),
-          Wrap(
-            spacing: Space.s,
-            runSpacing: Space.s,
-            children: [
-              for (final s in shown)
-                ActionChip(
-                  label: Text(s),
-                  tooltip: 'Use $s',
-                  backgroundColor: c.surfaceSunken,
-                  side: BorderSide.none,
-                  shape: const StadiumBorder(),
-                  labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w700),
-                  onPressed: () {
-                    controller.text = s;
-                    onChanged(s);
-                  },
-                ),
-            ],
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OzoneTextField(
+            label: '$label (optional)',
+            controller: controller,
+            error: error,
+            hint: hint,
+            onChanged: onChanged,
+            textInputAction: TextInputAction.next,
+          ),
+          SuggestionChips(
+            suggestions: suggestions,
+            typed: controller.text,
+            onPick: (s) {
+              controller.text = s;
+              onChanged(s);
+            },
           ),
         ],
-      ],
-    );
-  }
+      );
 }

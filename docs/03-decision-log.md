@@ -94,6 +94,12 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M2-3 | Savings Home widgets | Total savings and Savings trend are built in M2 with Needs attention (balances), not M7 (rec.) |
 | M2-4 | Accounts order | By balance, highest first, as on W1 · Savings; no manual reorder (rec.) |
 | M2 | Savings | **Approved** 14 Oct 2026 |
+| M3-1 | Gold item form | One tall sheet for add and edit (all 7 fields, status Held/Disposed with its date, Delete with Undo); no separate item detail screen. Exception to docs/04 "forms over 6 fields open full screen" |
+| M3-2 | Duplicate expense warning | Same vendor (ignoring case) and amount within ±3 days; a warning with "Save anyway", never a block (rec.) |
+| M3-3 | Expense filters | Year from the card arrows; Vendor (one or more), Amount (min/max), Refunded only; sort Newest/Oldest/Highest/Lowest; month headers show month totals (rec.) |
+| M3-4 | M3 extras | Settings › Lists (rename/hide vendor, platform, type), Home widgets Gold holdings / Spending this year / Recent expenses + gold lines in Needs attention, Karat price history with delete + Undo (rec.) |
+| M3-5 | Karat chips | The 6 common karats (24, 22, 21, 18, 14, 10) plus any karat used by an item or a saved price, high to low (rec.) |
+| M3 | Gold and Expenses | **Approved** 14 Oct 2026 |
 
 ## Open
 

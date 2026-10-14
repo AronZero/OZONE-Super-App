@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/data/deletions_repo.dart';
-import 'package:ozone/core/data/settings_repo.dart';
 import 'package:ozone/core/domain/dates.dart';
 import 'package:ozone/core/domain/validation.dart';
 import 'package:ozone/tools/finance/data/savings_repo.dart';
@@ -15,13 +14,11 @@ void main() {
   late AppDatabase db;
   late SavingsRepo repo;
   late DeletionsRepo deletions;
-  late SettingsRepo settings;
 
   setUp(() {
     db = memoryDb();
     deletions = DeletionsRepo(db);
-    settings = SettingsRepo(db);
-    repo = SavingsRepo(db, deletions, settings);
+    repo = SavingsRepo(db, deletions);
   });
   tearDown(() => db.close());
 
@@ -116,15 +113,6 @@ void main() {
     await repo.deleteUpdate(u.id);
     await repo.recordUpdateDeleted(u.id);
     expect(await deletions.isDeleted(balanceUpdateEntity, u.id), isTrue);
-  });
-
-  test('suggestions: most used first, hidden values left out', () async {
-    await add('A', 1, '2026-10-01', platform: 'Bank');
-    await add('B', 1, '2026-10-01', platform: 'Digital bank');
-    await add('C', 1, '2026-10-01', platform: 'Digital bank');
-    expect(await repo.suggestions(SuggestionField.platform), ['Digital bank', 'Bank']);
-    await settings.set(SettingKeys.listsHidden, {'vendor': <String>[], 'platform': ['bank'], 'type': <String>[]});
-    expect(await repo.suggestions(SuggestionField.platform), ['Digital bank']);
   });
 
   test('watch emits when an update is saved', () async {

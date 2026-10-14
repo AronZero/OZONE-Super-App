@@ -62,3 +62,7 @@ as long as they're signed with the same key.
   pin it with `FixedToday` (the harness uses 13 Oct 2026, the date on the W1 boards).
 - Screenshots of the emulator come out blank while app lock is on (`FLAG_SECURE`, by design). Turn the lock off in
   Settings › Security for screenshots and back on afterwards.
+- Edit source files with the editor tools or Git Bash `sed`, not PowerShell 5.1 `Get-Content`/`Set-Content`: they read
+  UTF-8 as ANSI and write a BOM, which garbles `’`, `·` and `§` in strings.
+- Repositories watch screens' tables with `watchTables` (`lib/core/data/watch.dart`), which listens to drift's table
+  updates. A stream query over `SELECT 1` can skip a refresh when its result looks the same.

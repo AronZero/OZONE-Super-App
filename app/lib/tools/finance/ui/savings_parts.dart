@@ -137,3 +137,68 @@ class SegmentTabs extends StatelessWidget {
     );
   }
 }
+
+/// The 60 dp add button of a Finance tab (one per main screen, docs/04).
+class FinanceAddButton extends StatelessWidget {
+  const FinanceAddButton({super.key, required this.label, required this.onPressed});
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    return Tooltip(
+      message: label,
+      child: Material(
+        color: financeAccent(context),
+        elevation: 4,
+        shadowColor: c.ink.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(Radii.addButton),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Radii.addButton),
+          onTap: onPressed,
+          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.onAccent)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Up to 5 tappable suggestions that start with what's typed (F1-01 §3).
+class SuggestionChips extends StatelessWidget {
+  const SuggestionChips({super.key, required this.suggestions, required this.typed, required this.onPick, this.tinted = false});
+  final List<String> suggestions;
+  final String typed;
+  final ValueChanged<String> onPick;
+
+  /// Finance-tinted chips, as for recent vendors on W2 · Add expense.
+  final bool tinted;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    final t = typed.trim().toLowerCase();
+    final shown = [for (final s in suggestions) if (s.toLowerCase() != t && s.toLowerCase().startsWith(t)) s].take(5).toList();
+    if (shown.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: Space.s),
+      child: Wrap(spacing: Space.s, runSpacing: Space.s, children: [
+        for (final s in shown)
+          ActionChip(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+            label: Text(s),
+            tooltip: 'Use $s',
+            backgroundColor: tinted ? financeTile(context) : c.surfaceSunken,
+            side: BorderSide.none,
+            shape: const StadiumBorder(),
+            labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: tinted ? financeAccent(context) : c.ink,
+                ),
+            onPressed: () => onPick(s),
+          ),
+      ]),
+    );
+  }
+}

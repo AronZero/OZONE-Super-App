@@ -8,7 +8,6 @@ import '../domain/savings_history.dart';
 final savingsRepoProvider = Provider<SavingsRepo>((ref) => SavingsRepo(
       ref.watch(databaseProvider),
       ref.watch(deletionsRepoProvider),
-      ref.watch(settingsRepoProvider),
     ));
 
 /// All accounts and updates; screens rebuild whenever they change.

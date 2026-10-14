@@ -27,6 +27,8 @@ class MonthBars extends StatelessWidget {
     this.height = 56,
     this.labelColor,
     this.showLabels = true,
+    this.labelEvery = 3,
+    this.valueLabels,
   });
 
   final List<BarDatum> data;
@@ -36,6 +38,12 @@ class MonthBars extends StatelessWidget {
   final Color? labelColor;
   final bool showLabels;
 
+  /// Label every Nth bar (and always the last). 1 labels every bar.
+  final int labelEvery;
+
+  /// Optional short labels drawn above each bar ("₱71k").
+  final List<String?>? valueLabels;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.labelSmall!.copyWith(color: labelColor);
@@ -44,7 +52,7 @@ class MonthBars extends StatelessWidget {
       image: true,
       excludeSemantics: true,
       child: SizedBox(
-        height: height + (showLabels ? 20 : 0),
+        height: height + (showLabels ? 20 : 0) + (valueLabels == null ? 0 : _BarsPainter.top),
         width: double.infinity,
         child: CustomPaint(
           painter: _BarsPainter(
@@ -52,6 +60,8 @@ class MonthBars extends StatelessWidget {
             accent: accent,
             barsHeight: height,
             labelStyle: showLabels ? style : null,
+            labelEvery: labelEvery,
+            valueLabels: valueLabels,
             textScaler: MediaQuery.textScalerOf(context),
           ),
         ),
@@ -61,15 +71,28 @@ class MonthBars extends StatelessWidget {
 }
 
 class _BarsPainter extends CustomPainter {
-  _BarsPainter({required this.data, required this.accent, required this.barsHeight, required this.labelStyle, required this.textScaler});
+  _BarsPainter({
+    required this.data,
+    required this.accent,
+    required this.barsHeight,
+    required this.labelStyle,
+    required this.textScaler,
+    this.labelEvery = 3,
+    this.valueLabels,
+  });
 
   final List<BarDatum> data;
   final Color accent;
   final double barsHeight;
   final TextStyle? labelStyle;
   final TextScaler textScaler;
+  final int labelEvery;
+  final List<String?>? valueLabels;
 
   static const double _gap = 5;
+
+  /// Room above the bars for value labels.
+  static const double top = 18;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -77,6 +100,10 @@ class _BarsPainter extends CustomPainter {
     final n = data.length;
     final w = (size.width - _gap * (n - 1)) / n;
     final maxV = data.map((d) => d.value ?? 0).fold<int>(0, (a, b) => b > a ? b : a);
+    final t0 = valueLabels == null ? 0.0 : top;
+    canvas
+      ..save()
+      ..translate(0, t0);
     for (var i = 0; i < n; i++) {
       final d = data[i];
       final x = i * (w + _gap);
@@ -102,13 +129,21 @@ class _BarsPainter extends CustomPainter {
         }
       }
       final style = labelStyle;
-      if (style != null && ((i % 3 == 0 && i < n - 2) || i == n - 1)) {
+      final vl = valueLabels == null || i >= valueLabels!.length ? null : valueLabels![i];
+      if (style != null && vl != null) {
+        final h = v == null || maxV <= 0 || v <= 0 ? 4.0 : (barsHeight * v / maxV).clamp(6.0, barsHeight);
+        final tp = TextPainter(text: TextSpan(text: vl, style: style.copyWith(fontWeight: FontWeight.w800)), textDirection: TextDirection.ltr, textScaler: textScaler)..layout();
+        tp.paint(canvas, Offset((x + w / 2 - tp.width / 2).clamp(0, size.width - tp.width), barsHeight - h - tp.height - 2));
+      }
+      final labelled = labelEvery <= 1 || (i % labelEvery == 0 && i < n - 2) || i == n - 1;
+      if (style != null && labelled) {
         final tp = TextPainter(text: TextSpan(text: d.label, style: style), textDirection: TextDirection.ltr, textScaler: textScaler)..layout();
         var lx = x + w / 2 - tp.width / 2;
         lx = lx.clamp(0, size.width - tp.width);
         tp.paint(canvas, Offset(lx, barsHeight + 5));
       }
     }
+    canvas.restore();
   }
 
   @override

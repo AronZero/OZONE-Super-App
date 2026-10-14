@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import 'expenses_overview.dart';
+import 'gold_overview.dart';
 import 'savings_overview.dart';
 import 'savings_parts.dart';
 
 /// Finance (W1 · Savings): top tabs Savings · Gold · Expenses (docs/02).
-/// Gold and Expenses arrive in M3.
+/// The tab can be chosen by link: `/finance?tab=gold` (Home widgets use this).
 class FinanceHome extends StatefulWidget {
   const FinanceHome({super.key});
 
@@ -16,7 +19,21 @@ class FinanceHome extends StatefulWidget {
 }
 
 class _FinanceHomeState extends State<FinanceHome> {
+  static const _tabs = ['savings', 'gold', 'expenses'];
   int _tab = 0;
+  String? _linked;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Follow a new ?tab= link; otherwise keep the tab the user picked.
+    final t = GoRouterState.of(context).uri.queryParameters['tab'];
+    if (t != _linked) {
+      _linked = t;
+      final i = _tabs.indexOf(t ?? '');
+      if (i >= 0) _tab = i;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +45,12 @@ class _FinanceHomeState extends State<FinanceHome> {
           const MainTopBar(title: 'Finance', actions: [
             RoundIconButton(icon: Icons.search_rounded, label: 'Search (arrives in M7)', onPressed: null),
           ]),
-          _FinanceTabs(selected: _tab, onSelected: (i) => setState(() => _tab = i)),
+          _FinanceTabs(selected: _tab, onSelected: (i) => context.go('/finance?tab=${_tabs[i]}')),
           Expanded(
             child: switch (_tab) {
               0 => const SavingsOverview(),
-              1 => const _Later('Gold holdings, items and karat prices arrive in the next milestone.'),
-              _ => const _Later('Expenses and spending by year arrive in the next milestone.'),
+              1 => const GoldOverview(),
+              _ => const ExpensesOverview(),
             },
           ),
         ],
@@ -89,21 +106,4 @@ class _FinanceTabs extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Later extends StatelessWidget {
-  const _Later(this.message);
-  final String message;
-
-  @override
-  Widget build(BuildContext context) => ListView(
-        padding: const EdgeInsets.symmetric(horizontal: Space.screen),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(Space.xl),
-            decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
-            child: Text(message, style: Theme.of(context).textTheme.bodyLarge),
-          ),
-        ],
-      );
 }

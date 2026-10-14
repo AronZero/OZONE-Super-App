@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/data/deletions_repo.dart';
-import 'package:ozone/core/data/settings_repo.dart';
 import 'package:ozone/core/domain/dates.dart';
 import 'package:ozone/tools/finance/data/savings_repo.dart';
 
@@ -14,7 +13,7 @@ LocalDate d(String iso) => LocalDate.parseIso(iso).valueOrNull!;
 Future<AppDatabase> seeded(WidgetTester tester) async {
   final db = memoryDb();
   await tester.runAsync(() async {
-    final repo = SavingsRepo(db, DeletionsRepo(db), SettingsRepo(db));
+    final repo = SavingsRepo(db, DeletionsRepo(db));
     await repo.addAccount(name: 'Payroll Savings', platform: 'Bank', startBalance: 31240000, asOf: d('2026-09-30'));
     final ef = (await repo.addAccount(name: 'Emergency Fund', platform: 'Digital bank', startBalance: 41400000, asOf: d('2026-09-28'))).valueOrNull!;
     await repo.saveUpdate(ef, d('2026-10-12'), 42015000);

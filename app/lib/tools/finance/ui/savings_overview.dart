@@ -62,7 +62,7 @@ class SavingsOverview extends ConsumerWidget {
         Positioned(
           right: Space.screen,
           bottom: Space.screen,
-          child: _AddButton(onPressed: () => showAccountSheet(context)),
+          child: FinanceAddButton(label: 'Add account', onPressed: () => showAccountSheet(context)),
         ),
       ],
     );
@@ -207,30 +207,6 @@ class _AccountRow extends ConsumerWidget {
               ]),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AddButton extends StatelessWidget {
-  const _AddButton({required this.onPressed});
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = OzoneThemeColors.of(context);
-    return Tooltip(
-      message: 'Add account',
-      child: Material(
-        color: financeAccent(context),
-        elevation: 4,
-        shadowColor: c.ink.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(Radii.addButton),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Radii.addButton),
-          onTap: onPressed,
-          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.onAccent)),
         ),
       ),
     );

@@ -25,7 +25,7 @@ Finance (tab) — top tabs
 │  ├─ Update balances (all accounts)
 │  ├─ Add account · History report · Archived accounts
 ├─ Gold: value / cost / gain / weight, price date, items
-│  ├─ Item detail · Add item · Karat prices (→ history) · Disposed items
+│  ├─ Item sheet (add, edit, dispose, delete; decision M3-1) · Karat prices (→ history) · Disposed items
 └─ Expenses: year switcher, YTD vs last year, filters, list by month
    ├─ Expense detail (mark refunded, delete) · Add expense (sheet) · Spending by year
 

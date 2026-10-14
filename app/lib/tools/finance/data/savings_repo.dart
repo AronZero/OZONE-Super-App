@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/data/database.dart';
 import '../../../core/data/deletions_repo.dart';
-import '../../../core/data/settings_repo.dart';
+import '../../../core/data/watch.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/ids.dart';
 import '../../../core/domain/validation.dart';
@@ -64,11 +64,10 @@ class UpdateEntry {
 
 /// The only code that reads and writes savings tables (F3-01 §1).
 class SavingsRepo {
-  SavingsRepo(this._db, this._deletions, this._settings);
+  SavingsRepo(this._db, this._deletions);
 
   final AppDatabase _db;
   final DeletionsRepo _deletions;
-  final SettingsRepo _settings;
 
   static int _now() => DateTime.now().toUtc().millisecondsSinceEpoch;
 
@@ -83,10 +82,7 @@ class SavingsRepo {
   }
 
   /// Re-emits whenever an account or update changes.
-  Stream<SavingsData> watch() => _db
-      .customSelect('SELECT 1', readsFrom: {_db.savingsAccounts, _db.balanceUpdates})
-      .watch()
-      .asyncMap((_) => load());
+  Stream<SavingsData> watch() => watchTables(_db, [_db.savingsAccounts, _db.balanceUpdates], load);
 
   Future<List<String>> _openNames({String? except}) async {
     final q = _db.select(_db.savingsAccounts)..where((a) => a.archivedAt.isNull());
@@ -219,28 +215,4 @@ class SavingsRepo {
   Future<void> restoreUpdate(BalanceUpdateRow row) => _db.into(_db.balanceUpdates).insertOnConflictUpdate(row);
 
   Future<void> recordUpdateDeleted(String id) => _deletions.record(balanceUpdateEntity, id);
-
-  /// Platform or type suggestions: values already used, most used first, then
-  /// most recent; minus those hidden in Settings › Lists (F1-01 §3).
-  Future<List<String>> suggestions(SuggestionField field) async {
-    final col = field == SuggestionField.platform ? 'platform' : 'type';
-    final rows = await _db.customSelect(
-      'SELECT $col AS v, COUNT(*) AS n, MAX(updated_at) AS t FROM savings_accounts '
-      'WHERE $col IS NOT NULL AND $col <> \'\' GROUP BY $col ORDER BY n DESC, t DESC',
-      readsFrom: {_db.savingsAccounts},
-    ).get();
-    final hidden = (await _settings.get(SettingKeys.listsHidden))[field.key] ?? const <String>[];
-    final h = {for (final x in hidden) x.toLowerCase()};
-    return [for (final r in rows) if (!h.contains(r.read<String>('v').toLowerCase())) r.read<String>('v')];
-  }
-}
-
-enum SuggestionField {
-  platform('platform'),
-  type('type');
-
-  const SuggestionField(this.key);
-
-  /// Key inside the `lists.hidden` setting.
-  final String key;
 }

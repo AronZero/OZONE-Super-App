@@ -312,14 +312,19 @@ class OzoneButton extends StatelessWidget {
           backgroundColor: bg,
           foregroundColor: fg,
           shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(horizontal: Space.m),
           textStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w800),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: Space.s)],
-            Text(label),
-          ],
+        // Half-width buttons ("Save & add another") scale a long label down rather than overflow.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: Space.s)],
+              Text(label),
+            ],
+          ),
         ),
       ),
     );

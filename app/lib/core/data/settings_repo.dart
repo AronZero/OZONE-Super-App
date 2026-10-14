@@ -87,6 +87,9 @@ abstract final class SettingKeys {
     (j) => [for (final e in j! as List<Object?>) e! as String].take(3).toList(),
   );
 
+  /// Gold prices older than this are flagged in Needs attention (F1-04 §3).
+  static final goldStaleDays = SettingKey<int>('gold.stale_days', 30, (j) => (j! as int).clamp(1, 365));
+
   /// Values hidden from suggestions in Settings › Lists, per list.
   static final listsHidden = SettingKey<Map<String, List<String>>>(
     'lists.hidden',
