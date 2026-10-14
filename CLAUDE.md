@@ -1,7 +1,7 @@
 # OZONE: project guide for Claude
 
-Personal, offline, local-only super app (Finance, Library, Notes) to be built later in Flutter.
-**Current phase: specification done (Task F approved 14 Oct 2026). PC set up (Flutter 3.47.5 at C:/dev/flutter). M0 built 14 Oct, awaiting owner check; next M1.** App code: `app/` (see app/README.md). Build rules: `docs/spec/`.
+Personal, offline, local-only super app (Finance, Library, Notes), built in Flutter in `app/`.
+**Current phase: build. M0 and M1 approved (branches `build/m0`, `build/m1`); M2 · Savings in progress on `build/m2`.**
 
 ## Read first
 
@@ -22,3 +22,12 @@ Read its `project/canvas.json` before adding boards. Users may move boards by ha
 - Never invent data or totals in specs. Sample data on the canvas is labelled as such.
 - App shell neutral, colour per tool (Finance teal, Library blue, Notes violet). Bar = Home + up to 3 tools + Tools.
 - Don't commit or push unless asked. Keep the docs in `docs/` up to date when decisions change.
+
+## Build workflow
+
+- Follow `docs/spec/` exactly; milestones are in `docs/spec/F3-04-build-order.md`. If the spec is missing or wrong, ask, then update it and `docs/03`.
+- One branch per milestone (`build/mN`, from the previous one). Commit only when the owner asks; never push unless asked.
+- Before handing over an APK: `app/tool/release_check.ps1` must pass (lockfile, analyzer, tests, osv-scanner, secret scan, permissions, signature, size).
+- Test on the emulator `OZONE_A03_API33` (PIN 1234), then record the result in the build log in `docs/06-design-progress.md`.
+- Packages: follow the safety procedure in `docs/spec/F3-02-packages.md` §4 before adding or updating any package.
+- App notes and known gotchas: `app/README.md`.

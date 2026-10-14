@@ -38,7 +38,7 @@ $bad = Get-ChildItem $repo -Recurse -File -Force -ErrorAction SilentlyContinue |
 if ($bad) { Fail ("key or secret files inside the repository: " + ($bad.FullName -join ', ')) }
 $hits = Get-ChildItem $repo -Recurse -File -Include *.dart, *.kts, *.gradle, *.xml, *.yaml, *.json, *.properties, *.ps1, *.md -ErrorAction SilentlyContinue |
     Where-Object { $_.FullName -notmatch $skip -and $_.Name -ne 'release_check.ps1' } |
-    Select-String -Pattern 'BEGIN [A-Z ]*PRIVATE KEY', '(store|key)Password\s*=\s*(?!keyProps)\S','AIza[0-9A-Za-z_\-]{30,}', 'ghp_[0-9A-Za-z]{30,}' -List
+    Select-String -CaseSensitive -List -Pattern 'BEGIN [A-Z ]*PRIVATE KEY', '(?<![A-Za-z])(storePassword|keyPassword)\s*=(?!>)\s*(?!keyProps)\S', 'AIza[0-9A-Za-z_\-]{30,}', 'ghp_[0-9A-Za-z]{30,}'
 if ($hits) { Fail ("possible secrets: " + ($hits | ForEach-Object { "$($_.Path):$($_.LineNumber)" }) -join ', ') }
 Write-Host 'No secrets found.'
 

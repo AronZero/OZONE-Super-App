@@ -1,9 +1,15 @@
 # OZONE-Super-App
-A personal mobile app that bundles multiple tools: Notes, Finance Tracker, and Book Review.
 
-Private, offline and local-only. It will be built with Flutter (Android first, iOS supported).
-It's currently in the design phase.
+A personal, private, offline-only mobile app that bundles three tools: **Finance** (savings, gold, expenses),
+**Library** (books) and **Notes** (with a locked vault). It's built with Flutter, Android first with iOS kept ready.
+It has no account, no cloud and no internet permission. Backups are `.xlsx` workbooks you export yourself.
 
-- Product brief: [docs/01-product-brief.md](docs/01-product-brief.md)
-- Where things stand: [docs/06-design-progress.md](docs/06-design-progress.md)
-- Brand: [design/brand/README.md](design/brand/README.md)
+Status: design and specification are approved, and the app is being built milestone by milestone (M0 and M1 approved, M2 in progress).
+
+| Where | What |
+|---|---|
+| [docs/06-design-progress.md](docs/06-design-progress.md) | Where things stand, plus the build log |
+| [docs/spec/README.md](docs/spec/README.md) | The approved build specification (data, behaviour, architecture, packages, tests, build order) |
+| [docs/02-requirements-baseline.md](docs/02-requirements-baseline.md), [docs/03-decision-log.md](docs/03-decision-log.md) | Requirements and every decision |
+| [app/README.md](app/README.md) | The Flutter app: toolchain, commands, signing, release check |
+| [design/brand/README.md](design/brand/README.md) | Logo and brand rules |

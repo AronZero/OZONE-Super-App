@@ -11,6 +11,7 @@ The OZONE app itself. What to build and why is in [../docs/spec/](../docs/spec/R
 | Android NDK | 28.2.13676358 | Needed by the SQLite build hook |
 | JDK | Android Studio's bundled JBR | |
 | osv-scanner | 2.6.0 | Vulnerability scan of `pubspec.lock` |
+| analyzer (dev only) | 14.4.0 | Pinned so `build_runner` 2.16.1 works; see F3-02 |
 
 Packages are pinned exactly in `pubspec.yaml`, and `pubspec.lock` is committed. Before changing any package, follow the
 safety procedure in `docs/spec/F3-02-packages.md` §4.
@@ -21,6 +22,7 @@ safety procedure in `docs/spec/F3-02-packages.md` §4.
 flutter pub get --enforce-lockfile   # install the exact locked packages
 flutter analyze                      # must be clean
 flutter test                         # unit and widget tests
+dart run build_runner build --delete-conflicting-outputs   # regenerate drift code after changing tables
 flutter run                          # run on a connected phone (USB debugging) for development
 powershell -ExecutionPolicy Bypass -File tool\release_check.ps1   # all release checks + APK in ..\dist\
 ```
@@ -48,3 +50,9 @@ as long as they're signed with the same key.
 - Icons are Android vector drawables made from `design/brand/android/*.svg`. iOS icons are made when an iOS build is
   possible (that needs a Mac).
 - Folder layout and the tool registry are described in `docs/spec/F3-01-architecture.md`.
+- Database: `lib/core/data/tables.dart` (schema v1, every F1-01 table) and `database.dart` (opens `ozone.db`; creates the
+  FTS5 `search_index`). A schema change needs a new `schemaVersion`, a migration step and a migration test.
+- `MainActivity.kt` has a small `ozone/platform` channel: `setSecure` (FLAG_SECURE for app lock) and `openSecuritySettings`.
+- Widget tests use an in-memory database (`test/helpers/harness.dart`). Close it with `closeApp()`, which closes the
+  database inside the test clock. `tester.runAsync(db.close)` hangs.
+- Emulator for PC testing: AVD `OZONE_A03_API33` (Android 13, 720 × 1600, 3 GB), test PIN 1234.

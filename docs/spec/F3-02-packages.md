@@ -29,6 +29,7 @@ Versions are pinned **exactly** (no `^`) in `pubspec.yaml`, and `pubspec.lock` i
 |---|---|---|---|---|
 | drift_dev | 2.35.0 | 34 d | simonbinder.eu | MIT |
 | build_runner | 2.16.1 | 41 d | tools.dart.dev | BSD-3 |
+| analyzer | 14.4.0 | 32 d | tools.dart.dev | BSD-3 | (pinned 14 Oct: the resolver had picked 14.5.0, which was 7 days old and breaks build_runner 2.16.1) |
 | flutter_lints | 6.0.0 | 16 mo | flutter.dev | BSD-3 |
 | flutter_test, integration_test | from the Flutter SDK | — | flutter.dev | BSD-3 |
 

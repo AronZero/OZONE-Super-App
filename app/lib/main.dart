@@ -4,9 +4,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/data/database.dart';
+import 'core/data/settings_repo.dart';
+import 'core/security/app_lock_service.dart';
+import 'core/state/providers.dart';
 
-void main() {
+/// Start-up order (docs/spec/F2-03 §6): open the database → app lock check → Home.
+/// Later milestones add the trash purge and reminder scheduling here.
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Draw behind the status and navigation bars; screens use SafeArea.
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // Manrope is bundled, so its SIL OFL licence is registered for Settings › About › Licences.
   LicenseRegistry.addLicense(() async* {
@@ -14,5 +23,15 @@ void main() {
     yield LicenseEntryWithLineBreaks(const ['Manrope (font)'], ofl);
   });
 
-  runApp(const ProviderScope(child: OzoneApp()));
+  final db = AppDatabase.open();
+  final lock = AppLockService(SettingsRepo(db), LocalAuthDeviceAuth());
+  await lock.start(); // locks before the first frame if app lock is on
+
+  runApp(ProviderScope(
+    overrides: [
+      databaseProvider.overrideWithValue(db),
+      appLockServiceProvider.overrideWithValue(lock),
+    ],
+    child: const OzoneApp(),
+  ));
 }
