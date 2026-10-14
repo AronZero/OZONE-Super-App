@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/ui/charts/month_bars.dart';
+import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/savings_history.dart';
@@ -138,31 +139,6 @@ class SegmentTabs extends StatelessWidget {
   }
 }
 
-/// The 60 dp add button of a Finance tab (one per main screen, docs/04).
-class FinanceAddButton extends StatelessWidget {
-  const FinanceAddButton({super.key, required this.label, required this.onPressed});
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = OzoneThemeColors.of(context);
-    return Tooltip(
-      message: label,
-      child: Material(
-        color: financeAccent(context),
-        elevation: 4,
-        shadowColor: c.ink.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(Radii.addButton),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Radii.addButton),
-          onTap: onPressed,
-          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.onAccent)),
-        ),
-      ),
-    );
-  }
-}
 
 /// Up to 5 tappable suggestions that start with what's typed (F1-01 §3).
 class SuggestionChips extends StatelessWidget {
@@ -201,4 +177,14 @@ class SuggestionChips extends StatelessWidget {
       ]),
     );
   }
+}
+
+/// The add button of a Finance tab, in the Finance accent.
+class FinanceAddButton extends StatelessWidget {
+  const FinanceAddButton({super.key, required this.label, required this.onPressed});
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => ToolAddButton(label: label, accent: financeAccent(context), onPressed: onPressed);
 }

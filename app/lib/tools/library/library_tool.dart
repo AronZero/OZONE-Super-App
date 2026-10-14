@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/ui/theme/tokens.dart';
 import '../../shell/tool_registry.dart';
-import '../../shell/ui/placeholder_screen.dart';
+import 'ui/book_detail_screen.dart';
+import 'ui/book_form_screen.dart';
+import 'ui/library_home.dart';
+import 'ui/library_stats_screen.dart';
+import 'ui/library_widgets.dart';
 
-/// Library tool definition. Screens arrive in milestone M4 (docs/spec/F3-04).
+/// Library tool definition (M4, docs/spec/F3-04).
 const ToolDefinition libraryTool = ToolDefinition(
   id: 'library',
   name: 'Library',
@@ -12,11 +17,22 @@ const ToolDefinition libraryTool = ToolDefinition(
   icon: Icons.menu_book_rounded,
   routeBase: '/library',
   home: _home,
+  routes: _routes,
+  widgets: {'currently_reading': _currentlyReading, 'library_snapshot': _snapshot},
 );
 
-Widget _home(BuildContext context) => const PlaceholderScreen(
-      title: 'Library',
-      message: 'Your books arrive in milestone M4.',
-      tint: ToolTint.library,
-      icon: Icons.menu_book_rounded,
-    );
+Widget _home(BuildContext context) => const LibraryHome();
+Widget _currentlyReading(BuildContext context) => const CurrentlyReadingWidget();
+Widget _snapshot(BuildContext context) => const LibrarySnapshotWidget();
+
+/// Library screens open above the bar (the form and detail boards have no bar).
+List<RouteBase> _routes(GlobalKey<NavigatorState> root) {
+  GoRoute full(String path, Widget Function(GoRouterState s) build) =>
+      GoRoute(path: path, parentNavigatorKey: root, builder: (context, state) => build(state));
+  return [
+    full('add', (_) => const BookFormScreen()),
+    full('stats', (_) => const LibraryStatsScreen()),
+    full('books/:id', (s) => BookDetailScreen(bookId: s.pathParameters['id']!)),
+    full('books/:id/edit', (s) => BookFormScreen(bookId: s.pathParameters['id']!)),
+  ];
+}

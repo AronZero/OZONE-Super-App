@@ -15,7 +15,7 @@ void main() {
     }
     await tester.tap(bar('Library'));
     await settle(tester);
-    expect(find.text('Your books arrive in milestone M4.'), findsOneWidget);
+    expect(find.text('No books yet'), findsOneWidget);
     await closeApp(tester, db);
   });
 
@@ -39,7 +39,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(libraryTile);
     await settle(tester);
-    expect(find.text('Your books arrive in milestone M4.'), findsOneWidget);
+    expect(find.text('No books yet'), findsOneWidget);
     await closeApp(tester, db);
   });
 

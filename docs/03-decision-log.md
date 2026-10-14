@@ -100,6 +100,9 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M3-4 | M3 extras | Settings › Lists (rename/hide vendor, platform, type), Home widgets Gold holdings / Spending this year / Recent expenses + gold lines in Needs attention, Karat price history with delete + Undo (rec.) |
 | M3-5 | Karat chips | The 6 common karats (24, 22, 21, 18, 14, 10) plus any karat used by an item or a saved price, high to low (rec.) |
 | M3 | Gold and Expenses | **Approved** 14 Oct 2026 |
+| M4-1 | Library sort | Recently acquired (default; no date last) · Title A–Z · Author A–Z · Highest rated (not rated last) (rec.) |
+| M4-2 | Rating input | The − / + half-star stepper with "Clear rating" on both the book form and Book detail (rec.) |
+| M4-3 | Library Home widgets | Currently reading and Library snapshot are built in M4 (rec.) |
 
 ## Open
 

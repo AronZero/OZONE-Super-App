@@ -119,7 +119,9 @@ class GroupCard extends StatelessWidget {
       color: c.surface,
       borderRadius: BorderRadius.circular(Radii.card),
       clipBehavior: Clip.antiAlias,
+      // Stretch: every row is full width, whatever its content (free text included).
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < children.length; i++) ...[
             if (i > 0) Divider(height: 1, thickness: 1, color: c.surfaceSunken.withValues(alpha: 0.7)),
@@ -354,6 +356,34 @@ class AttentionBanner extends StatelessWidget {
           Text(body, style: text.bodyMedium!.copyWith(color: c.attentionInk)),
           if (action != null) ...[const SizedBox(height: Space.m), action!],
         ],
+      ),
+    );
+  }
+}
+
+/// The 60 dp add button of a tool's main screen (one per screen, docs/04),
+/// in the tool's accent.
+class ToolAddButton extends StatelessWidget {
+  const ToolAddButton({super.key, required this.label, required this.accent, required this.onPressed});
+  final String label;
+  final Color accent;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    return Tooltip(
+      message: label,
+      child: Material(
+        color: accent,
+        elevation: 4,
+        shadowColor: c.ink.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(Radii.addButton),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Radii.addButton),
+          onTap: onPressed,
+          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.onAccent)),
+        ),
       ),
     );
   }
