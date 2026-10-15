@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/state/providers.dart';
+import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../dashboard/widget_catalog.dart';
 import '../../tool_registry.dart';
+import '../backup/data_backup_screen.dart';
 
 /// Home (W1 · Home): the dashboard, following the "Home dashboard" arrangement,
 /// with search, Hide amounts, Settings and the quick-add menu.
@@ -184,7 +186,7 @@ class _NeedsAttention extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = [for (final t in toolRegistry) ...t.attention(ref)];
+    final items = [for (final t in toolRegistry) ...t.attention(ref), ?_backupLine(ref)];
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     // Nothing to do: the widget collapses to one line (UX3 board).
@@ -241,6 +243,21 @@ class _NeedsAttention extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// "Last export was 41 days ago" when the backup reminder is due (W1 · Home, F2-03 §4:
+/// in the app only). Never exported: counted from the first run (decision M8-4).
+AttentionItem? _backupLine(WidgetRef ref) {
+  final last = ref.watch(lastExportProvider);
+  final firstRun = ref.watch(firstRunAtProvider).value;
+  if (!last.hasValue) return null;
+  final days = ref.watch(backupReminderDaysProvider).value ?? 30;
+  final today = ref.watch(todayProvider);
+  final since = last.value?.createdAt ?? firstRun;
+  if (since == null) return null;
+  final n = daysSince(since, today);
+  if (n <= days) return null;
+  return AttentionItem(last.value == null ? 'No backup exported yet' : 'Last export was $n days ago', '/settings/data');
 }
 
 /// A dashboard widget's frame. Until its tool is built it says when it arrives.

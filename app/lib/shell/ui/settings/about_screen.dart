@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/app_info.dart';
 import '../../../core/data/setup_check.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -9,7 +10,7 @@ import '../../../core/ui/theme/tokens.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const version = '0.8.0 (M7)';
+  static const version = '$appVersion ($appMilestone)';
 
   @override
   Widget build(BuildContext context) {

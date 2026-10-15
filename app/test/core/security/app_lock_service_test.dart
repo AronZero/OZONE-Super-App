@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/core/data/settings_repo.dart';
+import 'package:ozone/core/platform/external_activity.dart';
 import 'package:ozone/core/security/app_lock_service.dart';
 
 import '../../helpers/harness.dart';
@@ -49,6 +50,20 @@ void main() {
   test('"Immediately" relocks on any return', () async {
     final s = await start(relock: 0);
     await s.unlock();
+    s.didChangeAppLifecycleState(AppLifecycleState.paused);
+    s.didChangeAppLifecycleState(AppLifecycleState.resumed);
+    expect(s.locked.value, isTrue);
+  });
+
+  test('Save to, the file picker or the share sheet opened by OZONE isn’t leaving', () async {
+    final s = await start(relock: 0);
+    await s.unlock();
+    await ExternalActivity.run(() async {
+      s.didChangeAppLifecycleState(AppLifecycleState.paused);
+      s.didChangeAppLifecycleState(AppLifecycleState.resumed);
+    });
+    expect(s.locked.value, isFalse);
+    // Really leaving still relocks.
     s.didChangeAppLifecycleState(AppLifecycleState.paused);
     s.didChangeAppLifecycleState(AppLifecycleState.resumed);
     expect(s.locked.value, isTrue);

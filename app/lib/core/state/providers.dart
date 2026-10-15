@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/database.dart';
 import '../data/deletions_repo.dart';
 import '../data/settings_repo.dart';
-import '../security/app_lock_service.dart';
+import '../platform/reminders.dart';
 import '../search/search_repo.dart';
+import '../security/app_lock_service.dart';
 import '../security/vault_service.dart';
 import '../ui/amounts.dart';
+import '../workbook/backup_service.dart';
 import 'undo.dart';
 
 /// The open database. Overridden in `main()` (and with an in-memory database in tests).
@@ -54,4 +56,24 @@ final amountsVisibilityProvider = Provider<AmountsVisibility>((ref) {
   final v = AmountsVisibility();
   ref.onDispose(v.dispose);
   return v;
+});
+
+/// Export, safety exports and import (F1-03). Overridden in `main()` with the phone's folders.
+final backupServiceProvider = Provider<BackupService>((ref) => throw UnimplementedError('backupServiceProvider must be overridden'));
+
+/// The newest manual export ("Last export"), or null.
+final lastExportProvider = StreamProvider<ExportLogRow?>((ref) => ref.watch(backupServiceProvider).watchLastExport());
+
+final backupReminderDaysProvider = StreamProvider<int>((ref) => ref.watch(settingsRepoProvider).watch(SettingKeys.backupReminderDays));
+
+final monthEndReminderProvider = StreamProvider<MonthEndReminder>((ref) => ref.watch(settingsRepoProvider).watch(SettingKeys.monthEndReminder));
+
+/// Month-end reminder (F2-03 §4). Overridden in `main()`.
+final remindersProvider = Provider<Reminders>((ref) => throw UnimplementedError('remindersProvider must be overridden'));
+
+/// When OZONE was first opened (UTC ms), for "no export yet" in Needs attention.
+final firstRunAtProvider = FutureProvider<int?>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final row = await (db.select(db.appMeta)..where((m) => m.key.equals('first_run_at'))).getSingleOrNull();
+  return int.tryParse(row?.value ?? '');
 });

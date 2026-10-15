@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:local_auth/local_auth.dart';
 
 import '../data/settings_repo.dart';
+import '../platform/external_activity.dart';
 import 'secure_screen.dart';
 
 /// Talks to the phone's screen lock. A seam so tests can fake it.
@@ -94,8 +95,9 @@ class AppLockService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // The phone's own unlock screen pauses OZONE; that isn't "leaving".
-    if (_authenticating) return;
+    // The phone's own unlock screen, or a Save to / file picker / share screen
+    // OZONE opened, pauses OZONE; that isn't "leaving".
+    if (_authenticating || ExternalActivity.active) return;
     switch (state) {
       case AppLifecycleState.paused || AppLifecycleState.hidden:
         _leftAt ??= _now();

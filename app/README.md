@@ -66,3 +66,17 @@ as long as they're signed with the same key.
   UTF-8 as ANSI and write a BOM, which garbles `’`, `·` and `§` in strings.
 - Repositories watch screens' tables with `watchTables` (`lib/core/data/watch.dart`), which listens to drift's table
   updates. A stream query over `SELECT 1` can skip a refresh when its result looks the same.
+
+- Search (M7): `core/search/`. The FTS5 index is kept in step by SQLite triggers (schema v2, `search_keys`); a new
+  indexed table needs a source in `search_index.dart`, a schema bump and a migration step that rebuilds the index.
+- Hide amounts (M7): display screens format money with `money(context, …)` (`core/ui/amounts.dart`), never
+  `Money.format` directly; forms where amounts are typed keep `Money.format`.
+- Workbook (M8): `core/workbook/` (cells, xlsx codec over `excel`, export builder, import planner, backup service).
+  Don't put a per-cell style on text cells: it made exports 4× slower.
+- `FilesChannel.kt` is the "Save to" dialog (`ACTION_CREATE_DOCUMENT`, starts in Download, no storage permission).
+- System screens OZONE opens itself (Save to, file picker, share sheet, permission prompt) must run inside
+  `ExternalActivity.run`, or app lock and the vault relock when they pause the app.
+- `res/raw/keep.xml` keeps resources used only by name (the reminder's `ic_stat_ozone`); release resource shrinking
+  removes them otherwise. Optional platform set-up (reminders) must never throw before `runApp`.
+- Widget tests: `testVault(db, fastKdf: true)` (cryptography's Argon2 isolates time out under fake time);
+  `pumpApp(overrides: …)` swaps the file picker (`pickWorkbookProvider`) and Save to (`saveAsProvider`).

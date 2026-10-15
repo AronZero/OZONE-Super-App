@@ -17,14 +17,17 @@ import 'tools/notes/state/notes_providers.dart';
 /// Root widget: theme from Settings › Appearance, the App lock gate above
 /// everything, the Undo message, and an edge-to-edge status bar.
 class OzoneApp extends ConsumerStatefulWidget {
-  const OzoneApp({super.key});
+  const OzoneApp({super.key, this.initialLocation = '/home'});
+
+  /// '/welcome' on first run; Update balances when opened from the month-end reminder.
+  final String initialLocation;
 
   @override
   ConsumerState<OzoneApp> createState() => _OzoneAppState();
 }
 
 class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver {
-  late final GoRouter _router = buildRouter();
+  late final GoRouter _router = buildRouter(initialLocation: widget.initialLocation);
 
   @override
   void initState() {
@@ -32,6 +35,11 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
     WidgetsBinding.instance.addObserver(this);
     // Notes trashed over 30 days ago are deleted on start and on resume (F2-02 §5).
     ref.read(notesRepoProvider).purge();
+    // A tap on the month-end reminder opens Update balances (behind the App lock gate).
+    ref.read(remindersProvider).onOpen = () {
+      _router.go('/finance?tab=savings');
+      _router.push('/finance/savings/update');
+    };
   }
 
   @override
@@ -39,6 +47,7 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
     // Pending Undo deletes are committed when OZONE goes to the background (F2-02 §6).
     if (state == AppLifecycleState.paused) ref.read(undoControllerProvider).flush();
     if (state == AppLifecycleState.resumed) {
+      ref.read(remindersProvider).reschedule();
       ref.read(todayProvider.notifier).refresh();
       ref.read(notesRepoProvider).purge();
     }

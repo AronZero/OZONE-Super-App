@@ -1,17 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'shell/tool_registry.dart';
+import 'shell/ui/backup/data_backup_screen.dart';
+import 'shell/ui/backup/export_screen.dart';
+import 'shell/ui/backup/import_screen.dart';
+import 'shell/ui/backup/safety_exports_screen.dart';
 import 'shell/ui/edit_bar/edit_bar_screen.dart';
 import 'shell/ui/home/home_screen.dart';
 import 'shell/ui/search/search_screen.dart';
 import 'shell/ui/settings/about_screen.dart';
 import 'shell/ui/settings/appearance_screen.dart';
 import 'shell/ui/settings/dashboard_arrange_screen.dart';
+import 'shell/ui/settings/finance_settings_screen.dart';
 import 'shell/ui/settings/security_screen.dart';
 import 'shell/ui/settings/settings_screen.dart';
 import 'shell/ui/shell_scaffold.dart';
 import 'shell/ui/tools_launcher/tools_screen.dart';
+import 'shell/ui/welcome/welcome_screen.dart';
 
 /// Branch order: Home, then every registered tool, then Tools. Every tool has
 /// its own branch (and back stack) whether or not it sits in the bar; the bar
@@ -26,9 +34,9 @@ final _rootKey = GlobalKey<NavigatorState>();
 GoRoute _full(String path, Widget child) =>
     GoRoute(path: path, parentNavigatorKey: _rootKey, builder: (context, state) => child);
 
-GoRouter buildRouter() => GoRouter(
+GoRouter buildRouter({String initialLocation = '/home'}) => GoRouter(
       navigatorKey: _rootKey,
-      initialLocation: '/home',
+      initialLocation: initialLocation,
       routes: [
         StatefulShellRoute.indexedStack(
           builder: (context, state, shell) => ShellScaffold(shell: shell),
@@ -51,6 +59,24 @@ GoRouter buildRouter() => GoRouter(
         _full('/settings/security', const SecurityScreen()),
         _full('/settings/about', const AboutScreen()),
         _full('/edit-bar', const EditBarScreen()),
+        _full('/settings/finance', const FinanceSettingsScreen()),
+        // Data & backup (M8, F1-03).
+        _full('/settings/data', const DataBackupScreen()),
+        _full('/settings/data/export', const ExportScreen()),
+        _full('/settings/data/safety', const SafetyExportsScreen()),
+        GoRoute(
+          path: '/settings/data/import',
+          parentNavigatorKey: _rootKey,
+          builder: (context, state) => ImportScreen(file: state.extra is File ? state.extra! as File : null),
+        ),
+        // First run (W2 · Welcome, W3 · Reminder ask).
+        _full('/welcome', const WelcomeScreen()),
+        _full('/welcome/restore', const ImportScreen(restore: true)),
+        GoRoute(
+          path: '/welcome/reminder',
+          parentNavigatorKey: _rootKey,
+          builder: (context, state) => ReminderAskScreen(restored: state.uri.queryParameters['restored'], rows: state.uri.queryParameters['rows']),
+        ),
         // Global search above everything; `?scope=book` preselects a scope chip.
         GoRoute(
           path: '/search',

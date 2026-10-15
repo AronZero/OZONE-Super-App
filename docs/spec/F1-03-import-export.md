@@ -90,6 +90,16 @@ the app opens Home and shows: "Restored from OZONE-2026-10-13.xlsx · 1,240 rows
 - The preview must stay scrollable while counts are computed (work runs in a background isolate).
 - Files over 25 MB are refused with a message, because they can't be from OZONE use at this scale.
 
+## Build notes (M8)
+
+- Code: `core/workbook/` (cells, xlsx codec over the `excel` package, export builder, import planner, backup service).
+  Decoding and encoding run in a background isolate; matching runs on the main isolate against the database.
+- Measured on the PC with 10,000 rows + 500 notes: export 1.7 s, read and classify 1.6 s (the A03 check is the owner's).
+- Folders, balance updates and gold prices match by their unique keys as the same record. A note whose folder isn't on the
+  phone or in the file goes to Unfiled. Text † is never imported; a note's plain text is rebuilt from its content.
+- A number with spreadsheet float noise (0.30000000000000004) counts as 0.30; a real third decimal is a Check error.
+- A numeric formula cell can't be read (its cached value isn't kept by the library) and becomes a Check error in words.
+
 ## Decisions (owner, 14 Oct 2026)
 
 1. **Changed** rows default to **Keep mine**. The side with the newer Updated time is labelled "newer".

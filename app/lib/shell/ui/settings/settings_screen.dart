@@ -72,8 +72,8 @@ class SettingsScreen extends ConsumerWidget {
                       iconBg: ToolTint.finance.tile(b),
                       iconFg: ToolTint.finance.accent(b),
                       title: 'Finance',
-                      subtitle: 'Karat prices · month-end reminder arrives in M8',
-                      onTap: () => context.push('/finance/gold/prices'),
+                      subtitle: 'Month-end reminder · karat prices',
+                      onTap: () => context.push('/settings/finance'),
                     ),
                     SettingsRow(
                       icon: Icons.list_rounded,
@@ -89,8 +89,8 @@ class SettingsScreen extends ConsumerWidget {
                       iconBg: c.attentionBg,
                       iconFg: c.attentionInk,
                       title: 'Data & backup',
-                      subtitle: 'Export and import workbooks · arrives in M8',
-                      enabled: false,
+                      subtitle: 'Export and import workbooks',
+                      onTap: () => context.push('/settings/data'),
                     ),
                     SettingsRow(
                       icon: Icons.info_outline_rounded,

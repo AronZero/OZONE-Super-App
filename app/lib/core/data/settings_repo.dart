@@ -52,6 +52,22 @@ class AppLockSetting {
   Map<String, Object> toJson() => {'on': on, 'relock_after_s': relockAfterS};
 }
 
+/// The month-end balance reminder (F1-01 §4, F2-03 §4).
+class MonthEndReminder {
+  const MonthEndReminder({required this.on, required this.hour, required this.minute});
+  final bool on;
+  final int hour;
+  final int minute;
+
+  /// "20:00".
+  String get time => '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+  MonthEndReminder copyWith({bool? on, int? hour, int? minute}) =>
+      MonthEndReminder(on: on ?? this.on, hour: hour ?? this.hour, minute: minute ?? this.minute);
+
+  Map<String, Object> toJson() => {'on': on, 'time': time};
+}
+
 class VaultLockout {
   const VaultLockout({required this.failures, required this.untilMs});
   final int failures;
@@ -114,6 +130,26 @@ abstract final class SettingKeys {
   );
 
   static final notesView = SettingKey<NotesView>('notes.view', NotesView.grid, (j) => NotesView.values.byName(j! as String));
+
+  /// Month-end reminder: on by default at 8:00 pm on the last day of the month.
+  static final monthEndReminder = SettingKey<MonthEndReminder>(
+    'savings.month_end_reminder',
+    const MonthEndReminder(on: true, hour: 20, minute: 0),
+    (j) {
+      final m = j! as Map<String, Object?>;
+      final t = (m['time']! as String).split(':');
+      final h = int.parse(t[0]), min = int.parse(t[1]);
+      if (h < 0 || h > 23 || min < 0 || min > 59) throw const FormatException('time');
+      return MonthEndReminder(on: m['on']! as bool, hour: h, minute: min);
+    },
+  );
+
+  /// Remind when the last export is older than this many days (7, 14, 30, 60, 90).
+  static final backupReminderDays = SettingKey<int>(
+    'backup.reminder_days',
+    30,
+    (j) => const [7, 14, 30, 60, 90].contains(j) ? j! as int : 30,
+  );
 
   /// The last 5 submitted searches (F2-02 §1). Belongs to this phone.
   static final searchRecent = SettingKey<List<String>>(
@@ -192,6 +228,7 @@ class SettingsRepo {
         final NotesView n => n.name,
         final AppLockSetting a => a.toJson(),
         final VaultLockout v => v.toJson(),
+        final MonthEndReminder r => r.toJson(),
         final List<WidgetSetting> l => [for (final w in l) w.toJson()],
         _ => v,
       };

@@ -5,6 +5,8 @@
          There is deliberately no INTERNET permission: OZONE never uses the network. -->
     <!-- Added by flutter_local_notifications but not needed: the reminder uses the channel default. -->
     <uses-permission android:name="android.permission.VIBRATE" tools:node="remove"/>
+    <!-- The month-end reminder is scheduled again after the phone restarts (F2-03 §4). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
         android:label="OZONE"
         android:allowBackup="false"
@@ -35,6 +37,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Month-end reminder (flutter_local_notifications): show at the scheduled time,
+             and keep it scheduled across restarts and app updates. -->
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

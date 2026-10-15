@@ -25,6 +25,15 @@ abstract final class OzonePlatform {
     }
   }
 
+  /// Opens OZONE's notification settings on the phone.
+  static Future<bool> openNotificationSettings() async {
+    try {
+      return await _channel.invokeMethod<bool>('openNotificationSettings') ?? false;
+    } on Object {
+      return false;
+    }
+  }
+
   /// Opens the phone's security settings (to set a screen lock).
   static Future<bool> openSecuritySettings() async {
     try {

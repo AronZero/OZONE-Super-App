@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import '../data/database.dart';
 import '../data/deletions_repo.dart';
 import '../data/settings_repo.dart';
+import '../platform/external_activity.dart';
 import 'biometric_key_store.dart';
 import 'secure_screen.dart';
 import 'vault_crypto.dart';
@@ -81,7 +82,7 @@ class VaultService with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Relock when OZONE goes to the background or the phone locks (F2-01 §4).
-    if (!_prompting && (state == AppLifecycleState.paused || state == AppLifecycleState.hidden)) unawaited(lock());
+    if (!_prompting && !ExternalActivity.active && (state == AppLifecycleState.paused || state == AppLifecycleState.hidden)) unawaited(lock());
   }
 
   void addBeforeLock(Future<void> Function() f) => _beforeLock.add(f);

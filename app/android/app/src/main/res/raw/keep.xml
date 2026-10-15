@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resources used only by name at run time (the month-end reminder's small icon),
+     which resource shrinking in release builds would otherwise remove. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_ozone" />

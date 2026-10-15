@@ -126,6 +126,15 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M7-5 | Gold results | Open the gold item sheet above the search, since items have no screen of their own (M3-1) (rec.) |
 | M7-6 | Widget gaps (UX3 board) | Needs attention collapses to "All up to date"; Library snapshot adds "spent in <year>"; locked notes on Home ask to unlock, then open (rec.) |
 | M7 | Search and dashboard | **Approved** 15 Oct 2026 |
+| M8-1 | Workbook code | The sheets are built and read in one core module (core/workbook), not per-tool registry sections; the layout is exactly F1-02 (confirmed with M8, 15 Oct 2026) |
+| M8-2 | Who sees Welcome | Only a phone with no data. Installs that already have records (yours) skip it, and get the reminder through Settings › Finance (confirmed with M8, 15 Oct 2026) |
+| M8-3 | Deleted sheet | Exported for reference; an import never applies it, because an import never deletes (confirmed with M8, 15 Oct 2026) |
+| M8-4 | Backup reminder with no export yet | Counted from the first run: "No backup exported yet" after the reminder period; otherwise "Last export was N days ago" (confirmed with M8, 15 Oct 2026) |
+| M8-5 | Settings › Finance (not drawn) | Month-end reminder on/off and time, "Notifications are off" with Allow notifications, flag karat prices after 14/30/60 days, Karat prices (confirmed with M8, 15 Oct 2026) |
+| M8-6 | Export finishing | After building, the Save to dialog opens; if it's cancelled the screen offers Save to… and Share. Sharing the file also counts as an export. Android names a clash "(1)" itself (confirmed with M8, 15 Oct 2026) |
+| M8-7 | Safety exports screen | Lists the newest 3 with Share and Import (confirmed with M8, 15 Oct 2026) |
+| M8-8 | System screens | Save to, the file picker, Share and the notification permission dialog don't count as leaving OZONE: app lock and the vault don't relock for them (confirmed with M8, 15 Oct 2026) |
+| M8-9 | Locked note tags in workbooks | A locked note's tags travel inside its cipher; the readable Tags column is empty, as F1-02 says (confirmed with M8, 15 Oct 2026) |
 | M5 | Notes | **Approved** 15 Oct 2026 (owner fixes: tags on one line with ellipsis; date always right-aligned) |
 
 ## Open
