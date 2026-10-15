@@ -14,6 +14,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/savings_history.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Savings history (W3 · History): one calendar year at a time, up to 5 years
 /// (F1-04 §2), month-on-month or year-on-year, as a table or a chart.
@@ -98,7 +99,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     ),
                     const SizedBox(width: Space.s),
                     RoundIconButton(
-                      icon: _chart ? Icons.table_rows_rounded : Icons.bar_chart_rounded,
+                      icon: _chart ? OzIcons.tableRows : OzIcons.barChart,
                       label: _chart ? 'View as table' : 'View as chart',
                       onPressed: () => setState(() => _chart = !_chart),
                     ),
@@ -161,13 +162,13 @@ class _YearCard extends StatelessWidget {
                 IconButton(
                   tooltip: 'Previous year',
                   onPressed: canBack ? () => onYear(year - 1) : null,
-                  icon: Icon(Icons.chevron_left_rounded, color: canBack ? c.ink : c.outline),
+                  icon: Icon(OzIcons.chevronLeft, color: canBack ? c.ink : c.outline),
                 ),
                 Semantics(header: true, child: Text('$year', style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800))),
                 IconButton(
                   tooltip: 'Next year',
                   onPressed: canForward ? () => onYear(year + 1) : null,
-                  icon: Icon(Icons.chevron_right_rounded, color: canForward ? c.ink : c.outline),
+                  icon: Icon(OzIcons.chevronRight, color: canForward ? c.ink : c.outline),
                 ),
               ]),
             ),

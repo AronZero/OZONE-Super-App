@@ -5,6 +5,7 @@ import '../../domain/dates.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../amounts.dart';
+import '../theme/oz_icons.dart';
 
 /// Opens a form sheet (docs/04: forms with 6 fields or fewer are sheets).
 /// Sheets have rounded tops (28) and lift above the keyboard.
@@ -61,7 +62,7 @@ class SheetFrame extends StatelessWidget {
                 IconButton(
                   tooltip: 'Close',
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: Icon(Icons.close_rounded, color: c.ink),
+                  icon: Icon(OzIcons.close, color: c.ink),
                 ),
               ],
             ),
@@ -264,7 +265,7 @@ class DateButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.calendar_today_rounded, size: 18, color: fg),
+                Icon(OzIcons.calendarToday, size: 18, color: fg),
                 const SizedBox(width: Space.s),
                 // Wraps at large text sizes instead of overflowing (docs/04).
                 Flexible(child: Text(date.formatLong(), style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: fg))),

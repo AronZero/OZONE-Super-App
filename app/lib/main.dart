@@ -43,6 +43,8 @@ Future<void> main() async {
   LicenseRegistry.addLicense(() async* {
     final ofl = await rootBundle.loadString('assets/fonts/Manrope/OFL.txt');
     yield LicenseEntryWithLineBreaks(const ['Manrope (font)'], ofl);
+    final symbols = await rootBundle.loadString('assets/fonts/MaterialSymbolsRounded/LICENSE.txt');
+    yield LicenseEntryWithLineBreaks(const ['Material Symbols Rounded (icons)'], symbols);
   });
 
   final db = AppDatabase.open();

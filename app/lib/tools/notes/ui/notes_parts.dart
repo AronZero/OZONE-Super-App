@@ -7,6 +7,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/notes.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Notes accent and tile for the current theme (docs/05 tool tints).
 Color notesAccent(BuildContext context) => ToolTint.notes.accent(Theme.of(context).brightness);
@@ -85,13 +86,13 @@ class NoteCard extends StatelessWidget {
                 padding: const EdgeInsets.all(14),
                 child: list
                     ? Row(children: [
-                        Icon(Icons.lock_outline_rounded, color: notesAccent(context)),
+                        Icon(OzIcons.lock, color: notesAccent(context)),
                         const SizedBox(width: Space.m),
                         Expanded(child: Text('Locked note', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: notesAccent(context)))),
                         Text(where, style: text.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: notesAccent(context))),
                       ])
                     : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Icon(Icons.lock_outline_rounded, size: 26, color: notesAccent(context)),
+                        Icon(OzIcons.lock, size: 26, color: notesAccent(context)),
                         const SizedBox(height: Space.s),
                         Text('Locked note', style: text.bodyLarge!.copyWith(fontSize: 15, fontWeight: FontWeight.w800, color: notesAccent(context))),
                         const SizedBox(height: Space.xs),
@@ -106,7 +107,7 @@ class NoteCard extends StatelessWidget {
 
     final title = note.title ?? 'Untitled';
     final preview = previewOf(note.plainText);
-    final pin = note.isPinned ? Icon(Icons.push_pin_rounded, size: 16, color: notesAccent(context), semanticLabel: 'Pinned') : null;
+    final pin = note.isPinned ? Icon(OzIcons.pushPin, fill: 1, size: 16, color: notesAccent(context), semanticLabel: 'Pinned') : null;
     // Tags take the space left of the date, so the date always sits at the right edge.
     final footer = Row(children: [
       Expanded(

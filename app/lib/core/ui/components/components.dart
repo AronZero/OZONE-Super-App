@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../amounts.dart';
+import '../theme/oz_icons.dart';
 
 /// Detail top bar (back arrow, optional overline, title, trailing actions)
 /// as on the W3 Settings boards.
@@ -25,7 +26,7 @@ class DetailTopBar extends StatelessWidget {
           IconButton(
             tooltip: overline == null ? 'Back' : 'Back to $overline',
             onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-            icon: Icon(Icons.arrow_back_rounded, color: c.ink),
+            icon: Icon(OzIcons.arrowBack, color: c.ink),
             constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           ),
           const SizedBox(width: Space.xs),
@@ -48,10 +49,13 @@ class DetailTopBar extends StatelessWidget {
 
 /// Main-screen top bar: large title and round icon actions.
 class MainTopBar extends StatelessWidget {
-  const MainTopBar({super.key, required this.title, this.actions = const []});
+  const MainTopBar({super.key, required this.title, this.actions = const [], this.leading});
 
   final String title;
   final List<Widget> actions;
+
+  /// Shown before the title (Home: the OZONE mark).
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +63,7 @@ class MainTopBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.screen, Space.s),
       child: Row(
         children: [
+          if (leading != null) Padding(padding: const EdgeInsets.only(right: Space.m), child: leading),
           Expanded(child: Semantics(header: true, child: Text(title, style: Theme.of(context).textTheme.headlineMedium))),
           for (final a in actions) Padding(padding: const EdgeInsets.only(left: 6), child: a),
         ],
@@ -212,7 +217,7 @@ class SettingsRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: Space.s),
-            trailing ?? (onTap != null ? Icon(Icons.chevron_right_rounded, color: c.inkMuted) : const SizedBox.shrink()),
+            trailing ?? (onTap != null ? Icon(OzIcons.chevronRight, color: c.inkMuted) : const SizedBox.shrink()),
           ],
         ),
       ),
@@ -397,13 +402,11 @@ class ToolAddButton extends StatelessWidget {
       message: label,
       child: Material(
         color: accent,
-        elevation: 4,
-        shadowColor: c.ink.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.addButton),
         child: InkWell(
           borderRadius: BorderRadius.circular(Radii.addButton),
           onTap: onPressed,
-          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.onAccent)),
+          child: SizedBox(width: 60, height: 60, child: Icon(OzIcons.add, size: 28, color: c.onAccent)),
         ),
       ),
     );

@@ -9,6 +9,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Home widget W7 · Currently reading (W1 · Home): up to 3 books being read.
 class CurrentlyReadingWidget extends ConsumerWidget {
@@ -32,7 +33,7 @@ class CurrentlyReadingWidget extends ConsumerWidget {
               Expanded(child: Text('Currently reading', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),
               Text(reading.isEmpty ? '' : '${reading.length} ${reading.length == 1 ? 'book' : 'books'}',
                   style: text.bodyMedium!.copyWith(color: c.inkMuted)),
-              Icon(Icons.chevron_right_rounded, color: c.inkMuted),
+              Icon(OzIcons.chevronRight, color: c.inkMuted),
             ]),
           ),
         ),

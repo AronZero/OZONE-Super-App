@@ -5,6 +5,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../ozone_mark.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// App lock gate (W3 · App lock gate). Covers everything until the phone's own
 /// screen lock succeeds; nothing behind it is drawn.
@@ -67,7 +68,7 @@ class _LockGateState extends State<LockGate> {
                   ],
                 ),
               ),
-              OzoneButton(label: 'Unlock', icon: Icons.lock_open_rounded, onPressed: _unlock),
+              OzoneButton(label: 'Unlock', icon: OzIcons.lockOpen, onPressed: _unlock),
               const SizedBox(height: Space.m),
               Text('Your phone asks for your fingerprint, face or phone password. OZONE never sees it.',
                   textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(color: c.inkMuted)),

@@ -1,7 +1,7 @@
 # OZONE: project guide for Claude
 
 Personal, offline, local-only super app (Finance, Library, Notes), built in Flutter in `app/`.
-**Current phase: M0–M9 approved (OZONE 1.0.0, branches `build/m0`–`build/m9`). Next: UI refresh (bottom bar, outline/solid icons, monochrome theme, micro-animations), see `docs/06-design-progress.md`.**
+**Current phase: M0–M9 approved (OZONE 1.0.0, branches `build/m0`–`build/m9`). UI refresh in progress on `build/m10-ui`: step 1 (bar and icons, 1.1.0) approved and committed; next the monochrome theme, then app-wide micro-animations, see `docs/06-design-progress.md`.**
 
 ## Read first
 

@@ -8,6 +8,8 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
+import '../shell_bar.dart';
 
 /// Edit bar (W3 · Edit bar): choose and order up to 3 tools. Home and Tools
 /// are always in the bar (docs/03). Changes apply at once.
@@ -32,20 +34,6 @@ class EditBarScreen extends ConsumerWidget {
           height: 36,
           decoration: BoxDecoration(color: t.tint.tile(b), borderRadius: BorderRadius.circular(12)),
           child: Icon(t.icon, size: 20, color: t.tint.accent(b)),
-        );
-
-    Widget previewItem(IconData icon, String label, {bool active = false}) => Expanded(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(
-              width: 44,
-              height: 28,
-              decoration: BoxDecoration(color: active ? c.barActive : null, borderRadius: BorderRadius.circular(14)),
-              child: Icon(icon, size: 20, color: active ? c.ink : c.inkMuted),
-            ),
-            const SizedBox(height: 4),
-            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: text.labelSmall!.copyWith(color: active ? c.ink : c.inkMuted, fontWeight: FontWeight.w700)),
-          ]),
         );
 
     return Scaffold(
@@ -73,15 +61,15 @@ class EditBarScreen extends ConsumerWidget {
                   Semantics(
                     label: spokenAmounts('Bar preview: ${['Home', ...inBar.map((t) => t.name), 'Tools'].join(', ')}'),
                     excludeSemantics: true,
-                    child: Container(
-                      height: 68,
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      decoration: BoxDecoration(color: c.bar, borderRadius: BorderRadius.circular(20)),
-                      child: Row(children: [
-                        previewItem(Icons.home_rounded, 'Home'),
-                        for (final t in inBar) previewItem(t.icon, t.name),
-                        previewItem(Icons.grid_view_rounded, 'Tools', active: true),
-                      ]),
+                    // The real bar, static: you are on Tools.
+                    child: OzoneBar(
+                      keyPrefix: 'preview',
+                      items: [
+                        const BarItem(label: 'Home', icon: OzIcons.home, branch: 0),
+                        for (final t in inBar) BarItem(label: t.name, icon: t.icon, tint: t.tint, branch: 0),
+                        const BarItem(label: 'Tools', icon: OzIcons.gridView, branch: 0),
+                      ],
+                      current: inBar.length + 1,
                     ),
                   ),
                   const SizedBox(height: Space.s),
@@ -112,7 +100,7 @@ class EditBarScreen extends ConsumerWidget {
                                     l.insert(i - 1, t);
                                     save(l);
                                   },
-                            icon: const Icon(Icons.arrow_upward_rounded),
+                            icon: const Icon(OzIcons.arrowUpward),
                           ),
                           TextButton(
                             onPressed: () => save([...bar]..remove(inBar[i].id)),

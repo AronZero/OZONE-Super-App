@@ -13,6 +13,7 @@ import '../state/notes_providers.dart';
 import 'note_sheets.dart';
 import 'notes_parts.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 String _count(int n) => '$n ${n == 1 ? 'note' : 'notes'}';
 
@@ -175,7 +176,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
                 padding: const EdgeInsets.only(right: Space.s),
                 child: FilledButton.icon(
                   onPressed: () => context.push('/notes/trash'),
-                  icon: const Icon(Icons.delete_outline_rounded, size: 17),
+                  icon: const Icon(OzIcons.delete, size: 17),
                   label: Text(trashCount == 0 ? 'Trash' : 'Trash · $trashCount'),
                   style: FilledButton.styleFrom(
                     backgroundColor: c.surfaceSunken,
@@ -215,8 +216,8 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
                                 Text(_count(data.folderUse(f.id)), style: text.bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600, color: c.inkMuted)),
                               ]),
                             ),
-                            iconAction(Icons.edit_outlined, 'Rename ${f.name}', () => _renameFolder(data, f)),
-                            iconAction(Icons.delete_outline_rounded, 'Delete folder ${f.name}', () => _deleteFolder(data, f), danger: true),
+                            iconAction(OzIcons.edit, 'Rename ${f.name}', () => _renameFolder(data, f)),
+                            iconAction(OzIcons.delete, 'Delete folder ${f.name}', () => _deleteFolder(data, f), danger: true),
                           ]),
                         ),
                     ]),
@@ -246,7 +247,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
                               ),
                               small('Rename', () => _renameTag(data, t)),
                               if (data.tags.length > 1) small('Merge', () => _mergeTag(data, t)),
-                              iconAction(Icons.delete_outline_rounded, 'Delete tag ${t.name}', () => _deleteTag(data, t), danger: true),
+                              iconAction(OzIcons.delete, 'Delete tag ${t.name}', () => _deleteTag(data, t), danger: true),
                             ]),
                           ),
                       ]),

@@ -10,6 +10,7 @@ import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// About OZONE: version, licences, privacy, and the setup check from M0.
 class AboutScreen extends StatelessWidget {
@@ -99,8 +100,8 @@ class _ErrorLogRow extends ConsumerWidget {
       useRootNavigator: true,
       builder: (context) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(leading: const Icon(Icons.ios_share_rounded), title: const Text('Share error log'), onTap: () => Navigator.of(context).pop('share')),
-          ListTile(leading: const Icon(Icons.delete_outline_rounded), title: const Text('Clear error log'), onTap: () => Navigator.of(context).pop('clear')),
+          ListTile(leading: const Icon(OzIcons.iosShare), title: const Text('Share error log'), onTap: () => Navigator.of(context).pop('share')),
+          ListTile(leading: const Icon(OzIcons.delete), title: const Text('Clear error log'), onTap: () => Navigator.of(context).pop('clear')),
         ]),
       ),
     );

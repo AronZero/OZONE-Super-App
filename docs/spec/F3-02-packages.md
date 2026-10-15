@@ -64,7 +64,7 @@ Dart and Flutter packages have no install scripts like npm. Steps 5–6 cover th
 ## 5. Licences shipped
 
 Settings › About › Licences uses Flutter's built-in licence page, which collects every package's licence automatically.
-Manrope's SIL OFL 1.1 text is registered with `LicenseRegistry` because fonts aren't collected automatically.
+Manrope's SIL OFL 1.1 text and the Material Symbols Rounded Apache-2.0 text are registered with `LicenseRegistry` because fonts aren't collected automatically. The icon font is an asset, not a package: it is pinned to a google/material-design-icons commit at least 14 days old (UR1-2), and any new copy goes through the same age and licence checks.
 
 ## 6. Toolchain (installed 14 Oct 2026)
 

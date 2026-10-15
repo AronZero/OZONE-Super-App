@@ -13,6 +13,7 @@ import '../../../core/state/today.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Days since the last export, from today's local date.
 int daysSince(int ms, LocalDate today) => max(0, LocalDate.fromDateTime(DateTime.fromMillisecondsSinceEpoch(ms)).daysUntil(today));
@@ -62,7 +63,7 @@ class DataBackupScreen extends ConsumerWidget {
                   decoration: BoxDecoration(color: overdue ? c.attentionBg : c.surface, borderRadius: BorderRadius.circular(Radii.card)),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Row(children: [
-                      Icon(overdue ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded, size: 18, color: overdue ? c.attentionInk : c.gain),
+                      Icon(overdue ? OzIcons.error : OzIcons.checkCircle, size: 18, color: overdue ? c.attentionInk : c.gain),
                       const SizedBox(width: Space.s),
                       Expanded(child: Text(lastText, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: overdue ? c.attentionInk : c.ink))),
                     ]),

@@ -12,6 +12,8 @@ import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_parts.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/shell_bar_scope.dart';
 
 /// Library sorts (decision M4-1).
 enum BookSort {
@@ -89,7 +91,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
       SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 104),
+          padding: EdgeInsets.only(bottom: shellListBottom(context)),
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.screen, Space.xs),
@@ -117,7 +119,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                RoundIconButton(icon: Icons.search_rounded, label: 'Search', onPressed: () => context.push('/search?scope=book')),
+                RoundIconButton(icon: OzIcons.search, label: 'Search', onPressed: () => context.push('/search?scope=book')),
               ]),
             ),
             SingleChildScrollView(
@@ -189,10 +191,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
           ],
         ),
       ),
-      Positioned(
-        right: Space.screen,
-        bottom: Space.screen,
-        child: ToolAddButton(label: 'Add book', accent: libraryAccent(context), onPressed: () => context.push('/library/add')),
+      ShellAddButtonSlot(child: ToolAddButton(label: 'Add book', accent: libraryAccent(context), onPressed: () => context.push('/library/add')),
       ),
     ]);
   }

@@ -17,6 +17,8 @@ import '../state/notes_providers.dart';
 import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/shell_bar_scope.dart';
 
 /// Folder filter: all notes, Unfiled, or one folder.
 sealed class FolderFilter {
@@ -164,19 +166,19 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
       SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 104),
+          padding: EdgeInsets.only(bottom: shellListBottom(context)),
           children: [
             MainTopBar(title: 'Notes', actions: [
               // While the vault is open: lock it again now (F2-01 §4 "Lock button").
               if (vaultOpen)
-                RoundIconButton(icon: Icons.lock_open_rounded, label: 'Lock notes now', onPressed: () => ref.read(vaultServiceProvider).lock()),
+                RoundIconButton(icon: OzIcons.lockOpen, label: 'Lock notes now', onPressed: () => ref.read(vaultServiceProvider).lock()),
               RoundIconButton(
-                icon: view == NotesView.grid ? Icons.view_agenda_outlined : Icons.grid_view_rounded,
+                icon: view == NotesView.grid ? OzIcons.viewAgenda : OzIcons.gridView,
                 label: view == NotesView.grid ? 'Switch to list view' : 'Switch to grid view',
                 onPressed: () => ref.read(settingsRepoProvider).set(SettingKeys.notesView, view == NotesView.grid ? NotesView.list : NotesView.grid),
               ),
-              RoundIconButton(icon: Icons.search_rounded, label: 'Search', onPressed: () => context.push('/search?scope=note')),
-              RoundIconButton(icon: Icons.more_vert_rounded, label: 'Notes options: folders, tags, trash', onPressed: () => context.push('/notes/manage')),
+              RoundIconButton(icon: OzIcons.search, label: 'Search', onPressed: () => context.push('/search?scope=note')),
+              RoundIconButton(icon: OzIcons.moreVert, label: 'Notes options: folders, tags, trash', onPressed: () => context.push('/notes/manage')),
             ]),
             if (!emptyAll) ...[
               Semantics(
@@ -258,10 +260,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
           ],
         ),
       ),
-      Positioned(
-        right: Space.screen,
-        bottom: Space.screen,
-        child: ToolAddButton(label: 'New note', accent: notesAccent(context), onPressed: _newNote),
+      ShellAddButtonSlot(child: ToolAddButton(label: 'New note', accent: notesAccent(context), onPressed: _newNote),
       ),
     ]);
   }

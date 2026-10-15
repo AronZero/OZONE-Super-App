@@ -9,6 +9,7 @@ import 'gold_overview.dart';
 import 'savings_overview.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Finance (W1 · Savings): top tabs Savings · Gold · Expenses (docs/02).
 /// The tab can be chosen by link: `/finance?tab=gold` (Home widgets use this).
@@ -46,7 +47,7 @@ class _FinanceHomeState extends State<FinanceHome> {
           MainTopBar(title: 'Finance', actions: [
             // Search opens on the entity of the tab in view.
             RoundIconButton(
-              icon: Icons.search_rounded,
+              icon: OzIcons.search,
               label: 'Search',
               onPressed: () => context.push('/search?scope=${const ['savings_account', 'gold_item', 'expense'][_tab]}'),
             ),

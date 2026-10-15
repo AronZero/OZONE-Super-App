@@ -10,6 +10,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// W2 · Global search (F2-02 §1, docs/04): scope chips, results grouped in bar
 /// order with counts and the top 3, "See all", recent searches, and the fixed
@@ -148,7 +149,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: Row(children: [
-                    Icon(Icons.history_rounded, size: 20, color: c.inkMuted),
+                    Icon(OzIcons.history, size: 20, color: c.inkMuted),
                     const SizedBox(width: Space.m),
                     Expanded(child: Text(r, style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w600))),
                   ]),
@@ -211,7 +212,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     body.add(Padding(
       padding: const EdgeInsets.symmetric(horizontal: Space.xs, vertical: Space.xs),
       child: Row(children: [
-        Icon(Icons.lock_outline_rounded, size: 16, color: c.inkMuted),
+        Icon(OzIcons.lock, size: 16, color: c.inkMuted),
         const SizedBox(width: Space.s),
         Expanded(child: Text('Locked notes aren’t searched.', style: text.bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600, color: c.inkMuted))),
       ]),
@@ -226,7 +227,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               IconButton(
                 tooltip: 'Close search',
                 onPressed: () => Navigator.of(context).maybePop(),
-                icon: Icon(Icons.arrow_back_rounded, color: c.ink),
+                icon: Icon(OzIcons.arrowBack, color: c.ink),
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               ),
               const SizedBox(width: 6),
@@ -243,10 +244,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     hintText: 'Search OZONE',
                     filled: true,
                     fillColor: c.surfaceSunken,
-                    prefixIcon: Icon(Icons.search_rounded, color: c.ink),
+                    prefixIcon: Icon(OzIcons.search, color: c.ink),
                     suffixIcon: _q.text.isEmpty
                         ? null
-                        : IconButton(tooltip: 'Clear search', onPressed: _q.clear, icon: Icon(Icons.close_rounded, color: c.inkMuted)),
+                        : IconButton(tooltip: 'Clear search', onPressed: _q.clear, icon: Icon(OzIcons.close, color: c.inkMuted)),
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide(color: c.ink, width: 2)),

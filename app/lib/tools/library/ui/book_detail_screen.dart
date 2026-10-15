@@ -14,6 +14,7 @@ import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_home.dart';
 import 'library_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Book detail (W3 · Book detail): status and rating change in place; Edit
 /// opens the form; the menu deletes with Undo.
@@ -80,7 +81,7 @@ class BookDetailScreen extends ConsumerWidget {
               ),
               PopupMenuButton<int>(
                 tooltip: 'Book options',
-                icon: Icon(Icons.more_vert_rounded, color: c.ink),
+                icon: Icon(OzIcons.moreVert, color: c.ink),
                 color: c.surface,
                 onSelected: (_) => delete(),
                 itemBuilder: (_) => [PopupMenuItem(value: 0, child: Text('Delete', style: TextStyle(color: c.danger)))],

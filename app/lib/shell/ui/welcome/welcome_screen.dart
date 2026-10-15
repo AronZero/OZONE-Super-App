@@ -9,6 +9,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../ozone_mark.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// W2 · Welcome: Start fresh, or Restore from a workbook (F1-03 §3).
 class WelcomeScreen extends ConsumerWidget {
@@ -63,8 +64,8 @@ class WelcomeScreen extends ConsumerWidget {
         ),
         Expanded(
           child: ListView(padding: const EdgeInsets.fromLTRB(22, Space.xxl, 22, Space.l), children: [
-            point(Icons.lock_outline_rounded, 'Stays on this phone', 'No account, no cloud. Works fully offline.'),
-            point(Icons.download_rounded, 'You keep the backups', 'Export a workbook now and then. OZONE will remind you.'),
+            point(OzIcons.lock, 'Stays on this phone', 'No account, no cloud. Works fully offline.'),
+            point(OzIcons.download, 'You keep the backups', 'Export a workbook now and then. OZONE will remind you.'),
           ]),
         ),
         SafeArea(
@@ -141,7 +142,7 @@ class ReminderAskScreen extends ConsumerWidget {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(color: ToolTint.finance.tile(b), borderRadius: BorderRadius.circular(22)),
-                      child: Icon(Icons.notifications_none_rounded, size: 32, color: ToolTint.finance.accent(b)),
+                      child: Icon(OzIcons.notifications, size: 32, color: ToolTint.finance.accent(b)),
                     ),
                     const SizedBox(height: 18),
                     Semantics(header: true, child: Text('Get a month-end reminder?', style: text.headlineMedium!.copyWith(fontSize: 28, height: 1.2))),

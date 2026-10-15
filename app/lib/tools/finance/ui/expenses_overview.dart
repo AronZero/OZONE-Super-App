@@ -16,6 +16,8 @@ import '../domain/expenses.dart';
 import '../state/finance_providers.dart';
 import 'expense_sheet.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/shell_bar_scope.dart';
 
 enum ExpenseSort {
   newest('Newest'),
@@ -86,7 +88,7 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
               shown.sort((a, b) => a.amount.compareTo(b.amount));
           }
           return ListView(
-            padding: const EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, 104),
+            padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
             children: [
               _YearCard(
                 year: year,
@@ -139,10 +141,7 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
           );
         },
       ),
-      Positioned(
-        right: Space.screen,
-        bottom: Space.screen,
-        child: FinanceAddButton(label: 'Add expense', onPressed: () => showExpenseSheet(context)),
+      ShellAddButtonSlot(child: FinanceAddButton(label: 'Add expense', onPressed: () => showExpenseSheet(context)),
       ),
     ]);
   }
@@ -203,13 +202,13 @@ class _YearCard extends StatelessWidget {
           IconButton(
             tooltip: 'Previous year',
             onPressed: canBack ? () => onYear(year - 1) : null,
-            icon: Icon(Icons.chevron_left_rounded, color: canBack ? c.ink : c.outline),
+            icon: Icon(OzIcons.chevronLeft, color: canBack ? c.ink : c.outline),
           ),
           Text('$year', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
           IconButton(
             tooltip: 'Next year',
             onPressed: canForward ? () => onYear(year + 1) : null,
-            icon: Icon(Icons.chevron_right_rounded, color: canForward ? c.ink : c.outline),
+            icon: Icon(OzIcons.chevronRight, color: canForward ? c.ink : c.outline),
           ),
           const Spacer(),
           if (hasAny)

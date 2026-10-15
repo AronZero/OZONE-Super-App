@@ -7,6 +7,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Tools launcher (W3 · Tools launcher): every tool, with the ones in the bar first.
 class ToolsScreen extends ConsumerStatefulWidget {
@@ -31,12 +32,12 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     return SafeArea(
       bottom: false,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: Space.xxxl),
+        padding: EdgeInsets.only(bottom: Space.xxxl + MediaQuery.paddingOf(context).bottom),
         children: [
           MainTopBar(title: 'Tools', actions: [
             FilledButton.icon(
               onPressed: () => context.push('/edit-bar'),
-              icon: const Icon(Icons.edit_rounded, size: 18),
+              icon: const Icon(OzIcons.edit, size: 18),
               label: const Text('Edit bar'),
               style: FilledButton.styleFrom(
                 backgroundColor: c.surfaceSunken,
@@ -57,7 +58,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                     hintText: 'Find a tool',
                     filled: true,
                     fillColor: c.surfaceSunken,
-                    prefixIcon: Icon(Icons.search_rounded, color: c.inkMuted),
+                    prefixIcon: Icon(OzIcons.search, color: c.inkMuted),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
                   ),
                 ),

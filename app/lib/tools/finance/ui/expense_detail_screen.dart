@@ -13,6 +13,7 @@ import '../state/finance_providers.dart';
 import 'expense_sheet.dart';
 import 'expenses_overview.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Expense detail (W3 · Expense detail): facts, Refunded switch with Undo,
 /// Edit, and Delete with Undo.
@@ -149,7 +150,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
                 const SizedBox(height: Space.m),
                 TextButton.icon(
                   onPressed: delete,
-                  icon: Icon(Icons.delete_outline_rounded, color: c.danger),
+                  icon: Icon(OzIcons.delete, color: c.danger),
                   label: Text('Delete expense', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.danger)),
                 ),
                 Text('You can undo a delete for a few seconds.',

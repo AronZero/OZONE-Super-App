@@ -80,8 +80,8 @@ flutter drive --profile -d <device> --driver=test_driver/perf_driver.dart --targ
   root navigator key), `widgets` (Home dashboard content by widget ID) and `attention` (Needs attention lines).
 - "Today" comes from `todayProvider` (`lib/core/state/today.dart`), refreshed at midnight and on resume. Widget tests
   pin it with `FixedToday` (the harness uses 13 Oct 2026, the date on the W1 boards).
-- Screenshots of the emulator come out blank while app lock is on (`FLAG_SECURE`, by design). Turn the lock off in
-  Settings › Security for screenshots and back on afterwards.
+- `adb shell screencap` comes out blank while app lock is on (`FLAG_SECURE`, by design); use the emulator capture
+  below instead.
 - Edit source files with the editor tools or Git Bash `sed`, not PowerShell 5.1 `Get-Content`/`Set-Content`: they read
   UTF-8 as ANSI and write a BOM, which garbles `’`, `·` and `§` in strings.
 - Repositories watch screens' tables with `watchTables` (`lib/core/data/watch.dart`), which listens to drift's table
@@ -100,3 +100,9 @@ flutter drive --profile -d <device> --driver=test_driver/perf_driver.dart --targ
   removes them otherwise. Optional platform set-up (reminders) must never throw before `runApp`.
 - Widget tests: `testVault(db, fastKdf: true)` (cryptography's Argon2 isolates time out under fake time);
   `pumpApp(overrides: …)` swaps the file picker (`pickWorkbookProvider`) and Save to (`saveAsProvider`).
+- Icons (UI refresh): use `OzIcons` (`core/ui/theme/oz_icons.dart`), never `Icons.*`. The font is Material Symbols
+  Rounded, so outline vs solid is `Icon(fill: 0 | 1)`; the theme default is outline. A new icon needs a const entry
+  with its codepoint from the pinned font's `.codepoints` file, or release builds tree-shake it away.
+- Tab screens sit behind the floating bar (`extendBody`): put the add button in `ShellAddButtonSlot` and end lists
+  with `shellListBottom(context)` (`core/ui/shell_bar_scope.dart`). Durations come from `Motion.of(context)`.
+- `adb emu screenrecord screenshot <folder>` captures the emulator from the host, so it works with app lock on.

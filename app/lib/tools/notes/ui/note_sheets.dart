@@ -13,6 +13,7 @@ import '../data/notes_repo.dart';
 import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// A one-field dialog ("New folder", "Rename tag"). Returns the parsed value,
 /// or null when cancelled. [parse] gives the error in words.
@@ -121,7 +122,7 @@ class _SheetHead extends StatelessWidget {
 
 /// One 56 dp row of a note sheet: icon, label (and a second line), value.
 class _MenuRow extends StatelessWidget {
-  const _MenuRow({required this.icon, required this.label, this.detail, this.value, this.onTap, this.danger = false, this.iconColor});
+  const _MenuRow({required this.icon, required this.label, this.detail, this.value, this.onTap, this.danger = false, this.iconColor, this.fill = 0});
   final IconData icon;
   final String label;
   final String? detail;
@@ -129,6 +130,9 @@ class _MenuRow extends StatelessWidget {
   final VoidCallback? onTap;
   final bool danger;
   final Color? iconColor;
+
+  /// 1 draws the solid glyph (an active or selected state).
+  final double fill;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +149,7 @@ class _MenuRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(children: [
-              Icon(icon, size: 22, color: iconColor ?? fg),
+              Icon(icon, size: 22, fill: fill, color: iconColor ?? fg),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -204,43 +208,44 @@ class _NoteMenu extends ConsumerWidget {
         subtitle: 'Created ${localDateOf(n.createdAt).format(ref.watch(todayProvider))} · edited ${dateTimeText(n.editedAt)}',
       ),
       _MenuRow(
-        icon: n.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+        icon: OzIcons.pushPin,
+        fill: n.isPinned ? 1 : 0,
         iconColor: notesAccent(context),
         label: n.isPinned ? 'Unpin' : 'Pin to top',
         onTap: () => repo.setPinned(n.id, !n.isPinned),
       ),
       _MenuRow(
-        icon: Icons.folder_outlined,
+        icon: OzIcons.folder,
         label: 'Move to folder',
         value: data.folder(n.folderId)?.name ?? 'Unfiled',
         onTap: () => showFolderPicker(context, n.id),
       ),
       if (n.isLocked)
-        const _MenuRow(icon: Icons.tag_rounded, label: 'Tags', detail: 'Kept inside the lock. Remove the lock to change them.')
+        const _MenuRow(icon: OzIcons.tag, label: 'Tags', detail: 'Kept inside the lock. Remove the lock to change them.')
       else
         _MenuRow(
-          icon: Icons.tag_rounded,
+          icon: OzIcons.tag,
           label: 'Tags',
           value: tags.isEmpty ? 'None' : tags.map((t) => '#${t.name}').join(' '),
           onTap: () => showTagsSheet(context, n.id),
         ),
       if (n.isLocked)
         _MenuRow(
-          icon: Icons.lock_open_rounded,
+          icon: OzIcons.lockOpen,
           label: 'Remove lock',
           detail: 'Takes it out of the vault. It can be searched again.',
           onTap: () => Navigator.of(context).pop(NoteMenuResult.removeLock),
         )
       else
         _MenuRow(
-          icon: Icons.lock_outline_rounded,
+          icon: OzIcons.lock,
           label: 'Lock note',
           detail: 'Moves it into the vault. Locked notes aren\'t searched.',
           onTap: () => Navigator.of(context).pop(NoteMenuResult.lock),
         ),
       Divider(height: 9, indent: 10, endIndent: 10, color: c.surfaceSunken),
       _MenuRow(
-        icon: Icons.delete_outline_rounded,
+        icon: OzIcons.delete,
         label: 'Move to trash',
         detail: 'Kept for 30 days, then deleted',
         danger: true,
@@ -274,7 +279,8 @@ class _FolderPicker extends ConsumerWidget {
     }
 
     Widget row(String? id, String name) => _MenuRow(
-          icon: n.folderId == id ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+          icon: n.folderId == id ? OzIcons.radioButtonChecked : OzIcons.radioButtonUnchecked,
+          fill: n.folderId == id ? 1 : 0,
           iconColor: n.folderId == id ? notesAccent(context) : null,
           label: name,
           onTap: () => pick(id),

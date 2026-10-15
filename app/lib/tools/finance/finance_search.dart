@@ -11,6 +11,7 @@ import 'state/finance_providers.dart';
 import 'state/savings_providers.dart';
 import 'ui/expense_sheet.dart';
 import 'ui/gold_item_sheet.dart';
+import '../../core/ui/theme/oz_icons.dart';
 
 /// Finance records in global search (F2-02 §1): accounts, gold items, expenses.
 const List<SearchSource> financeSearch = [
@@ -62,9 +63,9 @@ SearchRowInfo? _expense(BuildContext context, WidgetRef ref, String id) {
 
 /// Finance entries of Home's quick-add menu (Components board order).
 const List<QuickAddAction> financeQuickAdd = [
-  QuickAddAction(label: 'Update balances', icon: Icons.account_balance_wallet_outlined, run: _updateBalances),
-  QuickAddAction(label: 'Add expense', icon: Icons.receipt_long_outlined, run: _addExpense),
-  QuickAddAction(label: 'Add gold item', icon: Icons.diamond_outlined, run: _addGold),
+  QuickAddAction(label: 'Update balances', icon: OzIcons.accountBalanceWallet, run: _updateBalances),
+  QuickAddAction(label: 'Add expense', icon: OzIcons.receiptLong, run: _addExpense),
+  QuickAddAction(label: 'Add gold item', icon: OzIcons.diamond, run: _addGold),
 ];
 
 void _updateBalances(BuildContext context) => context.push('/finance/savings/update');

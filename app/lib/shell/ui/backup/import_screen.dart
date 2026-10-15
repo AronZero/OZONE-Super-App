@@ -19,6 +19,7 @@ import '../../../core/workbook/ozone_import.dart';
 import '../../../tools/notes/ui/vault/vault_parts.dart';
 import '../../../tools/notes/ui/vault/vault_unlock.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Picks a `.xlsx` (F2-03 §2: the system picker; the file is read once into memory).
 Future<(String, List<int>)?> pickWorkbook() async {
@@ -226,7 +227,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(12)),
-                child: Icon(Icons.table_chart_outlined, size: 20, color: c.ink),
+                child: Icon(OzIcons.tableChart, size: 20, color: c.ink),
               ),
               const SizedBox(width: Space.m),
               Expanded(

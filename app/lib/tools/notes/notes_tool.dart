@@ -10,13 +10,14 @@ import 'ui/notes_home.dart';
 import 'ui/notes_widgets.dart';
 import 'ui/trash_screen.dart';
 import 'ui/vault/vault_screens.dart';
+import '../../core/ui/theme/oz_icons.dart';
 
 /// Notes tool definition (M5 notes, M6 vault; docs/spec/F3-04).
 const ToolDefinition notesTool = ToolDefinition(
   id: 'notes',
   name: 'Notes',
   tint: ToolTint.notes,
-  icon: Icons.description_rounded,
+  icon: OzIcons.description,
   routeBase: '/notes',
   home: _home,
   routes: _routes,

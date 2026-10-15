@@ -17,6 +17,7 @@ import '../data/books_repo.dart';
 import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Add or edit a book (W2 · Add book, flow F5): full screen, since it has
 /// more than 6 fields. The amount appears and is required only for Purchased.
@@ -161,7 +162,7 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
                 IconButton(
                   tooltip: 'Close without saving',
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: Icon(Icons.close_rounded, color: c.ink),
+                  icon: Icon(OzIcons.close, color: c.ink),
                   constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 ),
                 const SizedBox(width: Space.xs),

@@ -22,6 +22,7 @@ import '../state/finance_providers.dart';
 import 'gold_overview.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Karat prices (W2 · Karat prices): one price per gram per karat, saved
 /// with a date. Saving an unchanged price confirms it (it's no longer stale).
@@ -371,7 +372,7 @@ class KaratHistoryScreen extends ConsumerWidget {
                                 Text('${Money.format(r.pricePerGram)}/g', semanticsLabel: spokenAmounts('${Money.format(r.pricePerGram)}/g'), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                                 IconButton(
                                   tooltip: 'Delete this price',
-                                  icon: Icon(Icons.delete_outline_rounded, color: c.inkMuted),
+                                  icon: Icon(OzIcons.delete, color: c.inkMuted),
                                   onPressed: () => deleteKaratPrice(
                                     ref,
                                     r.id,

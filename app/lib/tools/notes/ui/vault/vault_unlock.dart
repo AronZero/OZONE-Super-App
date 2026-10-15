@@ -11,6 +11,7 @@ import '../../../../core/ui/theme/app_theme.dart';
 import '../../../../core/ui/theme/tokens.dart';
 import '../notes_parts.dart';
 import 'vault_parts.dart';
+import '../../../../core/ui/theme/oz_icons.dart';
 
 /// Makes sure the vault is open: sets it up the first time (F2-01 §4: "the
 /// first time a note is locked"), otherwise asks to unlock. True when open.
@@ -151,7 +152,7 @@ class _UnlockSheetState extends ConsumerState<_UnlockSheet> {
               height: 52,
               child: FilledButton.icon(
                 onPressed: _useFingerprint,
-                icon: const Icon(Icons.fingerprint_rounded),
+                icon: const Icon(OzIcons.fingerprint),
                 label: const Text('Use fingerprint'),
                 style: FilledButton.styleFrom(
                   backgroundColor: notesAccent(context),

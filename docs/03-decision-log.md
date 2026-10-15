@@ -147,6 +147,12 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M9-9 | Smaller APK (owner Q13 A) | Release builds use --split-debug-info and --obfuscate (arm64 23.8 → 22.3 MB). Symbols and the obfuscation map are kept per version in ~/.ozone-keys/symbols/<version>/, outside the repo, to read error logs (confirmed 15 Oct 2026) |
 | M5 | Notes | **Approved** 15 Oct 2026 (owner fixes: tags on one line with ellipsis; date always right-aligned) |
 
+| UR1-1 | Bottom bar (owner B1–B2, 15 Oct 2026) | Floating rounded pill (64 dp, radius 32, 16 dp from the edges, no border, no shadow; owner removed the hairline on review), at most 440 dp wide and centred on tablets. Inactive items show an outline icon only; the active item gets a pill in the tool's accent (ink for Home and Tools) holding its solid icon and label. The bar hides while scrolling down and returns on scroll up or at the top; tab screens' add buttons move with it. With TalkBack on it never hides. Canvas boards "UI refresh · Bottom bar" (approved 15 Oct 2026) |
+| UR1-2 | Icons (owner B3) | Material Symbols Rounded (Apache-2.0), one variable font asset pinned to google/material-design-icons commit bd8cb85 (25 Sep 2026), not a package. All icons live in lib/core/ui/theme/oz_icons.dart. Outline by default (theme fill 0); solid (fill 1) only for active or selected states: bar item, pinned, stars, checked radio, saved tick. Release builds keep only the glyphs used (15.2 MB → 155 KB) |
+| UR1-3 | Motion (owner B4) | Replaces "150–200 ms, functional only": press 120 ms, icon fill 240, screen change 260, hide on scroll 280, label 300, pill 340 with slight overshoot, icon pop 380. Tab changes and pushed screens fade in and rise 10 dp (iOS keeps its own transition so swipe-back works). Light selection haptic on tab change. Reduce motion makes every change instant |
+| UR1-4 | Version | The UI refresh ships as 1.1.0; step 1 is build 11, the review fixes build 12 |
+| UR1-5 | Review fixes (owner, 15 Oct 2026) | Add buttons lose their shadow (flat like the bar). Home's top bar shows the OZONE mark (36 dp, full colour, light/dark variants) before the title |
+
 ## Open
 
 - Trademark search for "OZONE", needed only before any public app-store release.

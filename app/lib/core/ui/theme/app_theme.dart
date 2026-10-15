@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
+import '../motion.dart';
 import 'tokens.dart';
 
 /// Builds the Material theme for one brightness from the OZONE tokens.
@@ -25,6 +27,14 @@ ThemeData buildOzoneTheme(Brightness brightness) {
       outline: c.outline,
     ),
     textTheme: text,
+    // Icons are outline by default; active and selected states pass fill: 1 (OzIcons).
+    iconTheme: IconThemeData(color: c.ink, fill: 0, weight: 400, grade: 0, opticalSize: 24),
+    // Pushed screens fade in and rise, like switching tabs (Reduce motion: instant).
+    // iOS keeps its own transition so swipe-back still works.
+    pageTransitionsTheme: const PageTransitionsTheme(builders: {
+      TargetPlatform.android: FadeRisePageTransitionsBuilder(),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+    }),
     extensions: [OzoneThemeColors(c)],
   );
 }

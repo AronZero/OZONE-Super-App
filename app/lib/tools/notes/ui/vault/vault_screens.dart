@@ -10,6 +10,7 @@ import '../../../../core/ui/theme/app_theme.dart';
 import '../../../../core/ui/theme/tokens.dart';
 import '../notes_parts.dart';
 import 'vault_parts.dart';
+import '../../../../core/ui/theme/oz_icons.dart';
 
 /// Shared frame: back + step label, scrolling body, button pinned at the bottom.
 class _VaultFrame extends StatelessWidget {
@@ -34,7 +35,7 @@ class _VaultFrame extends StatelessWidget {
               IconButton(
                 tooltip: 'Back',
                 onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-                icon: Icon(Icons.arrow_back_rounded, color: c.ink),
+                icon: Icon(OzIcons.arrowBack, color: c.ink),
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               ),
               const SizedBox(width: Space.xs),
@@ -288,7 +289,7 @@ class _VaultForgotScreenState extends ConsumerState<VaultForgotScreen> {
           step: step,
           bottom: VaultButton(label: _busy ? 'Checking the code…' : 'Continue', busy: _busy, onPressed: _checkCode),
           children: [
-            const Align(alignment: Alignment.centerLeft, child: VaultIcon(icon: Icons.key_rounded)),
+            const Align(alignment: Alignment.centerLeft, child: VaultIcon(icon: OzIcons.key)),
             _h1(context, 'Use your recovery code'),
             _p(context, 'Enter the 16-character code you saved when you set up the vault. Then you’ll choose a new password.'),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -344,7 +345,7 @@ class _VaultForgotScreenState extends ConsumerState<VaultForgotScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(color: notesTile(context), borderRadius: BorderRadius.circular(14)),
                 child: Row(children: [
-                  Icon(Icons.check_rounded, size: 16, color: notesAccent(context)),
+                  Icon(OzIcons.check, size: 16, color: notesAccent(context)),
                   const SizedBox(width: Space.s),
                   Text('Code accepted', style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w700, color: notesAccent(context))),
                 ]),
@@ -430,7 +431,7 @@ class _VaultResetScreenState extends ConsumerState<VaultResetScreen> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(color: c.surfaceSunken, shape: BoxShape.circle),
-              child: Icon(Icons.check_rounded, size: 28, color: c.ink),
+              child: Icon(OzIcons.check, size: 28, color: c.ink),
             ),
           ),
           Semantics(liveRegion: true, child: Text('Vault reset', textAlign: TextAlign.center, style: text.titleLarge!.copyWith(fontSize: 22))),
@@ -457,7 +458,7 @@ class _VaultResetScreenState extends ConsumerState<VaultResetScreen> {
           decoration: BoxDecoration(color: c.danger.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(Radii.card)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Icon(Icons.warning_amber_rounded, size: 20, color: c.danger),
+              Icon(OzIcons.warning, size: 20, color: c.danger),
               const SizedBox(width: Space.s),
               Expanded(child: Text(n == 0 ? 'There are no locked notes to delete' : 'This deletes $notes forever', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.danger))),
             ]),

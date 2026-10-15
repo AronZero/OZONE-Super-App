@@ -17,6 +17,7 @@ import '../domain/expenses.dart';
 import '../domain/savings_rules.dart';
 import '../state/finance_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Add expense (W2 · Add expense, flow F3) or edit one. "Save & add another"
 /// keeps the date and vendor. Possible duplicates warn but never block (M3-2).
@@ -148,7 +149,7 @@ class _ExpenseSheetState extends ConsumerState<_ExpenseSheet> {
           Semantics(
             liveRegion: true,
             child: Row(children: [
-              Icon(Icons.check_circle_rounded, size: 18, color: c.gain),
+              Icon(OzIcons.checkCircle, fill: 1, size: 18, color: c.gain),
               const SizedBox(width: 6),
               Expanded(child: Text(_saved!, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.gain))),
             ]),

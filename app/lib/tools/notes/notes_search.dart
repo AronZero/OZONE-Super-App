@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../shell/tool_registry.dart';
 import 'state/notes_providers.dart';
+import '../../core/ui/theme/oz_icons.dart';
 
 /// Notes in global search (F2-02 §1). Locked and trashed notes are never
 /// indexed, so they can't appear here.
@@ -23,7 +24,7 @@ SearchRowInfo? _note(BuildContext context, WidgetRef ref, String id) {
 
 /// Notes' entry in Home's quick-add menu: a new note opens straight away.
 const List<QuickAddAction> notesQuickAdd = [
-  QuickAddAction(label: 'New note', icon: Icons.edit_note_rounded, run: _newNote),
+  QuickAddAction(label: 'New note', icon: OzIcons.editNote, run: _newNote),
 ];
 
 Future<void> _newNote(BuildContext context) async {

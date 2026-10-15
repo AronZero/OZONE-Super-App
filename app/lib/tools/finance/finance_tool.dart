@@ -19,13 +19,14 @@ import 'ui/lists_screen.dart';
 import 'ui/savings_widgets.dart';
 import 'ui/spending_year_screen.dart';
 import 'ui/update_balances_screen.dart';
+import '../../core/ui/theme/oz_icons.dart';
 
 /// Finance tool definition: Savings (M2), Gold and Expenses (M3).
 const ToolDefinition financeTool = ToolDefinition(
   id: 'finance',
   name: 'Finance',
   tint: ToolTint.finance,
-  icon: Icons.account_balance_wallet_rounded,
+  icon: OzIcons.accountBalanceWallet,
   routeBase: '/finance',
   home: _home,
   routes: _routes,

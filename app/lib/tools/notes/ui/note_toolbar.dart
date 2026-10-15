@@ -5,6 +5,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../domain/notes.dart';
 import 'notes_parts.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 Color _hex(String h) => Color(int.parse('FF${h.substring(1)}', radix: 16));
 
@@ -150,7 +151,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
                         borderRadius: BorderRadius.circular(round ? 15 : 9),
                         border: dashed ? Border.all(color: c.inkMuted, width: 1.5) : null,
                       ),
-                      child: dashed ? Icon(Icons.format_color_reset_outlined, size: 16, color: c.inkMuted) : null,
+                      child: dashed ? Icon(OzIcons.formatColorReset, size: 16, color: c.inkMuted) : null,
                     ),
                   ),
                 ),
@@ -195,9 +196,9 @@ class _NoteToolbarState extends State<NoteToolbar> {
                 active: s.containsKey('underline'), onTap: () => _toggle(Attribute.underline)),
             button('Heading', Text('H', style: letter(s[Attribute.header.key]?.value == 2, size: 16)),
                 active: s[Attribute.header.key]?.value == 2, onTap: () => _toggle(Attribute.h2)),
-            button('Bulleted list', const Icon(Icons.format_list_bulleted_rounded), active: list == 'bullet', onTap: () => _toggleList(Attribute.ul)),
+            button('Bulleted list', const Icon(OzIcons.formatListBulleted), active: list == 'bullet', onTap: () => _toggleList(Attribute.ul)),
             button('Numbered list', Text('1.', style: letter(list == 'ordered', size: 13)), active: list == 'ordered', onTap: () => _toggleList(Attribute.ol)),
-            button('Checklist', const Icon(Icons.check_box_outlined), active: list == 'checked' || list == 'unchecked', onTap: () => _toggleList(Attribute.unchecked)),
+            button('Checklist', const Icon(OzIcons.checkBox), active: list == 'checked' || list == 'unchecked', onTap: () => _toggleList(Attribute.unchecked)),
             button(
               'Highlight',
               Column(mainAxisSize: MainAxisSize.min, children: [
@@ -218,7 +219,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
               active: _open == _Palette.colour,
               onTap: () => setState(() => _open = _open == _Palette.colour ? _Palette.none : _Palette.colour),
             ),
-            button('Undo', Icon(Icons.undo_rounded, color: _q.hasUndo ? c.ink : c.outline), toggle: false, onTap: _q.hasUndo ? _q.undo : null),
+            button('Undo', Icon(OzIcons.undo, color: _q.hasUndo ? c.ink : c.outline), toggle: false, onTap: _q.hasUndo ? _q.undo : null),
           ]),
         ),
       ),

@@ -21,6 +21,7 @@ import 'note_sheets.dart';
 import 'note_toolbar.dart';
 import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// W1 · Note editor: folder and tag chips, title, "Edited …", rich text and the
 /// formatting bar. Saves itself (F2-02 §3) and never asks "discard changes?".
@@ -333,7 +334,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
               IconButton(
                 tooltip: 'Back to Notes',
                 onPressed: () => Navigator.of(context).maybePop(),
-                icon: Icon(Icons.arrow_back_rounded, color: c.ink),
+                icon: Icon(OzIcons.arrowBack, color: c.ink),
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               ),
               const SizedBox(width: Space.xs),
@@ -341,7 +342,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
                 child: Semantics(
                   liveRegion: true,
                   child: Row(children: [
-                    if (!saving) ...[Icon(Icons.check_rounded, size: 16, color: c.inkMuted), const SizedBox(width: 6)],
+                    if (!saving) ...[Icon(OzIcons.check, size: 16, color: c.inkMuted), const SizedBox(width: 6)],
                     Text(q == null ? '' : (saving ? 'Saving…' : 'Saved'), style: text.bodyMedium!.copyWith(fontSize: 13, fontWeight: FontWeight.w600, color: c.inkMuted)),
                   ]),
                 ),
@@ -351,13 +352,13 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
                   tooltip: n.isPinned ? 'Unpin' : 'Pin to top',
                   isSelected: n.isPinned,
                   onPressed: () => _repo.setPinned(n.id, !n.isPinned),
-                  icon: Icon(n.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined, color: n.isPinned ? accent : c.ink, size: 21),
+                  icon: Icon(OzIcons.pushPin, fill: n.isPinned ? 1 : 0, color: n.isPinned ? accent : c.ink, size: 21),
                   constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 ),
               IconButton(
                 tooltip: 'Note options: folder, tags, lock, move to trash',
                 onPressed: q == null ? null : _menu,
-                icon: Icon(Icons.more_vert_rounded, color: c.ink),
+                icon: Icon(OzIcons.moreVert, color: c.ink),
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               ),
             ]),
@@ -388,9 +389,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
                       const SizedBox(height: Space.m),
                     ],
                     Wrap(spacing: Space.s, runSpacing: Space.s, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                      pill('$folderName ▾', icon: Icons.folder_outlined, onTap: () => showFolderPicker(context, widget.noteId)),
+                      pill('$folderName ▾', icon: OzIcons.folder, onTap: () => showFolderPicker(context, widget.noteId)),
                       if (_locked) ...[
-                        pill('Locked', icon: Icons.lock_outline_rounded, tinted: true, onTap: _menu),
+                        pill('Locked', icon: OzIcons.lock, tinted: true, onTap: _menu),
                         // Tags are sealed with the note; they change after Remove lock (M6-2).
                         for (final t in _lockedTags)
                           pill('#$t', tinted: true, onTap: () => ScaffoldMessenger.of(context).showSnackBar(

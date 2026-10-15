@@ -8,6 +8,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../dashboard/widget_catalog.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Home dashboard arrange (W3 · Home dashboard arrange): reorder, show/hide,
 /// reset. Preset widgets only, no sizes (docs/03 N4).
@@ -84,7 +85,7 @@ class DashboardArrangeScreen extends ConsumerWidget {
                             index: i,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: Space.m, vertical: Space.l),
-                              child: Icon(Icons.drag_indicator_rounded, color: c.inkMuted, semanticLabel: 'Drag to move ${info?.name}'),
+                              child: Icon(OzIcons.dragIndicator, color: c.inkMuted, semanticLabel: 'Drag to move ${info?.name}'),
                             ),
                           ),
                           Container(width: 6, height: 30, decoration: BoxDecoration(color: w.on ? tint : c.outline, borderRadius: BorderRadius.circular(3))),

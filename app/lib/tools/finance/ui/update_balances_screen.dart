@@ -17,6 +17,7 @@ import '../state/savings_providers.dart';
 import 'savings_parts.dart';
 import 'update_sheet.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Update balances (W1 · Update balances, flow F2): every open account on one
 /// screen for one date. "Balance is unchanged" saves the last balance and makes
@@ -151,7 +152,7 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
                       Text('Add an account first. Its starting balance is its first update.', style: text.bodyLarge),
                     if (due.isNotEmpty) ...[
                       Row(children: [
-                        Icon(Icons.error_outline_rounded, size: 16, color: c.attentionInk),
+                        Icon(OzIcons.error, size: 16, color: c.attentionInk),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text('Needs $article $monthName balance · ${due.length}',

@@ -11,6 +11,9 @@ import '../../../core/ui/theme/tokens.dart';
 import '../../dashboard/widget_catalog.dart';
 import '../../tool_registry.dart';
 import '../backup/data_backup_screen.dart';
+import '../ozone_mark.dart';
+import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/shell_bar_scope.dart';
 
 /// Home (W1 · Home): the dashboard, following the "Home dashboard" arrangement,
 /// with search, Hide amounts, Settings and the quick-add menu.
@@ -34,19 +37,21 @@ class HomeScreen extends ConsumerWidget {
         SafeArea(
           bottom: false,
           child: ListView(
-            padding: const EdgeInsets.only(bottom: 104),
+            padding: EdgeInsets.only(bottom: shellListBottom(context)),
             children: [
               MainTopBar(
                 title: 'Home',
+                // Brand minimum for the full-colour mark is 32 px (design/brand/README.md).
+                leading: const ExcludeSemantics(child: OzoneMark(size: 36)),
                 actions: [
-                  RoundIconButton(icon: Icons.search_rounded, label: 'Search', onPressed: () => context.push('/search')),
+                  RoundIconButton(icon: OzIcons.search, label: 'Search', onPressed: () => context.push('/search')),
                   // Hide amounts: every ₱ figure shows as ₱ •••• until tapped again (docs/04).
                   RoundIconButton(
-                    icon: hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    icon: hidden ? OzIcons.visibilityOff : OzIcons.visibility,
                     label: hidden ? 'Show amounts' : 'Hide amounts',
                     onPressed: () => ref.read(amountsVisibilityProvider).toggle(),
                   ),
-                  RoundIconButton(icon: Icons.settings_rounded, label: 'Settings', onPressed: () => context.push('/settings')),
+                  RoundIconButton(icon: OzIcons.settings, label: 'Settings', onPressed: () => context.push('/settings')),
                 ],
               ),
               Padding(
@@ -73,7 +78,7 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
-        Positioned(right: Space.screen, bottom: Space.screen, child: _QuickAddButton()),
+        ShellAddButtonSlot(child: _QuickAddButton()),
       ],
     );
   }
@@ -89,13 +94,11 @@ class _QuickAddButton extends ConsumerWidget {
       message: 'Quick add',
       child: Material(
         color: c.ink,
-        elevation: 4,
-        shadowColor: c.ink.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.addButton),
         child: InkWell(
           borderRadius: BorderRadius.circular(Radii.addButton),
           onTap: () => _open(context, ref),
-          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.canvas)),
+          child: SizedBox(width: 60, height: 60, child: Icon(OzIcons.add, size: 28, color: c.canvas)),
         ),
       ),
     );
@@ -105,6 +108,11 @@ class _QuickAddButton extends ConsumerWidget {
     final bar = ref.read(barToolsProvider).value ?? defaultBarTools;
     final tools = toolsInBarOrder(bar);
     final b = Theme.of(context).brightness;
+    // The menu opens just above the add button, which sits higher while the bar shows.
+    final addBottom = ShellBarScope.visibleOf(context)
+        ? MediaQuery.paddingOf(context).bottom + BarSize.aboveBar
+        : BarSize.bottom(context);
+    final menuBottom = addBottom + 60 + Space.s - MediaQuery.viewPaddingOf(context).bottom;
     final picked = await showGeneralDialog<QuickAddAction>(
       context: context,
       barrierDismissible: true,
@@ -118,7 +126,7 @@ class _QuickAddButton extends ConsumerWidget {
           child: Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: Space.screen, bottom: 76 + Space.screen + 60 + Space.s),
+              padding: EdgeInsets.only(right: Space.screen, bottom: menuBottom),
               child: Material(
                 color: c.canvas,
                 elevation: 6,
@@ -199,7 +207,7 @@ class _NeedsAttention extends ConsumerWidget {
           decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),
           child: Row(
             children: [
-              Icon(Icons.check_circle_outline_rounded, size: 20, color: c.gain),
+              Icon(OzIcons.checkCircle, size: 20, color: c.gain),
               const SizedBox(width: Space.s),
               Text('All up to date', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
             ],
@@ -233,7 +241,7 @@ class _NeedsAttention extends ConsumerWidget {
                           style: text.bodyLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: c.attentionInk),
                         ),
                       ),
-                      Icon(Icons.chevron_right_rounded, color: c.attentionInk),
+                      Icon(OzIcons.chevronRight, color: c.attentionInk),
                     ],
                   ),
                 ),

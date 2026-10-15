@@ -7,6 +7,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Appearance (W3 · Appearance): System / Light / Dark. The whole app,
 /// including this screen, switches as soon as a choice is tapped.
@@ -134,7 +135,7 @@ class _ThemeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: Space.s),
                 Row(children: [
-                  Icon(selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                  Icon(selected ? OzIcons.radioButtonChecked : OzIcons.radioButtonUnchecked, fill: selected ? 1 : 0,
                       size: 18, color: selected ? c.ink : c.inkMuted),
                   const SizedBox(width: 6),
                   Flexible(child: Text(name, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),

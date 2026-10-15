@@ -13,6 +13,7 @@ import '../state/finance_providers.dart';
 import 'expenses_overview.dart';
 import 'savings_parts.dart';
 import 'savings_widgets.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Home widget W4 · Gold holdings (W1 · Home). Opens Gold.
 class GoldHoldingsWidget extends ConsumerWidget {
@@ -105,7 +106,7 @@ class RecentExpensesWidget extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(18, Space.l, 18, Space.s),
             child: Row(children: [
               Expanded(child: Text('Recent expenses', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),
-              Icon(Icons.chevron_right_rounded, color: c.inkMuted),
+              Icon(OzIcons.chevronRight, color: c.inkMuted),
             ]),
           ),
         ),

@@ -4,6 +4,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Library accent and tile for the current theme (docs/05 tool tints).
 Color libraryAccent(BuildContext context) => ToolTint.library.accent(Theme.of(context).brightness);
@@ -20,7 +21,7 @@ class BookTile extends StatelessWidget {
           width: large ? 64 : 40,
           height: large ? 88 : 52,
           decoration: BoxDecoration(color: libraryTile(context), borderRadius: BorderRadius.circular(large ? 10 : 8)),
-          child: Icon(Icons.menu_book_rounded, size: large ? 28 : 20, color: libraryAccent(context)),
+          child: Icon(OzIcons.menuBook, size: large ? 28 : 20, color: libraryAccent(context)),
         ),
       );
 }
@@ -129,7 +130,7 @@ class RatingStepper extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     final v = half ?? 0;
-    IconData star(int i) => v >= 2 * (i + 1) ? Icons.star_rounded : (v == 2 * i + 1 ? Icons.star_half_rounded : Icons.star_outline_rounded);
+    IconData star(int i) => v == 2 * i + 1 ? OzIcons.starHalf : OzIcons.star;
     Widget step(String label, IconData icon, int? next) => IconButton(
           tooltip: label,
           onPressed: next == null ? null : () => onChanged(next),
@@ -143,7 +144,7 @@ class RatingStepper extends StatelessWidget {
             label: spokenAmounts(ratingSpoken(half)),
             excludeSemantics: true,
             child: Row(children: [
-              for (var i = 0; i < 5; i++) Icon(star(i), size: 24, color: half == null ? c.outline : libraryAccent(context)),
+              for (var i = 0; i < 5; i++) Icon(star(i), fill: v > 2 * i ? 1 : 0, size: 24, color: half == null ? c.outline : libraryAccent(context)),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(half == null ? 'Not rated' : (half! / 2).toStringAsFixed(1),
@@ -153,9 +154,9 @@ class RatingStepper extends StatelessWidget {
           ),
         ),
         // From Not rated, + starts at ½ and − at 0 stars.
-        step('Lower rating by half a star', Icons.remove_rounded, half == null ? 0 : (v > 0 ? v - 1 : null)),
+        step('Lower rating by half a star', OzIcons.remove, half == null ? 0 : (v > 0 ? v - 1 : null)),
         const SizedBox(width: 6),
-        step('Raise rating by half a star', Icons.add_rounded, half == null ? 1 : (v < 10 ? v + 1 : null)),
+        step('Raise rating by half a star', OzIcons.add, half == null ? 1 : (v < 10 ? v + 1 : null)),
       ]),
       if (half != null)
         TextButton(

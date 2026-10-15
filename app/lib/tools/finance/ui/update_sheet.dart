@@ -18,6 +18,7 @@ import '../domain/savings_rules.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Update one account's balance, or edit/delete one past update (decision M2-2).
 /// An existing update keeps its date; saving a new one on a date that already
@@ -204,7 +205,7 @@ class UnchangedBox extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: 14),
           decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(Radii.tile)),
           child: Row(children: [
-            Icon(Icons.check_rounded, color: c.ink, size: 20),
+            Icon(OzIcons.check, color: c.ink, size: 20),
             const SizedBox(width: 10),
             Expanded(child: Text('Confirmed unchanged · ${Money.format(balance)}', semanticsLabel: spokenAmounts('Confirmed unchanged · ${Money.format(balance)}'), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700))),
           ]),

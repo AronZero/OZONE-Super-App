@@ -14,6 +14,7 @@ import '../data/gold_repo.dart';
 import '../state/finance_providers.dart';
 import 'gold_item_sheet.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/shell_bar_scope.dart';
 
 /// Gold tab (W2 · Gold): estimated value card, held items by value, and the
 /// Add gold item button. Values are always estimates with their price date.
@@ -34,7 +35,7 @@ class GoldOverview extends ConsumerWidget {
           builder: (d) {
             final held = [...d.held]..sort((a, b) => (d.valueOf(b) ?? -1).compareTo(d.valueOf(a) ?? -1));
             return ListView(
-              padding: const EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, 104),
+              padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
               children: [
                 if (held.isEmpty)
                   _EmptyCard(hasPrices: d.prices.isNotEmpty)
@@ -76,10 +77,7 @@ class GoldOverview extends ConsumerWidget {
             );
           },
         ),
-        Positioned(
-          right: Space.screen,
-          bottom: Space.screen,
-          child: FinanceAddButton(label: 'Add gold item', onPressed: () => showGoldItemSheet(context)),
+        ShellAddButtonSlot(child: FinanceAddButton(label: 'Add gold item', onPressed: () => showGoldItemSheet(context)),
         ),
       ],
     );

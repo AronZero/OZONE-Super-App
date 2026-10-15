@@ -13,6 +13,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/workbook/backup_service.dart';
 import '../../../core/workbook/ozone_export.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// The phone's "Save to" dialog; tests replace it.
 final saveAsProvider = Provider<Future<String?> Function(String path, String name)>((ref) => FilesChannel.saveAs);
@@ -121,7 +122,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(color: c.attentionBg, borderRadius: BorderRadius.circular(Radii.card)),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.error_outline_rounded, size: 18, color: c.attentionInk),
+            Icon(OzIcons.error, size: 18, color: c.attentionInk),
             const SizedBox(width: Space.s),
             Expanded(
               child: Text('This file isn’t encrypted. Anyone who opens it can read everything in it except locked notes, which stay encrypted.',
@@ -162,7 +163,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                         shape: BoxShape.circle,
                         border: i < done ? null : Border.all(color: i == done ? c.ink : c.outline, width: i == done ? 2.5 : 2),
                       ),
-                      child: i < done ? Icon(Icons.check_rounded, size: 14, color: c.canvas) : null,
+                      child: i < done ? Icon(OzIcons.check, size: 14, color: c.canvas) : null,
                     ),
                     const SizedBox(width: Space.m),
                     Expanded(
@@ -203,7 +204,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(color: c.ink, shape: BoxShape.circle),
-                child: Icon(Icons.check_rounded, size: 30, color: c.canvas),
+                child: Icon(OzIcons.check, size: 30, color: c.canvas),
               ),
               const SizedBox(height: Space.m),
               Semantics(liveRegion: true, child: Text('Export saved', style: text.titleLarge)),
@@ -240,7 +241,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     _cancelled = true;
                     Navigator.of(context).maybePop();
                   },
-                  icon: Icon(Icons.close_rounded, color: c.ink),
+                  icon: Icon(OzIcons.close, color: c.ink),
                   constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 ),
                 const SizedBox(width: Space.xs),

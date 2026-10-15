@@ -10,6 +10,7 @@ import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Settings › Data & backup › Safety exports: the copies saved before each
 /// import (newest 3), to import back ("To go back…", F1-03 §2) or share.
@@ -67,7 +68,7 @@ class _SafetyExportsScreenState extends ConsumerState<SafetyExportsScreen> {
                               IconButton(
                                 tooltip: 'Share ${f.uri.pathSegments.last}',
                                 onPressed: () => ExternalActivity.run(() => SharePlus.instance.share(ShareParams(files: [XFile(f.path)]))),
-                                icon: Icon(Icons.ios_share_rounded, color: c.ink),
+                                icon: Icon(OzIcons.iosShare, color: c.ink),
                               ),
                               TextButton(
                                 onPressed: () async {

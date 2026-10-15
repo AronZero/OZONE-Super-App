@@ -21,6 +21,7 @@ import '../state/savings_providers.dart';
 import 'account_sheet.dart';
 import 'savings_parts.dart';
 import 'update_sheet.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Account detail (W1 · Account detail): balance card, then By month /
 /// All updates / Chart. The menu edits, archives (or restores) and deletes.
@@ -118,7 +119,7 @@ class _AccountDetailScreenState extends ConsumerState<AccountDetailScreen> {
             DetailTopBar(title: a.name, trailing: [
               PopupMenuButton<_Menu>(
                 tooltip: 'Account options',
-                icon: Icon(Icons.more_vert_rounded, color: c.ink),
+                icon: Icon(OzIcons.moreVert, color: c.ink),
                 color: c.surface,
                 onSelected: (m) => _onMenu(m, a, ups.length),
                 itemBuilder: (_) => [
@@ -366,7 +367,7 @@ class _AllUpdates extends ConsumerWidget {
                 ),
                 Text(money(context, u.balance), semanticsLabel: spokenAmounts(money(context, u.balance)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(width: Space.xs),
-                Icon(Icons.chevron_right_rounded, color: c.inkMuted),
+                Icon(OzIcons.chevronRight, color: c.inkMuted),
               ]),
             ),
           ),

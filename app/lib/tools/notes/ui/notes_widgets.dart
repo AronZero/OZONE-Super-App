@@ -12,6 +12,7 @@ import '../state/notes_providers.dart';
 import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// A locked note from Home: unlock first (UX3 board: "asks to unlock if locked").
 Future<void> _openLocked(BuildContext context, WidgetRef ref, String id) async {
@@ -40,7 +41,7 @@ class _Frame extends StatelessWidget {
             child: Row(children: [
               Expanded(child: Text(title, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),
               if (trailing != null) Text(trailing!, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
-              Icon(Icons.chevron_right_rounded, color: c.inkMuted),
+              Icon(OzIcons.chevronRight, color: c.inkMuted),
             ]),
           ),
         ),
@@ -76,7 +77,7 @@ class _MiniNote extends ConsumerWidget {
               padding: const EdgeInsets.all(Space.m),
               child: locked
                   ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Icon(Icons.lock_outline_rounded, size: 22, color: notesAccent(context)),
+                      Icon(OzIcons.lock, size: 22, color: notesAccent(context)),
                       const SizedBox(height: 6),
                       Text('Locked note', style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: notesAccent(context))),
                     ])

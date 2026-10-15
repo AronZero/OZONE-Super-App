@@ -7,10 +7,11 @@ import '../../../../core/ui/theme/app_theme.dart';
 import '../../../../core/ui/theme/tokens.dart';
 import '../notes_parts.dart';
 import '../../../../core/ui/amounts.dart';
+import '../../../../core/ui/theme/oz_icons.dart';
 
 /// The violet lock tile at the top of vault screens.
 class VaultIcon extends StatelessWidget {
-  const VaultIcon({super.key, this.icon = Icons.lock_outline_rounded});
+  const VaultIcon({super.key, this.icon = OzIcons.lock});
   final IconData icon;
 
   @override
@@ -93,7 +94,7 @@ class _PasswordFieldState extends State<PasswordField> {
             suffixIcon: IconButton(
               tooltip: _show ? 'Hide password' : 'Show password',
               onPressed: () => setState(() => _show = !_show),
-              icon: Icon(_show ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: c.inkMuted),
+              icon: Icon(_show ? OzIcons.visibilityOff : OzIcons.visibility, color: c.inkMuted),
             ),
             border: border(Colors.transparent, 0),
             enabledBorder: border(widget.error == null ? Colors.transparent : c.danger, 2),

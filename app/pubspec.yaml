@@ -1,7 +1,7 @@
 name: ozone
 description: "OZONE: personal offline super app"
 publish_to: 'none'
-version: 1.0.0+10
+version: 1.1.0+12
 
 environment:
   sdk: ^3.13.4
@@ -42,7 +42,13 @@ flutter:
   uses-material-design: true
   assets:
     - assets/fonts/Manrope/OFL.txt
+    - assets/fonts/MaterialSymbolsRounded/LICENSE.txt
   fonts:
     - family: Manrope
       fonts:
         - asset: assets/fonts/Manrope/Manrope-VariableFont_wght.ttf
+    # Material Symbols Rounded (Apache-2.0), google/material-design-icons commit bd8cb85 (25 Sep 2026).
+    # Release builds keep only the glyphs used in lib/core/ui/theme/oz_icons.dart.
+    - family: MaterialSymbolsRounded
+      fonts:
+        - asset: assets/fonts/MaterialSymbolsRounded/MaterialSymbolsRounded.ttf

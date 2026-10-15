@@ -9,13 +9,14 @@ import 'ui/book_form_screen.dart';
 import 'ui/library_home.dart';
 import 'ui/library_stats_screen.dart';
 import 'ui/library_widgets.dart';
+import '../../core/ui/theme/oz_icons.dart';
 
 /// Library tool definition (M4, docs/spec/F3-04).
 const ToolDefinition libraryTool = ToolDefinition(
   id: 'library',
   name: 'Library',
   tint: ToolTint.library,
-  icon: Icons.menu_book_rounded,
+  icon: OzIcons.menuBook,
   routeBase: '/library',
   home: _home,
   routes: _routes,

@@ -8,6 +8,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
+import '../../../core/ui/theme/oz_icons.dart';
 
 /// Settings menu (W3 · Settings). Rows for parts not built yet are shown
 /// disabled with the milestone they arrive in.
@@ -38,19 +39,19 @@ class SettingsScreen extends ConsumerWidget {
                   const SectionLabel('App'),
                   GroupCard(children: [
                     SettingsRow(
-                      icon: Icons.contrast_rounded,
+                      icon: OzIcons.contrast,
                       title: 'Appearance',
                       subtitle: 'Theme: ${_themeName(theme)}',
                       onTap: () => context.push('/settings/appearance'),
                     ),
                     SettingsRow(
-                      icon: Icons.dashboard_customize_rounded,
+                      icon: OzIcons.dashboardCustomize,
                       title: 'Home dashboard',
                       subtitle: '${widgets.where((w) => w.on).length} of ${widgets.length} widgets shown',
                       onTap: () => context.push('/settings/dashboard'),
                     ),
                     SettingsRow(
-                      icon: Icons.space_bar_rounded,
+                      icon: OzIcons.spaceBar,
                       title: 'Bottom bar',
                       subtitle: barNames.isEmpty ? 'Home and Tools only' : barNames.join(' · '),
                       onTap: () => context.push('/edit-bar'),
@@ -59,7 +60,7 @@ class SettingsScreen extends ConsumerWidget {
                   const SectionLabel('Privacy'),
                   GroupCard(children: [
                     SettingsRow(
-                      icon: Icons.shield_outlined,
+                      icon: OzIcons.shield,
                       title: 'Security',
                       subtitle: lock?.on ?? false ? 'App lock on' : 'App lock off',
                       onTap: () => context.push('/settings/security'),
@@ -68,7 +69,7 @@ class SettingsScreen extends ConsumerWidget {
                   const SectionLabel('Tools'),
                   GroupCard(children: [
                     SettingsRow(
-                      icon: Icons.account_balance_wallet_rounded,
+                      icon: OzIcons.accountBalanceWallet,
                       iconBg: ToolTint.finance.tile(b),
                       iconFg: ToolTint.finance.accent(b),
                       title: 'Finance',
@@ -76,7 +77,7 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () => context.push('/settings/finance'),
                     ),
                     SettingsRow(
-                      icon: Icons.list_rounded,
+                      icon: OzIcons.list,
                       title: 'Lists',
                       subtitle: 'Vendors, savings platforms, account types',
                       onTap: () => context.push('/finance/lists'),
@@ -85,7 +86,7 @@ class SettingsScreen extends ConsumerWidget {
                   const SectionLabel('Data'),
                   GroupCard(children: [
                     SettingsRow(
-                      icon: Icons.download_rounded,
+                      icon: OzIcons.download,
                       iconBg: c.attentionBg,
                       iconFg: c.attentionInk,
                       title: 'Data & backup',
@@ -93,7 +94,7 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () => context.push('/settings/data'),
                     ),
                     SettingsRow(
-                      icon: Icons.info_outline_rounded,
+                      icon: OzIcons.info,
                       title: 'About OZONE',
                       subtitle: 'Version · Licences · Privacy',
                       onTap: () => context.push('/settings/about'),

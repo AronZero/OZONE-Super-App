@@ -13,6 +13,7 @@ import '../domain/savings_history.dart';
 import '../state/savings_providers.dart';
 import 'account_sheet.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/shell_bar_scope.dart';
 
 /// Savings tab (W1 · Savings): total card with the 12-month chart, then
 /// open accounts sorted by balance (decision M2-4), and the Add account button.
@@ -38,7 +39,7 @@ class SavingsOverview extends ConsumerWidget {
             final month = monthTotal(d.histories, today, today);
             final months = lastTwelveMonths(d.histories, today);
             return ListView(
-              padding: const EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, 104),
+              padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
               children: [
                 _TotalCard(month: month, months: months),
                 const SizedBox(height: Space.l),
@@ -58,10 +59,7 @@ class SavingsOverview extends ConsumerWidget {
             );
           },
         ),
-        Positioned(
-          right: Space.screen,
-          bottom: Space.screen,
-          child: FinanceAddButton(label: 'Add account', onPressed: () => showAccountSheet(context)),
+        ShellAddButtonSlot(child: FinanceAddButton(label: 'Add account', onPressed: () => showAccountSheet(context)),
         ),
       ],
     );
