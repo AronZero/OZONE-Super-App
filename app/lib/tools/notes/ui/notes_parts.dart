@@ -6,6 +6,7 @@ import '../../../core/domain/dates.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/notes.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Notes accent and tile for the current theme (docs/05 tool tints).
 Color notesAccent(BuildContext context) => ToolTint.notes.accent(Theme.of(context).brightness);
@@ -70,7 +71,7 @@ class NoteCard extends StatelessWidget {
       final where = '${folderName ?? 'Unfiled'} · $date';
       return Semantics(
         button: true,
-        label: 'Locked note in ${folderName ?? 'Unfiled'}, edited $date',
+        label: spokenAmounts('Locked note in ${folderName ?? 'Unfiled'}, edited $date'),
         excludeSemantics: true,
         child: Material(
           color: notesTile(context),
@@ -123,7 +124,7 @@ class NoteCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '$title${note.isPinned ? ', pinned' : ''}, edited $date${tags.isEmpty ? '' : ', tags ${tags.map((t) => '#${t.name}').join(' ')}'}',
+      label: spokenAmounts('$title${note.isPinned ? ', pinned' : ''}, edited $date${tags.isEmpty ? '' : ', tags ${tags.map((t) => '#${t.name}').join(' ')}'}'),
       excludeSemantics: true,
       child: Material(
         color: c.surface,
@@ -169,16 +170,20 @@ class NoteGrid extends StatelessWidget {
   final double gap;
 
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        for (var i = 0; i < children.length; i += 2) ...[
-          if (i > 0) SizedBox(height: gap),
-          IntrinsicHeight(
-            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Expanded(child: children[i]),
-              SizedBox(width: gap),
-              Expanded(child: i + 1 < children.length ? children[i + 1] : const SizedBox.shrink()),
-            ]),
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows(children, gap: gap));
+
+  /// One widget per row of two cards, so a long list can build only the rows on screen.
+  static List<Widget> rows(List<Widget> children, {double gap = 10}) => [
+        for (var i = 0; i < children.length; i += 2)
+          Padding(
+            padding: EdgeInsets.only(top: i > 0 ? gap : 0),
+            child: IntrinsicHeight(
+              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Expanded(child: children[i]),
+                SizedBox(width: gap),
+                Expanded(child: i + 1 < children.length ? children[i + 1] : const SizedBox.shrink()),
+              ]),
+            ),
           ),
-        ],
-      ]);
+      ];
 }

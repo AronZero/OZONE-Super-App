@@ -39,6 +39,26 @@ Copy `dist\OZONE-<version>-<date>.apk` to the phone (USB cable, Google Drive, �
 "install unknown apps" for that file manager when Android asks. Updates install over the old version and keep the data,
 as long as they're signed with the same key.
 
+## Performance check (large sample)
+
+Measures the F2-03 §8 budgets with 10,000 rows and 500 notes (`integration_test/large_sample.dart`).
+It writes the sample into the app's real database, so run it **only on a spare emulator or phone without
+your data**, never on the phone you use:
+
+```
+flutter drive --profile --keep-app-running -d <device> --driver=test_driver/perf_driver.dart --target=integration_test/perf_test.dart
+flutter run --profile --trace-startup --no-pub -d <device>   # cold start → build/start_up_info.json
+```
+
+Results land in `build/perf.json`. Delete the spare emulator afterwards.
+
+The main-flow test (first run → account → export → wipe → import → same totals) also wipes the
+app's data, so the same rule applies:
+
+```
+flutter drive --profile -d <device> --driver=test_driver/perf_driver.dart --target=integration_test/main_flow_test.dart
+```
+
 ## Project notes
 
 - `android/gradle.properties` sets `kotlin.incremental=false`, because the project (D:) and the pub cache (C:) are on

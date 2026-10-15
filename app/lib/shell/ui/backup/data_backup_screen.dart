@@ -90,7 +90,7 @@ class DataBackupScreen extends ConsumerWidget {
                           final t = await ref.read(backupServiceProvider).template();
                           await ExternalActivity.run(() => SharePlus.instance.share(ShareParams(files: [XFile(t.file.path)], title: t.name)));
                         },
-                        style: TextButton.styleFrom(foregroundColor: c.ink, padding: EdgeInsets.zero, minimumSize: const Size(48, 44)),
+                        style: TextButton.styleFrom(foregroundColor: c.ink, padding: EdgeInsets.zero, minimumSize: const Size(48, 48)),
                         child: const Text('Get a blank template', style: TextStyle(fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
                       ),
                     ),
@@ -108,7 +108,7 @@ class DataBackupScreen extends ConsumerWidget {
                       onSelected: (d) => ref.read(settingsRepoProvider).set(SettingKeys.backupReminderDays, d),
                       itemBuilder: (_) => [for (final d in const [7, 14, 30, 60, 90]) PopupMenuItem(value: d, child: Text('$d days'))],
                       child: Container(
-                        height: 40,
+                        height: 48,
                         padding: const EdgeInsets.symmetric(horizontal: Space.m),
                         decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(20)),
                         alignment: Alignment.center,

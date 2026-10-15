@@ -121,7 +121,7 @@ class _ArchivedCard extends StatelessWidget {
             ]),
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(money(context, lastBalance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+            Text(money(context, lastBalance), semanticsLabel: spokenAmounts(money(context, lastBalance)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
             Text('last balance', style: text.labelSmall!.copyWith(color: c.inkMuted)),
           ]),
         ]),

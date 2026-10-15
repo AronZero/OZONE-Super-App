@@ -58,7 +58,7 @@ class BookDetailScreen extends ConsumerWidget {
           child: Row(children: [
             Text(label, style: text.bodyLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w600, color: c.inkMuted)),
             const SizedBox(width: Space.m),
-            Expanded(child: Text(value, textAlign: TextAlign.right, style: text.bodyLarge!.copyWith(fontWeight: strong ? FontWeight.w800 : FontWeight.w700))),
+            Expanded(child: Text(value, semanticsLabel: spokenAmounts(value), textAlign: TextAlign.right, style: text.bodyLarge!.copyWith(fontWeight: strong ? FontWeight.w800 : FontWeight.w700))),
           ]),
         );
 
@@ -73,7 +73,7 @@ class BookDetailScreen extends ConsumerWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: c.surfaceSunken,
                   foregroundColor: c.ink,
-                  minimumSize: const Size(48, 40),
+                  minimumSize: const Size(48, 48),
                   shape: const StadiumBorder(),
                 ),
                 child: const Text('Edit', style: TextStyle(fontWeight: FontWeight.w800)),

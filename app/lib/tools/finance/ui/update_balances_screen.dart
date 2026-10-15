@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/state/providers.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -14,6 +16,7 @@ import '../data/savings_repo.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
 import 'update_sheet.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Update balances (W1 · Update balances, flow F2): every open account on one
 /// screen for one date. "Balance is unchanged" saves the last balance and makes
@@ -78,8 +81,10 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
     setState(() {});
     if (!ok || out.isEmpty) return;
     setState(() => _saving = true);
-    await ref.read(savingsRepoProvider).saveUpdates(_date, out);
-    if (mounted) Navigator.of(context).pop();
+    final saved = await guardSave(context, ref.read(errorLogProvider), what: 'save balances', () => ref.read(savingsRepoProvider).saveUpdates(_date, out));
+    if (!mounted) return;
+    if (!saved) return setState(() => _saving = false);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -148,8 +153,10 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
                       Row(children: [
                         Icon(Icons.error_outline_rounded, size: 16, color: c.attentionInk),
                         const SizedBox(width: 6),
-                        Text('Needs $article $monthName balance · ${due.length}',
-                            style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.attentionInk)),
+                        Expanded(
+                          child: Text('Needs $article $monthName balance · ${due.length}',
+                              style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.attentionInk)),
+                        ),
                       ]),
                       const SizedBox(height: Space.m),
                       for (final k in due) ...[_editor(k), const SizedBox(height: Space.m)],
@@ -174,7 +181,7 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
                 child: Column(children: [
                   Row(children: [
                     Expanded(child: Text('New total', style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w700, color: c.inkMuted))),
-                    Text(Money.format(newTotal), style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800)),
+                    Text(Money.format(newTotal), semanticsLabel: spokenAmounts(Money.format(newTotal)), style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800)),
                   ]),
                   const SizedBox(height: Space.s),
                   OzoneButton(
@@ -205,18 +212,18 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
             Text(LocalDate.parseIso(u.date).valueOrNull!.format(today), style: text.bodyMedium!.copyWith(color: c.inkMuted)),
           ]),
         ),
-        Text(Money.format(u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+        Text(Money.format(u.balance), semanticsLabel: spokenAmounts(Money.format(u.balance)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(width: Space.m),
         Semantics(
           button: true,
-          label: 'Edit ${k.account.name}',
+          label: spokenAmounts('Edit ${k.account.name}'),
           excludeSemantics: true,
           child: FilledButton(
             onPressed: () => setState(() => _editing.add(k.account.id)),
             style: FilledButton.styleFrom(
               backgroundColor: c.surfaceSunken,
               foregroundColor: c.ink,
-              minimumSize: const Size(48, 40),
+              minimumSize: const Size(48, 48),
               padding: const EdgeInsets.symmetric(horizontal: Space.m),
               shape: const StadiumBorder(),
             ),
@@ -247,7 +254,7 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(k.account.name, style: text.titleMedium),
-                Text(base == null ? 'No earlier balance' : 'Last: ${Money.format(base.balance)} · ${baseDate!.format(today)}',
+                Text(base == null ? 'No earlier balance' : 'Last: ${Money.format(base.balance)} · ${baseDate!.format(today)}', semanticsLabel: spokenAmounts(base == null ? 'No earlier balance' : 'Last: ${Money.format(base.balance)} · ${baseDate!.format(today)}'),
                     style: text.bodyMedium!.copyWith(color: c.inkMuted)),
               ]),
             ),
@@ -270,7 +277,7 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
             ),
             if (v != null && base != null) ...[
               const SizedBox(height: 6),
-              Text('${Money.change(v - base.balance)} since ${baseDate!.format(today)}',
+              Text('${Money.change(v - base.balance)} since ${baseDate!.format(today)}', semanticsLabel: spokenAmounts('${Money.change(v - base.balance)} since ${baseDate.format(today)}'),
                   style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, v - base.balance))),
             ],
           ],

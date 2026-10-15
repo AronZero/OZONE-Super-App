@@ -170,6 +170,7 @@ void main() {
 
   test('migration v1 → v2 builds the index for existing data', () async {
     final dir = await Directory.systemTemp.createTemp('ozone_mig');
+    addTearDown(() => dir.delete(recursive: true)); // also when the test fails or times out
     final file = File('${dir.path}/ozone.db');
     // Make a v1 database: today's schema minus the M7 parts, marked as version 1.
     var db = AppDatabase(NativeDatabase(file));
@@ -192,6 +193,5 @@ void main() {
     await BooksRepo(db, DeletionsRepo(db)).add(const BookInput(title: 'Emma', status: BookStatus.notStarted, acquisition: Acquisition.free));
     expect((await search.search('emma')).single.entity, 'book');
     await db.close();
-    await dir.delete(recursive: true);
   });
 }

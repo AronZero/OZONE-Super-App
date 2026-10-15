@@ -4,6 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../domain/notes.dart';
 import 'notes_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 Color _hex(String h) => Color(int.parse('FF${h.substring(1)}', radix: 16));
 
@@ -90,7 +91,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
           child: Semantics(
             button: true,
             toggled: toggle ? active : null,
-            label: label,
+            label: spokenAmounts(label),
             excludeSemantics: true,
             child: Tooltip(
               message: label,
@@ -101,7 +102,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
                   borderRadius: BorderRadius.circular(12),
                   onTap: onTap,
                   child: SizedBox(
-                    height: 44,
+                    height: 48,
                     child: Center(child: IconTheme(data: IconThemeData(color: active ? accent : c.ink, size: 20), child: icon)),
                   ),
                 ),
@@ -125,14 +126,14 @@ class _NoteToolbarState extends State<NoteToolbar> {
           child: Semantics(
             button: true,
             selected: selected,
-            label: label,
+            label: spokenAmounts(label),
             excludeSemantics: true,
             child: InkResponse(
               onTap: onTap,
               radius: 24,
               child: SizedBox(
                 width: 44,
-                height: 44,
+                height: 48,
                 // The chosen colour gets an accent ring with a gap, visible on any fill.
                 child: Center(
                   child: Container(

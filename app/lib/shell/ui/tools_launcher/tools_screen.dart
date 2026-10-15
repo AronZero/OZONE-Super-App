@@ -128,7 +128,8 @@ class _Grid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      childAspectRatio: 1.45,
+      // Taller tiles as text grows (200% text, docs/04).
+      childAspectRatio: 1.45 / (MediaQuery.textScalerOf(context).scale(16) / 16).clamp(1.0, 2.0),
       children: [
         for (final t in tools)
           Material(

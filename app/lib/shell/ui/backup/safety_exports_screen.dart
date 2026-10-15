@@ -74,7 +74,7 @@ class _SafetyExportsScreenState extends ConsumerState<SafetyExportsScreen> {
                                   await context.push('/settings/data/import', extra: f);
                                   if (mounted) setState(() => _files = ref.read(backupServiceProvider).safetyExports());
                                 },
-                                style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 44)),
+                                style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 48)),
                                 child: const Text('Import', style: TextStyle(fontWeight: FontWeight.w800)),
                               ),
                             ]),

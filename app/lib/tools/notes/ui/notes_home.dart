@@ -9,12 +9,14 @@ import '../../../core/data/settings_repo.dart';
 import '../../../core/state/providers.dart';
 import '../../../core/state/today.dart';
 import '../../../core/ui/components/components.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../data/notes_repo.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Folder filter: all notes, Unfiled, or one folder.
 sealed class FolderFilter {
@@ -86,7 +88,8 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     final today = ref.watch(todayProvider);
-    final data = ref.watch(notesDataProvider).value;
+    final notes = ref.watch(notesDataProvider);
+    final data = notes.value;
     final view = ref.watch(notesViewProvider).value ?? NotesView.grid;
     final vaultOpen = ref.watch(_vaultOpenProvider);
 
@@ -115,17 +118,18 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
           },
         );
 
-    Widget section(String? label, List<NoteRow> notes) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    // A flat list (one item per row of cards) so the list builds only what is on screen.
+    List<Widget> section(String? label, List<NoteRow> notes) => [
           if (label != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(Space.xs, 6, Space.xs, Space.s),
               child: Semantics(header: true, child: Text(label, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),
             ),
           if (view == NotesView.grid)
-            NoteGrid(children: [for (final n in notes) card(n)])
+            ...NoteGrid.rows([for (final n in notes) card(n)])
           else
             for (final n in notes) Padding(padding: const EdgeInsets.only(bottom: Space.s), child: card(n)),
-        ]);
+        ];
 
     Widget chip(String label, bool selected, VoidCallback onTap) => Padding(
           padding: const EdgeInsets.only(right: Space.s),
@@ -133,7 +137,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
             inMutuallyExclusiveGroup: true,
             checked: selected,
             button: true,
-            label: label,
+            label: spokenAmounts(label),
             excludeSemantics: true,
             child: Material(
               color: selected ? notesAccent(context) : c.surfaceSunken,
@@ -142,7 +146,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                 borderRadius: BorderRadius.circular(18),
                 onTap: onTap,
                 child: Container(
-                  constraints: const BoxConstraints(minHeight: 40),
+                  constraints: const BoxConstraints(minHeight: 48),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   alignment: Alignment.center,
                   child: Text(label,
@@ -201,7 +205,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                         child: Semantics(
                           button: true,
                           toggled: _tag == t.id,
-                          label: 'Tag ${t.name}',
+                          label: spokenAmounts('Tag ${t.name}'),
                           excludeSemantics: true,
                           child: Material(
                             color: _tag == t.id ? notesAccent(context) : notesTile(context),
@@ -210,7 +214,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                               borderRadius: BorderRadius.circular(16),
                               onTap: () => setState(() => _tag = _tag == t.id ? null : t.id),
                               child: Container(
-                                constraints: const BoxConstraints(minHeight: 36),
+                                constraints: const BoxConstraints(minHeight: 48),
                                 padding: const EdgeInsets.symmetric(horizontal: 10),
                                 alignment: Alignment.center,
                                 child: Text('#${t.name}',
@@ -223,9 +227,11 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                   ]),
                 ),
             ],
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Space.screen),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            for (final w in <Widget>[
+                if (data == null)
+                  notes.hasError
+                      ? LoadError(what: 'Notes', error: notes.error!, stack: notes.stackTrace, onRetry: () => ref.invalidate(notesDataProvider))
+                      : const DelayedSkeleton(),
                 if (emptyAll)
                   Container(
                     margin: const EdgeInsets.only(top: Space.s),
@@ -242,13 +248,13 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                     padding: const EdgeInsets.all(Space.l),
                     child: Text(_tag != null ? 'No notes with this tag here.' : 'No notes in this folder.', style: text.bodyLarge!.copyWith(color: c.inkMuted)),
                   ),
-                if (pinned.isNotEmpty) section('Pinned', pinned),
+                if (pinned.isNotEmpty) ...section('Pinned', pinned),
                 if (rest.isNotEmpty) ...[
                   if (pinned.isNotEmpty) const SizedBox(height: 6),
-                  section(pinned.isEmpty ? null : 'All notes', rest),
+                  ...section(pinned.isEmpty ? null : 'All notes', rest),
                 ],
-              ]),
-            ),
+              ])
+              Padding(padding: const EdgeInsets.symmetric(horizontal: Space.screen), child: w),
           ],
         ),
       ),

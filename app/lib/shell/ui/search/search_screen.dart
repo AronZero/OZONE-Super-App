@@ -9,6 +9,7 @@ import '../../../core/state/providers.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
+import '../../../core/ui/amounts.dart';
 
 /// W2 · Global search (F2-02 §1, docs/04): scope chips, results grouped in bar
 /// order with counts and the top 3, "See all", recent searches, and the fixed
@@ -104,7 +105,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           inMutuallyExclusiveGroup: true,
           checked: on,
           button: true,
-          label: 'Search in $label',
+          label: spokenAmounts('Search in $label'),
           excludeSemantics: true,
           child: Material(
             color: on ? c.ink : c.surfaceSunken,
@@ -113,7 +114,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               borderRadius: BorderRadius.circular(18),
               onTap: () => _pickScope(value),
               child: Container(
-                constraints: const BoxConstraints(minHeight: 40),
+                constraints: const BoxConstraints(minHeight: 48),
                 padding: const EdgeInsets.symmetric(horizontal: 13),
                 alignment: Alignment.center,
                 child: Text(label, style: text.bodyMedium!.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: on ? c.canvas : c.ink)),
@@ -131,7 +132,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Expanded(child: Semantics(header: true, child: Text('Recent searches', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)))),
           TextButton(
             onPressed: () => ref.read(searchRepoProvider).clearRecent(),
-            style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 44)),
+            style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 48)),
             child: const Text('Clear', style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ]));
@@ -181,7 +182,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               const SizedBox(height: Space.m),
               FilledButton(
                 onPressed: () => _pickScope(null),
-                style: FilledButton.styleFrom(backgroundColor: c.ink, foregroundColor: c.canvas, minimumSize: const Size(48, 44), shape: const StadiumBorder()),
+                style: FilledButton.styleFrom(backgroundColor: c.ink, foregroundColor: c.canvas, minimumSize: const Size(48, 48), shape: const StadiumBorder()),
                 child: const Text('Search all', style: TextStyle(fontWeight: FontWeight.w800)),
               ),
             ],
@@ -200,7 +201,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           if (_scope == null && g.count > g.hits.length)
             TextButton(
               onPressed: () => _pickScope(g.entity),
-              style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 40)),
+              style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 48)),
               child: Text('See all ${g.count}', style: const TextStyle(fontWeight: FontWeight.w800)),
             ),
         ]));
@@ -330,7 +331,7 @@ class _HitRow extends ConsumerWidget {
 
     return Semantics(
       button: true,
-      label: [plainTitle.isEmpty ? 'Untitled' : plainTitle, ?info?.subtitle, ?info?.trailing].join(', '),
+      label: spokenAmounts([plainTitle.isEmpty ? 'Untitled' : plainTitle, ?info?.subtitle, ?info?.trailing].join(', ')),
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,

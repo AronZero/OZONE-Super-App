@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../domain/dates.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
+import '../amounts.dart';
 
 /// Opens a form sheet (docs/04: forms with 6 fields or fewer are sheets).
 /// Sheets have rounded tops (28) and lift above the keyboard.
@@ -202,7 +203,7 @@ class OzoneTextField extends StatelessWidget {
                 ? null
                 : Padding(
                     padding: const EdgeInsets.only(left: Space.l, right: 6),
-                    child: Text(prefix!.trim(), style: text.bodyLarge!.copyWith(color: c.inkMuted, fontWeight: FontWeight.w700)),
+                    child: Text(prefix!.trim(), semanticsLabel: spokenAmounts(prefix!.trim()), style: text.bodyLarge!.copyWith(color: c.inkMuted, fontWeight: FontWeight.w700)),
                   ),
             prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
             contentPadding: EdgeInsets.fromLTRB(prefix == null ? Space.l : 0, 15, Space.l, 15),
@@ -241,7 +242,7 @@ class DateButton extends StatelessWidget {
     final fg = accent ?? c.ink;
     return Semantics(
       button: true,
-      label: 'Change date, currently ${date.formatLong()}',
+      label: spokenAmounts('Change date, currently ${date.formatLong()}'),
       excludeSemantics: true,
       child: Material(
         color: tile ?? c.surfaceSunken,
@@ -265,7 +266,8 @@ class DateButton extends StatelessWidget {
               children: [
                 Icon(Icons.calendar_today_rounded, size: 18, color: fg),
                 const SizedBox(width: Space.s),
-                Text(date.formatLong(), style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: fg)),
+                // Wraps at large text sizes instead of overflowing (docs/04).
+                Flexible(child: Text(date.formatLong(), style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: fg))),
               ],
             ),
           ),

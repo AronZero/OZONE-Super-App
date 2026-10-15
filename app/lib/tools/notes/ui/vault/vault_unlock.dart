@@ -210,12 +210,12 @@ class _UnlockSheetState extends ConsumerState<_UnlockSheet> {
                 Navigator.of(context).pop(false);
                 unawaited(router.push('/notes/vault/forgot'));
               },
-              style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 44)),
+              style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 48)),
               child: const Text('Forgot password?', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 44)),
+              style: TextButton.styleFrom(foregroundColor: c.ink, minimumSize: const Size(48, 48)),
               child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
           ]),

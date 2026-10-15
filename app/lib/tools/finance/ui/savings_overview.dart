@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -27,13 +28,11 @@ class SavingsOverview extends ConsumerWidget {
 
     return Stack(
       children: [
-        data.when(
-          loading: () => const SizedBox.shrink(),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.all(Space.xl),
-            child: Text('Savings couldn’t be loaded. Close and reopen OZONE to try again.', style: text.bodyLarge),
-          ),
-          data: (d) {
+        AsyncBody(
+          value: data,
+          what: 'Savings',
+          onRetry: () => ref.invalidate(savingsDataProvider),
+          builder: (d) {
             final open = [...d.open]..sort((a, b) => (b.latest?.balance ?? 0).compareTo(a.latest?.balance ?? 0));
             if (open.isEmpty) return _Empty(hasArchived: d.archived.isNotEmpty);
             final month = monthTotal(d.histories, today, today);
@@ -94,9 +93,9 @@ class _TotalCard extends StatelessWidget {
             ]),
             const SizedBox(height: Space.s),
             Semantics(
-              label: 'Total savings ${moneySpoken(context, month.total ?? 0)}',
+              label: moneySpoken(context, month.total ?? 0), // the heading above already says "Total savings"
               excludeSemantics: true,
-              child: Text(money(context, month.total ?? 0), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+              child: Text(money(context, month.total ?? 0), semanticsLabel: spokenAmounts(money(context, month.total ?? 0)), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
             ),
             const SizedBox(height: Space.s),
             Wrap(
@@ -203,7 +202,7 @@ class _AccountRow extends ConsumerWidget {
                   ]),
                 ),
                 const SizedBox(width: Space.s),
-                Text(money(context, last.balance), style: text.bodyLarge!.copyWith(fontSize: 15.5, fontWeight: FontWeight.w800)),
+                Text(money(context, last.balance), semanticsLabel: spokenAmounts(money(context, last.balance)), style: text.bodyLarge!.copyWith(fontSize: 15.5, fontWeight: FontWeight.w800)),
               ]),
             ),
           ),

@@ -66,7 +66,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: c.surfaceSunken,
                     foregroundColor: c.ink,
-                    minimumSize: const Size(48, 40),
+                    minimumSize: const Size(48, 48),
                     padding: const EdgeInsets.symmetric(horizontal: Space.m),
                     shape: const StadiumBorder(),
                   ),
@@ -179,17 +179,18 @@ class _YearCard extends StatelessWidget {
           else if (!hasBase) ...[
             Text('Total at the end of ${yearTotal.month.monthName}', style: muted),
             const SizedBox(height: 6),
-            Text(money(context, end!), style: text.headlineSmall!.copyWith(fontSize: 26)),
+            Text(money(context, end!), semanticsLabel: spokenAmounts(money(context, end)), style: text.headlineSmall!.copyWith(fontSize: 26)),
             const SizedBox(height: 6),
             Text('Tracking started in $year, so there is no change to show yet.', style: muted.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600)),
           ] else ...[
             Text('Change since 31 Dec ${year - 1}', style: muted),
             const SizedBox(height: 6),
-            Text(moneyChange(context, yearTotal.change), style: text.headlineSmall!.copyWith(fontSize: 26)),
+            Text(moneyChange(context, yearTotal.change), semanticsLabel: spokenAmounts(moneyChange(context, yearTotal.change)), style: text.headlineSmall!.copyWith(fontSize: 26)),
             const SizedBox(height: 6),
             Text(
               '${money(context, baseTotal.total!)} → ${end == null ? 'no data' : money(context, end)} · '
-              '${yearTotal.change >= 0 ? '+' : '−'}${Money.percent(yearTotal.change.abs(), baseTotal.total!)}',
+              '${yearTotal.change >= 0 ? '+' : '−'}${Money.percent(yearTotal.change.abs(), baseTotal.total!)}', semanticsLabel: spokenAmounts('${money(context, baseTotal.total!)} → ${end == null ? 'no data' : money(context, end)} · '
+              '${yearTotal.change >= 0 ? '+' : '−'}${Money.percent(yearTotal.change.abs(), baseTotal.total!)}'),
               style: muted.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600),
             ),
           ],
@@ -244,7 +245,7 @@ class _MonthTable extends ConsumerWidget {
               Text(m.monthShort, style: text.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: fg)),
               t.hasData
                   ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(money(context, t.total!), style: text.bodyLarge!.copyWith(fontSize: 14.5, fontWeight: FontWeight.w800, color: fg)),
+                      Text(money(context, t.total!), semanticsLabel: spokenAmounts(money(context, t.total!)), style: text.bodyLarge!.copyWith(fontSize: 14.5, fontWeight: FontWeight.w800, color: fg)),
                       if (tag != null) ...[const SizedBox(height: 3), DashedPill(tag)],
                     ])
                   : Text('— No data', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
@@ -253,7 +254,7 @@ class _MonthTable extends ConsumerWidget {
                   : t.countedAccounts == 0
                       ? Text(t.newAccounts > 0 ? 'Start' : 'Not counted', style: changeStyle.copyWith(color: c.inkMuted))
                       : Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                          Text(moneyChange(context, t.change), style: changeStyle.copyWith(color: changeColor(c, t.change))),
+                          Text(moneyChange(context, t.change), semanticsLabel: spokenAmounts(moneyChange(context, t.change)), style: changeStyle.copyWith(color: changeColor(c, t.change))),
                           if (t.newAccounts > 0)
                             Text('+${t.newAccounts} new, not counted', style: text.labelSmall!.copyWith(fontSize: 11, color: c.inkMuted)),
                         ]),

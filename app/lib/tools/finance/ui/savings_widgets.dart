@@ -23,7 +23,6 @@ class TotalSavingsWidget extends ConsumerWidget {
     final carried = t == null || t.carried == 0 ? '' : (t.allCarried ? ' · all carried' : ' · includes ${t.carried} carried');
     return FinanceWidgetTile(
       onTap: () => context.go('/finance?tab=savings'),
-      semantics: t?.total == null ? 'Total savings, no accounts yet' : 'Total savings ${moneySpoken(context, t!.total!)}',
       children: [
         Row(children: [
           Expanded(child: Text('Total savings', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),
@@ -33,7 +32,7 @@ class TotalSavingsWidget extends ConsumerWidget {
         if (t?.total == null)
           Text('Add a savings account to see your total here.', style: text.bodyLarge!.copyWith(color: c.inkMuted))
         else ...[
-          Text(money(context, t!.total!), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+          Text(money(context, t!.total!), semanticsLabel: spokenAmounts(money(context, t.total!)), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           const SizedBox(height: 6),
           Text('As of ${today.format(today)}$carried', style: text.bodyMedium!.copyWith(color: c.inkMuted)),
         ],
@@ -74,17 +73,16 @@ class SavingsTrendWidget extends ConsumerWidget {
   }
 }
 
-/// A tinted, tappable Home widget card for Finance.
+/// A tinted, tappable Home widget card for Finance. TalkBack reads its own text
+/// (amounts in pesos, M9); a separate summary label would read everything twice.
 class FinanceWidgetTile extends StatelessWidget {
-  const FinanceWidgetTile({super.key, required this.onTap, required this.children, this.semantics});
+  const FinanceWidgetTile({super.key, required this.onTap, required this.children});
   final VoidCallback onTap;
   final List<Widget> children;
-  final String? semantics;
 
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
-        label: semantics,
         child: Material(
           color: financeTile(context),
           borderRadius: BorderRadius.circular(Radii.card),

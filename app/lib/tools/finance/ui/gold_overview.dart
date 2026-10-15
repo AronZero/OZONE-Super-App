@@ -7,6 +7,7 @@ import '../../../core/domain/money.dart';
 import '../../../core/domain/weight.dart';
 import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../data/gold_repo.dart';
@@ -26,13 +27,11 @@ class GoldOverview extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     return Stack(
       children: [
-        data.when(
-          loading: () => const SizedBox.shrink(),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.all(Space.xl),
-            child: Text('Gold couldn’t be loaded. Close and reopen OZONE to try again.', style: text.bodyLarge),
-          ),
-          data: (d) {
+        AsyncBody(
+          value: data,
+          what: 'Gold',
+          onRetry: () => ref.invalidate(goldDataProvider),
+          builder: (d) {
             final held = [...d.held]..sort((a, b) => (d.valueOf(b) ?? -1).compareTo(d.valueOf(a) ?? -1));
             return ListView(
               padding: const EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, 104),
@@ -106,7 +105,7 @@ class _ValueCard extends ConsumerWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(label, style: text.labelLarge!.copyWith(color: c.inkMuted)),
               const SizedBox(height: 2),
-              Text(value, style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
+              Text(value, semanticsLabel: spokenAmounts(value), style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
             ]),
           ),
         );
@@ -122,9 +121,9 @@ class _ValueCard extends ConsumerWidget {
           ]),
           const SizedBox(height: Space.s),
           Semantics(
-            label: t.hasValue ? 'Estimated value ${moneySpoken(context, t.value)}' : 'No estimated value yet',
+            label: t.hasValue ? moneySpoken(context, t.value) : 'No estimated value yet', // the heading names it
             excludeSemantics: true,
-            child: Text(t.hasValue ? money(context, t.value) : '—', style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+            child: Text(t.hasValue ? money(context, t.value) : '—', semanticsLabel: spokenAmounts(t.hasValue ? money(context, t.value) : '—'), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           ),
           if (t.unpricedNote != null) ...[
             const SizedBox(height: Space.xs),
@@ -150,7 +149,7 @@ class _ValueCard extends ConsumerWidget {
                 customBorder: const StadiumBorder(),
                 onTap: () => context.push('/finance/gold/prices'),
                 child: Container(
-                  height: 44,
+                  height: 48,
                   padding: const EdgeInsets.symmetric(horizontal: Space.l),
                   alignment: Alignment.center,
                   child: Text('Karat prices', style: text.bodyLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w800, color: c.onAccent)),
@@ -176,7 +175,7 @@ class GainPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(999)),
-      child: Text('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}',
+      child: Text('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}', semanticsLabel: spokenAmounts('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}'),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
     );
   }
@@ -201,7 +200,7 @@ class GoldItemRowTile extends ConsumerWidget {
     final sub = subtitle ?? '${Weight.format(item.weightMg)} · cost ${money(context, item.cost)}';
     return Semantics(
       button: true,
-      label: '${item.name}, ${item.karat} karat, $sub${v == null ? '' : ', estimated ${moneySpoken(context, v)}'}',
+      label: spokenAmounts('${item.name}, ${item.karat} karat, $sub${v == null ? '' : ', estimated ${moneySpoken(context, v)}'}'),
       excludeSemantics: true,
       child: Material(
         color: c.surface,
@@ -226,7 +225,7 @@ class GoldItemRowTile extends ConsumerWidget {
                 const SizedBox(width: Space.s),
                 if (held)
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    Text(v == null ? 'No ${item.karat}K price' : money(context, v),
+                    Text(v == null ? 'No ${item.karat}K price' : money(context, v), semanticsLabel: spokenAmounts(v == null ? 'No ${item.karat}K price' : money(context, v)),
                         style: v == null
                             ? text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.attentionInk)
                             : text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
@@ -235,7 +234,7 @@ class GoldItemRowTile extends ConsumerWidget {
                           style: text.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
                   ])
                 else
-                  Text(money(context, item.cost), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
+                  Text(money(context, item.cost), semanticsLabel: spokenAmounts(money(context, item.cost)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
               ]),
             ),
           ),
@@ -255,7 +254,7 @@ class KaratTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     return Semantics(
-      label: '$karat karat',
+      label: spokenAmounts('$karat karat'),
       excludeSemantics: true,
       child: Container(
         width: 46,

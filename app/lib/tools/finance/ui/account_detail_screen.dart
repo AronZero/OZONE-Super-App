@@ -198,7 +198,7 @@ class _Header extends ConsumerWidget {
         children: [
           if (facts.isNotEmpty) Text(facts, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
           const SizedBox(height: Space.s),
-          Text(money(context, last?.balance ?? 0), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+          Text(money(context, last?.balance ?? 0), semanticsLabel: spokenAmounts(money(context, last?.balance ?? 0)), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           const SizedBox(height: Space.s),
           Wrap(
             spacing: Space.s,
@@ -283,13 +283,13 @@ class _ByMonth extends ConsumerWidget {
     return [
       Text(m.monthShortYear, style: text.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: carried ? c.inkMuted : c.ink)),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(money(context, u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: carried ? c.inkMuted : c.ink)),
+        Text(money(context, u.balance), semanticsLabel: spokenAmounts(money(context, u.balance)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: carried ? c.inkMuted : c.ink)),
         const SizedBox(height: 3),
         if (carried) DashedPill('Carried from ${u.date.monthShort}') else Text(note, style: text.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
       ]),
       switch (change) {
         CountedChange(:final amount, :final base) => Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(moneyChange(context, amount), textAlign: TextAlign.right, style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: changeColor(c, amount))),
+            Text(moneyChange(context, amount), semanticsLabel: spokenAmounts(moneyChange(context, amount)), textAlign: TextAlign.right, style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: changeColor(c, amount))),
             if (base.status == MonthStatus.carried)
               Text('vs ${base.update!.date.monthShort}', style: text.labelSmall!.copyWith(fontSize: 11, color: c.inkMuted)),
           ]),
@@ -364,7 +364,7 @@ class _AllUpdates extends ConsumerWidget {
                           maxLines: 2, overflow: TextOverflow.ellipsis, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
                   ]),
                 ),
-                Text(money(context, u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+                Text(money(context, u.balance), semanticsLabel: spokenAmounts(money(context, u.balance)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(width: Space.xs),
                 Icon(Icons.chevron_right_rounded, color: c.inkMuted),
               ]),

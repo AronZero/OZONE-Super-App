@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/app_info.dart';
 import '../../../core/data/setup_check.dart';
+import '../../../core/platform/error_log.dart';
+import '../../../core/platform/external_activity.dart';
+import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -51,6 +56,8 @@ class AboutScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: Space.m),
                   const _SetupCheckCard(),
+                  const SizedBox(height: Space.m),
+                  const GroupCard(children: [_ErrorLogRow()]),
                 ],
               ),
             ),
@@ -58,6 +65,52 @@ class AboutScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// "Error log": share or clear the local log of unexpected errors (F3-01 §5).
+class _ErrorLogRow extends ConsumerWidget {
+  const _ErrorLogRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final log = ref.watch(errorLogProvider);
+    return ValueListenableBuilder<int>(
+      valueListenable: log.changes,
+      builder: (context, _, _) => FutureBuilder<int>(
+        future: log.count(),
+        builder: (context, snap) {
+          final n = snap.data ?? 0;
+          return SettingsRow(
+            title: 'Error log',
+            subtitle: n == 0
+                ? 'No errors recorded. If something goes wrong, OZONE notes where, never your data.'
+                : '$n ${n == 1 ? 'error' : 'errors'} recorded on this phone. Share it if you’re asked to, or clear it.',
+            onTap: n == 0 ? null : () => _actions(context, log),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _actions(BuildContext context, ErrorLog log) async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      useRootNavigator: true,
+      builder: (context) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(leading: const Icon(Icons.ios_share_rounded), title: const Text('Share error log'), onTap: () => Navigator.of(context).pop('share')),
+          ListTile(leading: const Icon(Icons.delete_outline_rounded), title: const Text('Clear error log'), onTap: () => Navigator.of(context).pop('clear')),
+        ]),
+      ),
+    );
+    if (choice == 'clear') await log.clear();
+    if (choice == 'share') {
+      final f = await log.file();
+      if (f != null && await f.exists()) {
+        await ExternalActivity.run(() => SharePlus.instance.share(ShareParams(files: [XFile(f.path, mimeType: 'text/plain')], title: 'OZONE error log')));
+      }
+    }
   }
 }
 

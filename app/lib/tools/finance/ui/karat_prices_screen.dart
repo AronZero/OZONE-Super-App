@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -20,6 +21,7 @@ import '../domain/gold.dart';
 import '../state/finance_providers.dart';
 import 'gold_overview.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Karat prices (W2 · Karat prices): one price per gram per karat, saved
 /// with a date. Saving an unchanged price confirms it (it's no longer stale).
@@ -117,8 +119,10 @@ class _KaratPricesScreenState extends ConsumerState<KaratPricesScreen> {
     setState(() {});
     if (!ok || out.isEmpty) return;
     setState(() => _saving = true);
-    await ref.read(goldRepoProvider).savePrices(_date, out);
-    if (mounted) Navigator.of(context).pop();
+    final saved = await guardSave(context, ref.read(errorLogProvider), what: 'save karat prices', () => ref.read(goldRepoProvider).savePrices(_date, out));
+    if (!mounted) return;
+    if (!saved) return setState(() => _saving = false);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -185,10 +189,10 @@ class _KaratPricesScreenState extends ConsumerState<KaratPricesScreen> {
                           children: [
                             Text('New estimated value', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
                             const SizedBox(height: Space.xs),
-                            Text(next.hasValue ? Money.format(next.value) : '—', style: text.headlineSmall!.copyWith(fontSize: 26)),
+                            Text(next.hasValue ? Money.format(next.value) : '—', semanticsLabel: spokenAmounts(next.hasValue ? Money.format(next.value) : '—'), style: text.headlineSmall!.copyWith(fontSize: 26)),
                             const SizedBox(height: Space.xs),
                             Text(
-                              delta == 0 ? 'Same as current estimate' : '${Money.change(delta)} vs current estimate',
+                              delta == 0 ? 'Same as current estimate' : '${Money.change(delta)} vs current estimate', semanticsLabel: spokenAmounts(delta == 0 ? 'Same as current estimate' : '${Money.change(delta)} vs current estimate'),
                               style: text.bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w700, color: changeColor(c, delta)),
                             ),
                             if (next.unpricedNote != null)
@@ -203,11 +207,12 @@ class _KaratPricesScreenState extends ConsumerState<KaratPricesScreen> {
                 padding: const EdgeInsets.fromLTRB(Space.screen, Space.m, Space.screen, Space.xl),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: Space.s,
                       children: [
                         Text('Saved as prices for', style: text.bodyMedium!.copyWith(fontSize: 12.5, color: c.inkMuted)),
-                        const SizedBox(width: Space.s),
                         DateButton(date: _date, today: today, onChanged: (v) => setState(() => _date = v)),
                       ],
                     ),
@@ -269,7 +274,7 @@ class _KaratPricesScreenState extends ConsumerState<KaratPricesScreen> {
               SizedBox(
                 width: 150,
                 child: Semantics(
-                  label: '${k}K price per gram in pesos',
+                  label: spokenAmounts('${k}K price per gram in pesos'),
                   child: TextField(
                     key: ValueKey('price-$k'),
                     controller: _field(k, current),
@@ -286,7 +291,7 @@ class _KaratPricesScreenState extends ConsumerState<KaratPricesScreen> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.only(left: Space.m, right: 4),
                         child: Text(
-                          '₱',
+                          '₱', semanticsLabel: spokenAmounts('₱'),
                           style: text.bodyLarge!.copyWith(color: c.inkMuted, fontWeight: FontWeight.w700),
                         ),
                       ),
@@ -363,7 +368,7 @@ class KaratHistoryScreen extends ConsumerWidget {
                                     ],
                                   ),
                                 ),
-                                Text('${Money.format(r.pricePerGram)}/g', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+                                Text('${Money.format(r.pricePerGram)}/g', semanticsLabel: spokenAmounts('${Money.format(r.pricePerGram)}/g'), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                                 IconButton(
                                   tooltip: 'Delete this price',
                                   icon: Icon(Icons.delete_outline_rounded, color: c.inkMuted),

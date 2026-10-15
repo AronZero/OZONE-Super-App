@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/state/providers.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -127,12 +129,16 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
       remarks: r.valueOrNull,
     );
     final repo = ref.read(booksRepoProvider);
-    if (_e == null) {
-      await repo.add(input);
-    } else {
-      await repo.edit(_e!.id, input);
-    }
-    if (mounted) Navigator.of(context).pop();
+    final ok = await guardSave(context, ref.read(errorLogProvider), what: 'save book', () async {
+      if (_e == null) {
+        await repo.add(input);
+      } else {
+        await repo.edit(_e!.id, input);
+      }
+    });
+    if (!mounted) return;
+    if (!ok) return setState(() => _saving = false);
+    Navigator.of(context).pop();
   }
 
   @override

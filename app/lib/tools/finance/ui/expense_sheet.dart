@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/state/providers.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -95,14 +97,18 @@ class _ExpenseSheetState extends ConsumerState<_ExpenseSheet> {
       if (go != true) return;
     }
 
+    if (!mounted) return;
     setState(() => _saving = true);
     final repo = ref.read(expensesRepoProvider);
-    if (_e == null) {
-      await repo.add(input);
-    } else {
-      await repo.edit(_e.id, input);
-    }
+    final ok = await guardSave(context, ref.read(errorLogProvider), what: 'save expense', () async {
+      if (_e == null) {
+        await repo.add(input);
+      } else {
+        await repo.edit(_e.id, input);
+      }
+    });
     if (!mounted) return;
+    if (!ok) return setState(() => _saving = false);
     if (another) {
       // Keep the date and vendor (flow F3).
       setState(() {

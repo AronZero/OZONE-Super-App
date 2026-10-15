@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/state/providers.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -88,22 +90,26 @@ class _AccountSheetState extends ConsumerState<_AccountSheet> {
     if (!(name.isOk && platform.isOk && type.isOk && remarks.isOk && balance.isOk)) return;
     setState(() => _saving = true);
     final repo = ref.read(savingsRepoProvider);
-    final Validation<Object?> r = _editing
-        ? await repo.editAccount(widget.existing!.id,
-            name: name.valueOrNull!, platform: platform.valueOrNull, type: type.valueOrNull, remarks: remarks.valueOrNull)
-        : await repo.addAccount(
-            name: name.valueOrNull!,
-            platform: platform.valueOrNull,
-            type: type.valueOrNull,
-            remarks: remarks.valueOrNull,
-            startBalance: balance.valueOrNull!,
-            asOf: _asOf,
-          );
+    Validation<Object?>? r;
+    final ok = await guardSave(context, ref.read(errorLogProvider), what: 'save account', () async {
+      r = _editing
+          ? await repo.editAccount(widget.existing!.id,
+              name: name.valueOrNull!, platform: platform.valueOrNull, type: type.valueOrNull, remarks: remarks.valueOrNull)
+          : await repo.addAccount(
+              name: name.valueOrNull!,
+              platform: platform.valueOrNull,
+              type: type.valueOrNull,
+              remarks: remarks.valueOrNull,
+              startBalance: balance.valueOrNull!,
+              asOf: _asOf,
+            );
+    });
     if (!mounted) return;
-    if (r is Invalid<Object?>) {
+    if (!ok) return setState(() => _saving = false);
+    if (r case Invalid<Object?>(:final reason)) {
       setState(() {
         _saving = false;
-        _nameErr = r.reason;
+        _nameErr = reason;
       });
       return;
     }

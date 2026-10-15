@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -21,6 +22,7 @@ import '../domain/gold.dart';
 import '../domain/savings_rules.dart';
 import '../state/finance_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Add or edit a gold item in one sheet (decision M3-1): name, grams, karat,
 /// vendor, purchase date, cost, remarks, Held/Disposed, and Delete with Undo.
@@ -117,12 +119,16 @@ class _GoldItemSheetState extends ConsumerState<_GoldItemSheet> {
       remarks: remarks.valueOrNull,
     );
     final repo = ref.read(goldRepoProvider);
-    if (_e == null) {
-      await repo.addItem(input);
-    } else {
-      await repo.editItem(_e.id, input);
-    }
-    if (mounted) Navigator.of(context).pop();
+    final ok = await guardSave(context, ref.read(errorLogProvider), what: 'save gold item', () async {
+      if (_e == null) {
+        await repo.addItem(input);
+      } else {
+        await repo.editItem(_e.id, input);
+      }
+    });
+    if (!mounted) return;
+    if (!ok) return setState(() => _saving = false);
+    Navigator.of(context).pop();
   }
 
   Future<void> _delete() async {
@@ -218,7 +224,9 @@ class _GoldItemSheetState extends ConsumerState<_GoldItemSheet> {
           Text(
             price == null
                 ? 'No ${k}K price yet. You can still save it; set the price in Karat prices.'
-                : 'Estimated ${Money.format(itemValue(w, price.pricePerGram))} at ${Money.format(price.pricePerGram)}/g (${price.date.format(today)})',
+                : 'Estimated ${Money.format(itemValue(w, price.pricePerGram))} at ${Money.format(price.pricePerGram)}/g (${price.date.format(today)})', semanticsLabel: spokenAmounts(price == null
+                ? 'No ${k}K price yet. You can still save it; set the price in Karat prices.'
+                : 'Estimated ${Money.format(itemValue(w, price.pricePerGram))} at ${Money.format(price.pricePerGram)}/g (${price.date.format(today)})'),
             style: text.bodyMedium!.copyWith(color: price == null ? c.attentionInk : c.inkMuted, fontWeight: FontWeight.w700),
           ),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

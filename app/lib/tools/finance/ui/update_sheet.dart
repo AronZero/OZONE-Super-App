@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ui/components/states.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
@@ -16,6 +17,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/savings_rules.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Update one account's balance, or edit/delete one past update (decision M2-2).
 /// An existing update keeps its date; saving a new one on a date that already
@@ -67,9 +69,11 @@ class _UpdateSheetState extends ConsumerState<_UpdateSheet> {
     });
     if (!bal.isOk || !remarks.isOk) return;
     setState(() => _saving = true);
-    await ref.read(savingsRepoProvider).saveUpdate(widget.accountId, _date, bal.valueOrNull!,
-        isUnchanged: _unchanged, remarks: remarks.valueOrNull);
-    if (mounted) Navigator.of(context).pop();
+    final saved = await guardSave(context, ref.read(errorLogProvider), what: 'save balance update', () =>
+        ref.read(savingsRepoProvider).saveUpdate(widget.accountId, _date, bal.valueOrNull!, isUnchanged: _unchanged, remarks: remarks.valueOrNull));
+    if (!mounted) return;
+    if (!saved) return setState(() => _saving = false);
+    Navigator.of(context).pop();
   }
 
   Future<void> _delete() async {
@@ -135,7 +139,7 @@ class _UpdateSheetState extends ConsumerState<_UpdateSheet> {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(account.name, style: text.titleMedium),
                 Text(
-                  base == null ? 'No earlier balance' : 'Before: ${Money.format(base.balance)} · ${baseDate!.format(today)}',
+                  base == null ? 'No earlier balance' : 'Before: ${Money.format(base.balance)} · ${baseDate!.format(today)}', semanticsLabel: spokenAmounts(base == null ? 'No earlier balance' : 'Before: ${Money.format(base.balance)} · ${baseDate!.format(today)}'),
                   style: text.bodyMedium!.copyWith(color: c.inkMuted),
                 ),
               ]),
@@ -149,7 +153,7 @@ class _UpdateSheetState extends ConsumerState<_UpdateSheet> {
             Text(_date.formatLong(), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
         ]),
         if (sameDay != null)
-          Text('Replaces the ${Money.format(sameDay.balance)} saved on ${_date.format(today)}.',
+          Text('Replaces the ${Money.format(sameDay.balance)} saved on ${_date.format(today)}.', semanticsLabel: spokenAmounts('Replaces the ${Money.format(sameDay.balance)} saved on ${_date.format(today)}.'),
               style: text.bodyMedium!.copyWith(color: c.attentionInk, fontWeight: FontWeight.w700)),
         if (_unchanged)
           UnchangedBox(balance: base?.balance ?? 0, month: _date)
@@ -168,7 +172,7 @@ class _UpdateSheetState extends ConsumerState<_UpdateSheet> {
             fieldKey: const ValueKey('update-balance'),
           ),
         if (value != null && base != null && !_unchanged)
-          Text('${Money.change(value - base.balance)} since ${baseDate!.format(today)}',
+          Text('${Money.change(value - base.balance)} since ${baseDate!.format(today)}', semanticsLabel: spokenAmounts('${Money.change(value - base.balance)} since ${baseDate.format(today)}'),
               style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, value - base.balance))),
         if (base != null)
           OzoneButton(
@@ -202,7 +206,7 @@ class UnchangedBox extends StatelessWidget {
           child: Row(children: [
             Icon(Icons.check_rounded, color: c.ink, size: 20),
             const SizedBox(width: 10),
-            Expanded(child: Text('Confirmed unchanged · ${Money.format(balance)}', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700))),
+            Expanded(child: Text('Confirmed unchanged · ${Money.format(balance)}', semanticsLabel: spokenAmounts('Confirmed unchanged · ${Money.format(balance)}'), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700))),
           ]),
         ),
         const SizedBox(height: 6),

@@ -6,6 +6,7 @@ import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Appearance (W3 · Appearance): System / Light / Dark. The whole app,
 /// including this screen, switches as soon as a choice is tapped.
@@ -105,7 +106,7 @@ class _ThemeCard extends StatelessWidget {
       inMutuallyExclusiveGroup: true,
       checked: selected,
       button: true,
-      label: '$name theme',
+      label: spokenAmounts('$name theme'),
       excludeSemantics: true,
       child: Material(
         color: c.surface,

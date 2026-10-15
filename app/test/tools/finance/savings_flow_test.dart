@@ -54,6 +54,8 @@ void main() {
     expect(find.text('₱732,550.00'), findsOneWidget);
     expect(find.text('▲ +₱6,150.00 vs Sep'), findsOneWidget);
     expect(find.text('2 accounts · 1 carried'), findsOneWidget);
+    // Below the fold on the 800 × 600 test screen since the 48 dp controls (M9).
+    await tester.scrollUntilVisible(find.text('Carried · 30 Sep'), 200, scrollable: find.byType(Scrollable).first);
     expect(find.text('Carried · 30 Sep'), findsOneWidget);
     await closeApp(tester, db);
   });

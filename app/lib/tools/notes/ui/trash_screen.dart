@@ -70,7 +70,7 @@ class TrashScreen extends ConsumerWidget {
               if (items.isNotEmpty)
                 TextButton(
                   onPressed: emptyAll,
-                  style: TextButton.styleFrom(foregroundColor: c.danger, minimumSize: const Size(48, 44)),
+                  style: TextButton.styleFrom(foregroundColor: c.danger, minimumSize: const Size(48, 48)),
                   child: const Text('Empty trash', style: TextStyle(fontWeight: FontWeight.w800)),
                 ),
             ]),

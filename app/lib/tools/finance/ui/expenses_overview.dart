@@ -8,6 +8,7 @@ import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -58,13 +59,11 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
     final data = ref.watch(expensesDataProvider);
 
     return Stack(children: [
-      data.when(
-        loading: () => const SizedBox.shrink(),
-        error: (e, _) => Padding(
-          padding: const EdgeInsets.all(Space.xl),
-          child: Text('Expenses couldn’t be loaded. Close and reopen OZONE to try again.', style: text.bodyLarge),
-        ),
-        data: (d) {
+      AsyncBody(
+        value: data,
+        what: 'Expenses',
+        onRetry: () => ref.invalidate(expensesDataProvider),
+        builder: (d) {
           final firstYear = d.rows.isEmpty ? today.year : d.spends.map((s) => s.date.year).reduce((a, b) => a < b ? a : b);
           final year = (_year ?? today.year).clamp(firstYear, today.year);
           final inYear = [for (final r in d.rows) if (r.date.startsWith('$year-')) r];
@@ -134,7 +133,7 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
                 else if (_sort == ExpenseSort.newest || _sort == ExpenseSort.oldest)
                   ..._byMonth(shown, today)
                 else
-                  _Group(rows: shown, today: today),
+                  ...GroupCard.rows(context, [for (final r in shown) ExpenseRowTile(row: r, today: today)]),
               ],
             ],
           );
@@ -167,11 +166,11 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
               ),
             ),
             // Refunded expenses never count (F1-04 §5).
-            Text(money(context, e.value.where((r) => !r.isRefunded).fold(0, (a, r) => a + r.amount)),
+            Text(money(context, e.value.where((r) => !r.isRefunded).fold(0, (a, r) => a + r.amount)), semanticsLabel: spokenAmounts(money(context, e.value.where((r) => !r.isRefunded).fold(0, (a, r) => a + r.amount))),
                 style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
           ]),
         ),
-        _Group(rows: e.value, today: today),
+        ...GroupCard.rows(context, [for (final r in e.value) ExpenseRowTile(row: r, today: today)]),
       ],
     ];
   }
@@ -214,17 +213,19 @@ class _YearCard extends StatelessWidget {
           ),
           const Spacer(),
           if (hasAny)
-            Material(
-              color: c.surface,
-              shape: const StadiumBorder(),
-              child: InkWell(
-                customBorder: const StadiumBorder(),
-                onTap: () => context.push('/finance/expenses/years'),
-                child: Container(
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  alignment: Alignment.center,
-                  child: Text('Yearly report', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
+            Flexible(
+              child: Material(
+                color: c.surface,
+                shape: const StadiumBorder(),
+                child: InkWell(
+                  customBorder: const StadiumBorder(),
+                  onTap: () => context.push('/finance/expenses/years'),
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    alignment: Alignment.center,
+                    child: Text('Yearly report', textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
+                  ),
                 ),
               ),
             ),
@@ -232,13 +233,13 @@ class _YearCard extends StatelessWidget {
         Text(current ? 'Spent so far this year' : 'Spent in $year', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
         const SizedBox(height: Space.xs),
         Semantics(
-          label: '${current ? 'Spent so far this year' : 'Spent in $year'}: ${moneySpoken(context, ytd.thisYear)}',
+          label: moneySpoken(context, ytd.thisYear), // the line above names it
           excludeSemantics: true,
-          child: Text(money(context, ytd.thisYear), style: text.displaySmall!.copyWith(fontSize: 30, letterSpacing: -0.6)),
+          child: Text(money(context, ytd.thisYear), semanticsLabel: spokenAmounts(money(context, ytd.thisYear)), style: text.displaySmall!.copyWith(fontSize: 30, letterSpacing: -0.6)),
         ),
         const SizedBox(height: Space.xs),
         // Spending changes use the neutral muted colour (docs/05).
-        Text(compare, style: text.bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w800, color: c.inkMuted)),
+        Text(compare, semanticsLabel: spokenAmounts(compare), style: text.bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w800, color: c.inkMuted)),
       ]),
     );
   }
@@ -276,7 +277,7 @@ class _FilterRow extends StatelessWidget {
     Widget chip(String label, bool on, VoidCallback onTap) => Semantics(
           button: true,
           selected: on,
-          label: label,
+          label: spokenAmounts(label),
           excludeSemantics: true,
           child: Material(
             color: on ? financeAccent(context) : c.surfaceSunken,
@@ -285,7 +286,7 @@ class _FilterRow extends StatelessWidget {
               customBorder: const StadiumBorder(),
               onTap: onTap,
               child: Container(
-                height: 40,
+                height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 alignment: Alignment.center,
                 child: Text(label, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: on ? c.onAccent : c.ink)),
@@ -317,7 +318,7 @@ class _FilterRow extends StatelessWidget {
           onSelected: onSort,
           itemBuilder: (_) => [for (final s in ExpenseSort.values) PopupMenuItem(value: s, child: Text(s.label))],
           child: Container(
-            height: 40,
+            height: 48,
             padding: const EdgeInsets.symmetric(horizontal: Space.s),
             alignment: Alignment.center,
             child: Text('${sort.label} ⇅', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700)),
@@ -401,16 +402,6 @@ class _FilterRow extends StatelessWidget {
   }
 }
 
-/// A white group of expense rows.
-class _Group extends StatelessWidget {
-  const _Group({required this.rows, required this.today});
-  final List<ExpenseRow> rows;
-  final LocalDate today;
-
-  @override
-  Widget build(BuildContext context) => GroupCard(children: [for (final r in rows) ExpenseRowTile(row: r, today: today)]);
-}
-
 /// One expense: item, vendor · date, amount (struck through when refunded).
 class ExpenseRowTile extends StatelessWidget {
   const ExpenseRowTile({super.key, required this.row, required this.today});
@@ -443,7 +434,7 @@ class ExpenseRowTile extends StatelessWidget {
               const SizedBox(width: Space.s),
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text(
-                  money(context, row.amount),
+                  money(context, row.amount), semanticsLabel: spokenAmounts(money(context, row.amount)),
                   style: text.bodyLarge!.copyWith(
                     fontWeight: FontWeight.w800,
                     color: row.isRefunded ? c.inkMuted : c.ink,

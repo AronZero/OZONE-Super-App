@@ -224,7 +224,7 @@ class _NeedsAttention extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(Radii.tile),
                 onTap: () => context.push(i.route),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 44),
+                  constraints: const BoxConstraints(minHeight: 48),
                   child: Row(
                     children: [
                       Expanded(

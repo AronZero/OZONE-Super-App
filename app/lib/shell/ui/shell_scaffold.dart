@@ -7,6 +7,7 @@ import '../../core/state/providers.dart';
 import '../../core/ui/theme/app_theme.dart';
 import '../../core/ui/theme/tokens.dart';
 import '../tool_registry.dart';
+import '../../core/ui/amounts.dart';
 
 /// One entry in the bottom bar.
 class BarItem {
@@ -78,7 +79,7 @@ class _Bar extends StatelessWidget {
                     key: ValueKey('bar-${items[i].label}'),
                     selected: i == current,
                     button: true,
-                    label: items[i].label,
+                    label: spokenAmounts(items[i].label),
                     excludeSemantics: true,
                     child: InkResponse(
                       onTap: () => onTap(i),

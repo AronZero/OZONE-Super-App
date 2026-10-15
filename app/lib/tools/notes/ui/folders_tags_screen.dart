@@ -12,6 +12,7 @@ import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'note_sheets.dart';
 import 'notes_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 String _count(int n) => '$n ${n == 1 ? 'note' : 'notes'}';
 
@@ -123,7 +124,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
           child: Semantics(
             selected: selected,
             button: true,
-            label: label,
+            label: spokenAmounts(label),
             excludeSemantics: true,
             child: Material(
               color: selected ? c.surface : Colors.transparent,
@@ -132,7 +133,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
                 borderRadius: BorderRadius.circular(20),
                 onTap: onTap,
                 child: SizedBox(
-                  height: 44,
+                  height: 48,
                   child: Center(child: Text(label, style: text.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w800, color: selected ? c.ink : c.inkMuted))),
                 ),
               ),
@@ -155,7 +156,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: c.surfaceSunken,
               foregroundColor: c.ink,
-              minimumSize: const Size(48, 40),
+              minimumSize: const Size(48, 48),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               shape: const StadiumBorder(),
               textStyle: text.bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w800),
@@ -179,7 +180,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: c.surfaceSunken,
                     foregroundColor: c.ink,
-                    minimumSize: const Size(48, 40),
+                    minimumSize: const Size(48, 48),
                     shape: const StadiumBorder(),
                     textStyle: text.bodyMedium!.copyWith(fontSize: 13, fontWeight: FontWeight.w800),
                   ),

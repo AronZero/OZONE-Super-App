@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../components/forms.dart';
+import '../amounts.dart';
 
 /// One bar: a month's value, or null for No data (drawn as a faint stub).
 class BarDatum {
@@ -48,7 +49,7 @@ class MonthBars extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.labelSmall!.copyWith(color: labelColor);
     return Semantics(
-      label: semanticLabel,
+      label: spokenAmounts(semanticLabel),
       image: true,
       excludeSemantics: true,
       child: SizedBox(

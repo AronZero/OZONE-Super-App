@@ -6,6 +6,7 @@ import '../../../../core/security/vault_crypto.dart';
 import '../../../../core/ui/theme/app_theme.dart';
 import '../../../../core/ui/theme/tokens.dart';
 import '../notes_parts.dart';
+import '../../../../core/ui/amounts.dart';
 
 /// The violet lock tile at the top of vault screens.
 class VaultIcon extends StatelessWidget {
@@ -179,7 +180,7 @@ class _RecoveryCodeViewState extends State<RecoveryCodeView> {
     final groups = formatRecoveryCode(widget.code).split(' ');
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
-      label: 'Recovery code, in order: ${[for (var i = 0; i < groups.length; i++) 'group ${i + 1}, ${groups[i].split('').join(' ')}'].join('; ')}',
+      label: spokenAmounts('Recovery code, in order: ${[for (var i = 0; i < groups.length; i++) 'group ${i + 1}, ${groups[i].split('').join(' ')}'].join('; ')}'),
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.fromLTRB(18, 22, 18, 22),

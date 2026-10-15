@@ -8,6 +8,7 @@ import 'expenses_overview.dart';
 import 'gold_overview.dart';
 import 'savings_overview.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Finance (W1 · Savings): top tabs Savings · Gold · Expenses (docs/02).
 /// The tab can be chosen by link: `/finance?tab=gold` (Home widgets use this).
@@ -84,7 +85,7 @@ class _FinanceTabs extends StatelessWidget {
               child: Semantics(
                 selected: i == selected,
                 button: true,
-                label: '$name tab',
+                label: spokenAmounts('$name tab'),
                 excludeSemantics: true,
                 child: Material(
                   color: i == selected ? financeTile(context) : Colors.transparent,
@@ -93,7 +94,7 @@ class _FinanceTabs extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     onTap: () => onSelected(i),
                     child: SizedBox(
-                      height: 40,
+                      height: 48,
                       child: Center(
                         child: Text(name,
                             style: text.bodyMedium!.copyWith(

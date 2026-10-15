@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Library accent and tile for the current theme (docs/05 tool tints).
 Color libraryAccent(BuildContext context) => ToolTint.library.accent(Theme.of(context).brightness);
@@ -67,7 +68,7 @@ class LibraryChoice<T> extends StatelessWidget {
         inMutuallyExclusiveGroup: true,
         checked: on,
         button: true,
-        label: o.$2,
+        label: spokenAmounts(o.$2),
         excludeSemantics: true,
         child: Material(
           color: on ? libraryAccent(context) : c.surfaceSunken,
@@ -77,7 +78,7 @@ class LibraryChoice<T> extends StatelessWidget {
             onTap: () => onSelected(o.$1),
             // widthFactor 1: a pill is as wide as its label (in a grid, Expanded stretches it).
             child: SizedBox(
-              height: 40,
+              height: 48,
               child: Center(
                 widthFactor: 1,
                 child: Padding(
@@ -95,7 +96,7 @@ class LibraryChoice<T> extends StatelessWidget {
     }
 
     return Semantics(
-      label: label,
+      label: spokenAmounts(label),
       container: true,
       child: grid
           ? Column(children: [
@@ -139,7 +140,7 @@ class RatingStepper extends StatelessWidget {
       Row(children: [
         Expanded(
           child: Semantics(
-            label: ratingSpoken(half),
+            label: spokenAmounts(ratingSpoken(half)),
             excludeSemantics: true,
             child: Row(children: [
               for (var i = 0; i < 5; i++) Icon(star(i), size: 24, color: half == null ? c.outline : libraryAccent(context)),

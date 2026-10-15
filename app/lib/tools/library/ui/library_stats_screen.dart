@@ -39,7 +39,7 @@ class _LibraryStatsScreenState extends ConsumerState<LibraryStatsScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(label, style: text.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: tinted ? libraryAccent(context) : c.inkMuted)),
               const SizedBox(height: 2),
-              Text(value, style: text.headlineSmall!.copyWith(fontSize: 22, color: valueColor)),
+              Text(value, semanticsLabel: spokenAmounts(value), style: text.headlineSmall!.copyWith(fontSize: 22, color: valueColor)),
               Text(note, style: text.labelLarge!.copyWith(fontWeight: FontWeight.w600, color: c.inkMuted)),
             ]),
           ),

@@ -11,6 +11,7 @@ import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
+import '../../../core/ui/amounts.dart';
 
 /// A locked note from Home: unlock first (UX3 board: "asks to unlock if locked").
 Future<void> _openLocked(BuildContext context, WidgetRef ref, String id) async {
@@ -61,7 +62,7 @@ class _MiniNote extends ConsumerWidget {
     final locked = note.isLocked;
     return Semantics(
       button: true,
-      label: locked ? 'Locked note' : (note.title ?? 'Untitled'),
+      label: spokenAmounts(locked ? 'Locked note' : (note.title ?? 'Untitled')),
       excludeSemantics: true,
       child: Material(
         color: c.surface,

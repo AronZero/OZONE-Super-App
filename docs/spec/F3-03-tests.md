@@ -14,7 +14,7 @@ A milestone is done only when its tests pass, its acceptance checks pass on the 
 | Widget + golden | `flutter test` | Components and key screens | Light and dark goldens per Components board item; 200% text without overflow; semantics labels present |
 | Integration | `integration_test` on the reference phone or an emulator | Main flows F1–F10 (docs/04) | First run → add account → update balances → export → reset app → restore → same totals |
 
-Coverage target: domain and data at least 90% of lines; UI is covered by goldens and integration tests rather than a number.
+Coverage target: domain and data at least 90% of lines (data counts logic only: table declarations and plugin wrappers are left out, M9-8); UI is covered by goldens and integration tests rather than a number.
 
 ## 2. Sample data
 

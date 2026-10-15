@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/ui/components/components.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_parts.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Library sorts (decision M4-1).
 enum BookSort {
@@ -54,7 +56,8 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final data = ref.watch(booksDataProvider).value;
+    final books = ref.watch(booksDataProvider);
+    final data = books.value;
     final rows = [...?data?.rows.where((b) => _status == null || b.status == _status!.key)];
     switch (_sort) {
       case BookSort.recent:
@@ -152,10 +155,13 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                 ),
               ]),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Space.screen),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                if (data != null && data.rows.isEmpty)
+            // One list item per book, so a long library builds only the rows on screen.
+            for (final w in <Widget>[
+                if (data == null)
+                  books.hasError
+                      ? LoadError(what: 'Library', error: books.error!, stack: books.stackTrace, onRetry: () => ref.invalidate(booksDataProvider))
+                      : const DelayedSkeleton()
+                else if (data.rows.isEmpty)
                   Container(
                     padding: const EdgeInsets.all(Space.xl),
                     decoration: BoxDecoration(color: libraryTile(context), borderRadius: BorderRadius.circular(Radii.card)),
@@ -166,14 +172,20 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                           style: text.bodyLarge!.copyWith(color: c.inkMuted)),
                     ]),
                   )
-                else if (data != null && rows.isEmpty)
+                else if (rows.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(Space.l),
-                    child: Text('No books with this status.', style: text.bodyLarge!.copyWith(color: c.inkMuted)),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('No books match this filter', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+                      const SizedBox(height: Space.xs),
+                      Text('Show all books to see the rest of your library.', style: text.bodyLarge!.copyWith(color: c.inkMuted)),
+                      const SizedBox(height: Space.m),
+                      OzoneButton(label: 'Clear filter', primary: false, height: 48, onPressed: () => setState(() => _status = null)),
+                    ]),
                   ),
-                for (final b in rows) ...[BookRowTile(book: b), const SizedBox(height: 6)],
-              ]),
-            ),
+                for (final b in rows) Padding(padding: const EdgeInsets.only(bottom: 6), child: BookRowTile(book: b)),
+              ])
+                Padding(padding: const EdgeInsets.symmetric(horizontal: Space.screen), child: w),
           ],
         ),
       ),
@@ -200,7 +212,7 @@ class BookRowTile extends StatelessWidget {
     final acq = Acquisition.of(book.acquisition).label;
     return Semantics(
       button: true,
-      label: '${book.title}${book.author == null ? '' : ', by ${book.author}'}, ${status.label}, ${ratingSpoken(book.ratingHalf)}, $kindle, $acq',
+      label: spokenAmounts('${book.title}${book.author == null ? '' : ', by ${book.author}'}, ${status.label}, ${ratingSpoken(book.ratingHalf)}, $kindle, $acq'),
       excludeSemantics: true,
       child: Material(
         color: c.surface,

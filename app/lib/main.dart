@@ -11,6 +11,7 @@ import 'core/data/database.dart';
 import 'core/data/deletions_repo.dart';
 import 'core/data/first_run.dart';
 import 'core/data/settings_repo.dart';
+import 'core/platform/error_log.dart';
 import 'core/platform/reminders.dart';
 import 'core/security/app_lock_service.dart';
 import 'core/security/biometric_key_store.dart';
@@ -23,6 +24,17 @@ import 'core/workbook/backup_service.dart';
 /// purge (OzoneApp) → re-schedule the reminder → app lock → Home, or Welcome on first run.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Unexpected errors go to a local log only (F3-01 §5); screens show the States error pattern.
+  final errors = ErrorLog(() async => File('${(await getApplicationSupportDirectory()).path}/errors.log'));
+  FlutterError.onError = (d) {
+    FlutterError.presentError(d);
+    errors.record(d.exception, d.stack, where: d.library ?? 'flutter');
+  };
+  PlatformDispatcher.instance.onError = (e, st) {
+    errors.record(e, st, where: 'async');
+    return true;
+  };
 
   // Draw behind the status and navigation bars; screens use SafeArea.
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -62,6 +74,7 @@ Future<void> main() async {
       amountsVisibilityProvider.overrideWithValue(amounts),
       backupServiceProvider.overrideWithValue(backup),
       remindersProvider.overrideWithValue(reminders),
+      errorLogProvider.overrideWithValue(errors),
     ],
     child: OzoneApp(initialLocation: welcome ? '/welcome' : (fromReminder ? '/finance/savings/update' : '/home')),
   ));

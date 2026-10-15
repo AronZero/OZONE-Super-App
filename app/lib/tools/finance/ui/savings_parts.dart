@@ -54,7 +54,7 @@ class ChangePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(999)),
-      child: Text('${moneyChange(context, amount)}$suffix',
+      child: Text('${moneyChange(context, amount)}$suffix', semanticsLabel: spokenAmounts('${moneyChange(context, amount)}$suffix'),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, amount))),
     );
   }
@@ -109,7 +109,7 @@ class SegmentTabs extends StatelessWidget {
             child: Semantics(
               selected: i == selected,
               button: true,
-              label: labels[i],
+              label: spokenAmounts(labels[i]),
               excludeSemantics: true,
               child: Material(
                 color: i == selected ? c.surface : Colors.transparent,
@@ -118,7 +118,7 @@ class SegmentTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   onTap: () => onSelected(i),
                   child: SizedBox(
-                    height: 40,
+                    height: 48,
                     child: Center(
                       child: Text(labels[i],
                           maxLines: 1,

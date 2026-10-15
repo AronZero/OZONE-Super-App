@@ -7,6 +7,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Edit bar (W3 · Edit bar): choose and order up to 3 tools. Home and Tools
 /// are always in the bar (docs/03). Changes apply at once.
@@ -70,7 +71,7 @@ class EditBarScreen extends ConsumerWidget {
                   Text('Preview', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
                   const SizedBox(height: Space.s),
                   Semantics(
-                    label: 'Bar preview: ${['Home', ...inBar.map((t) => t.name), 'Tools'].join(', ')}',
+                    label: spokenAmounts('Bar preview: ${['Home', ...inBar.map((t) => t.name), 'Tools'].join(', ')}'),
                     excludeSemantics: true,
                     child: Container(
                       height: 68,
@@ -115,7 +116,7 @@ class EditBarScreen extends ConsumerWidget {
                           ),
                           TextButton(
                             onPressed: () => save([...bar]..remove(inBar[i].id)),
-                            style: TextButton.styleFrom(backgroundColor: c.surfaceSunken, foregroundColor: c.ink, minimumSize: const Size(48, 40)),
+                            style: TextButton.styleFrom(backgroundColor: c.surfaceSunken, foregroundColor: c.ink, minimumSize: const Size(48, 48)),
                             child: Text('Remove', semanticsLabel: 'Remove ${inBar[i].name} from the bar'),
                           ),
                         ]),
@@ -135,7 +136,7 @@ class EditBarScreen extends ConsumerWidget {
                             Expanded(child: Text(t.name, style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700))),
                             FilledButton(
                               onPressed: full ? null : () => save([...bar, t.id]),
-                              style: FilledButton.styleFrom(backgroundColor: c.ink, foregroundColor: c.canvas, minimumSize: const Size(48, 40)),
+                              style: FilledButton.styleFrom(backgroundColor: c.ink, foregroundColor: c.canvas, minimumSize: const Size(48, 48)),
                               child: Text('Add', semanticsLabel: 'Add ${t.name} to the bar'),
                             ),
                           ]),

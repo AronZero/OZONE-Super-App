@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
+import '../amounts.dart';
 
 /// Detail top bar (back arrow, optional overline, title, trailing actions)
 /// as on the W3 Settings boards.
@@ -131,6 +132,25 @@ class GroupCard extends StatelessWidget {
       ),
     );
   }
+
+  /// The same card as one widget per row (rounded at the ends), so a long list
+  /// in a ListView builds only the rows on screen (F2-03 §8 scrolling).
+  static List<Widget> rows(BuildContext context, List<Widget> children) {
+    final c = OzoneThemeColors.of(context);
+    const r = Radius.circular(Radii.card);
+    return [
+      for (var i = 0; i < children.length; i++)
+        Material(
+          color: c.surface,
+          clipBehavior: Clip.antiAlias,
+          borderRadius: BorderRadius.vertical(top: i == 0 ? r : Radius.zero, bottom: i == children.length - 1 ? r : Radius.zero),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (i > 0) Divider(height: 1, thickness: 1, color: c.surfaceSunken.withValues(alpha: 0.7)),
+            children[i],
+          ]),
+        ),
+    ];
+  }
 }
 
 /// A settings row: optional icon tile, title, subtitle, trailing (chevron by default).
@@ -186,7 +206,7 @@ class SettingsRow extends StatelessWidget {
                   Text(title, style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700, color: titleColor)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle!, style: text.bodyMedium!.copyWith(color: subtitleColor ?? c.inkMuted)),
+                    Text(subtitle!, semanticsLabel: spokenAmounts(subtitle!), style: text.bodyMedium!.copyWith(color: subtitleColor ?? c.inkMuted)),
                   ],
                 ],
               ),
@@ -217,7 +237,7 @@ class OzoneSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     return Semantics(
-      label: label,
+      label: spokenAmounts(label),
       child: Switch(
         value: value,
         onChanged: onChanged,
@@ -245,7 +265,7 @@ class ChoiceChips<T> extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     return Semantics(
-      label: label,
+      label: spokenAmounts(label),
       container: true,
       child: Row(
         children: [
@@ -257,7 +277,7 @@ class ChoiceChips<T> extends StatelessWidget {
                   inMutuallyExclusiveGroup: true,
                   checked: v == selected,
                   button: true,
-                  label: name,
+                  label: spokenAmounts(name),
                   excludeSemantics: true,
                   child: Material(
                     color: v == selected ? c.ink : c.surfaceSunken,
@@ -266,7 +286,7 @@ class ChoiceChips<T> extends StatelessWidget {
                       borderRadius: BorderRadius.circular(22),
                       onTap: () => onSelected(v),
                       child: SizedBox(
-                        height: 44,
+                        height: 48,
                         child: Center(
                           child: Text(name,
                               style: text.bodyMedium!.copyWith(
@@ -306,7 +326,8 @@ class OzoneButton extends StatelessWidget {
     final bg = color ?? (primary ? c.ink : c.surfaceSunken);
     final fg = foreground ?? (primary ? c.canvas : c.ink);
     return SizedBox(
-      height: height,
+      // Never under the 48 dp touch target (docs/04 › Accessibility).
+      height: height < 48 ? 48 : height,
       width: double.infinity,
       child: FilledButton(
         onPressed: onPressed,

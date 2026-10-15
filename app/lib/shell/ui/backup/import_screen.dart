@@ -18,6 +18,7 @@ import '../../../core/workbook/foreign_vault.dart';
 import '../../../core/workbook/ozone_import.dart';
 import '../../../tools/notes/ui/vault/vault_parts.dart';
 import '../../../tools/notes/ui/vault/vault_unlock.dart';
+import '../../../core/ui/amounts.dart';
 
 /// Picks a `.xlsx` (F2-03 §2: the system picker; the file is read once into memory).
 Future<(String, List<int>)?> pickWorkbook() async {
@@ -350,7 +351,7 @@ class _CountsTable extends StatelessWidget {
             color: v.check > 0 ? c.attentionBg.withValues(alpha: 0.35) : null,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Semantics(
-              label: '$sheet: ${v.newRows} new, ${v.changed} changed, ${v.same} same, ${v.check} to check',
+              label: spokenAmounts('$sheet: ${v.newRows} new, ${v.changed} changed, ${v.same} same, ${v.check} to check'),
               excludeSemantics: true,
               child: Row(children: [
                 cell(sheet, left: true, strong: true),
@@ -392,7 +393,7 @@ class _CheckCard extends StatelessWidget {
         if (err > 0) Text('$err with errors · not imported', style: style),
         TextButton(
           onPressed: () => showOzoneSheet<void>(context, builder: (_) => _ReviewSheet(sheet: sheet, rows: rows, onChanged: onChanged)),
-          style: TextButton.styleFrom(foregroundColor: c.attentionInk, padding: EdgeInsets.zero, minimumSize: const Size(48, 44)),
+          style: TextButton.styleFrom(foregroundColor: c.attentionInk, padding: EdgeInsets.zero, minimumSize: const Size(48, 48)),
           child: Text('Review ${rows.length} ${rows.length == 1 ? 'row' : 'rows'}', style: const TextStyle(fontWeight: FontWeight.w800, decoration: TextDecoration.underline)),
         ),
       ]),
@@ -436,7 +437,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                   ),
                   if (r.cls == RowClass.duplicate || r.cls == RowClass.deletedHere)
                     Semantics(
-                      label: r.cls == RowClass.duplicate ? 'Add anyway' : 'Restore',
+                      label: spokenAmounts(r.cls == RowClass.duplicate ? 'Add anyway' : 'Restore'),
                       child: OzoneSwitch(
                         label: r.cls == RowClass.duplicate ? 'Add anyway' : 'Restore',
                         value: r.apply,

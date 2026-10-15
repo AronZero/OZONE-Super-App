@@ -63,6 +63,11 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 SegmentTabs(labels: const ['Chart', 'Table'], selected: _table ? 1 : 0, onSelected: (i) => setState(() => _table = i == 1)),
                 const SizedBox(height: Space.m),
+                if (years.length == 1) ...[
+                  Text('Comparisons start once you have two years of expenses. So far you have ${years.single.year} only.',
+                      style: text.bodyLarge!.copyWith(color: c.inkMuted)),
+                  const SizedBox(height: Space.m),
+                ],
                 if (years.isEmpty)
                   Text('No expenses yet.', style: text.bodyLarge)
                 else if (!_table)
@@ -94,13 +99,13 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
                         _row(
                           context,
                           Text(years[i].soFar ? '${years[i].year}*' : '${years[i].year}', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700)),
-                          Text(money(context, years[i].total), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+                          Text(money(context, years[i].total), semanticsLabel: spokenAmounts(money(context, years[i].total)), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                           Text(vsPrior(i), style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
                         ),
                     ]),
                   ),
                 const SizedBox(height: Space.m),
-                Text(summary, style: text.bodyLarge!.copyWith(fontSize: 14, height: 1.5)),
+                Text(summary, semanticsLabel: spokenAmounts(summary), style: text.bodyLarge!.copyWith(fontSize: 14, height: 1.5)),
                 const SizedBox(height: Space.m),
                 Container(
                   padding: const EdgeInsets.all(Space.l),

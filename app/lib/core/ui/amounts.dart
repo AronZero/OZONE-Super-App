@@ -42,3 +42,20 @@ String moneyCompact(BuildContext context, int centavos) => AmountsScope.hidden(c
 
 /// Screen-reader wording, or "amount hidden".
 String moneySpoken(BuildContext context, int centavos) => AmountsScope.hidden(context) ? 'amount hidden' : Money.spoken(centavos);
+
+final _amount = RegExp(r'(▲ \+|▼ −|−|\+)?₱ ?(••••|[\d,]+(?:\.\d{1,2})?)?([kM])?');
+
+/// The same text with every amount in words, for TalkBack (docs/04: amounts are
+/// read as "1,234 pesos and 50 centavos"): `▲ +₱3,600.00` → "up 3,600 pesos",
+/// `₱125k` → "125 thousand pesos", `₱ ••••` → "amount hidden".
+String spokenAmounts(String text) => text.replaceAllMapped(_amount, (m) {
+      final digits = m[2];
+      if (digits == null) return 'pesos'; // the ₱ before an amount field
+      if (digits == '••••') return 'amount hidden';
+      final sign = switch (m[1]) { '▲ +' => 'up ', '▼ −' => 'down ', '−' => 'minus ', '+' => 'plus ', _ => '' };
+      final plain = digits.replaceAll(',', '');
+      if (m[3] != null) return '$sign$plain ${m[3] == 'k' ? 'thousand' : 'million'} pesos';
+      final parts = plain.split('.');
+      final cents = parts.length == 1 ? 0 : int.parse(parts[1].padRight(2, '0'));
+      return '$sign${Money.spoken(int.parse(parts[0]) * 100 + cents)}';
+    });

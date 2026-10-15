@@ -313,7 +313,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
             borderRadius: BorderRadius.circular(16),
             onTap: onTap,
             child: Container(
-              constraints: const BoxConstraints(minHeight: 40),
+              constraints: const BoxConstraints(minHeight: 48),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 if (icon != null) ...[Icon(icon, size: 15, color: c.ink), const SizedBox(width: 6)],
@@ -368,7 +368,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
-                // A tap below the text puts the cursor at the end.
+                // A tap below the text puts the cursor at the end (a convenience; the editor itself is in the semantics tree).
+                excludeFromSemantics: true,
                 onTap: () => _bodyFocus.requestFocus(),
                 child: SingleChildScrollView(
                   controller: _scroll,
@@ -417,6 +418,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
                         hintStyle: text.headlineMedium!.copyWith(fontSize: 28, fontWeight: FontWeight.w800, color: c.inkMuted.withValues(alpha: 0.6)),
                         border: InputBorder.none,
                         isCollapsed: true,
+                        constraints: const BoxConstraints(minHeight: 48),
                       ),
                     ),
                     if (n != null && n.editedAt != n.createdAt) ...[

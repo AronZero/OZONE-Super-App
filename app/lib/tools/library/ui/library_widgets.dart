@@ -48,7 +48,9 @@ class CurrentlyReadingWidget extends ConsumerWidget {
                 context.go('/library');
                 context.push('/library/books/${b.id}');
               },
-              child: Padding(
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 48),
+                alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.fromLTRB(18, Space.s, 18, Space.s),
                 child: Text.rich(
                   TextSpan(children: [
@@ -84,7 +86,7 @@ class LibrarySnapshotWidget extends ConsumerWidget {
     ].fold<int>(0, (a, b) => a + b);
     Widget fig(String value, String label) => Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(value, style: text.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
+            Text(value, semanticsLabel: spokenAmounts(value), style: text.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
             Text(label, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
           ]),
         );

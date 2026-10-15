@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/database.dart';
 import '../data/deletions_repo.dart';
 import '../data/settings_repo.dart';
+import '../platform/error_log.dart';
 import '../platform/reminders.dart';
 import '../search/search_repo.dart';
 import '../security/app_lock_service.dart';
@@ -70,6 +71,9 @@ final monthEndReminderProvider = StreamProvider<MonthEndReminder>((ref) => ref.w
 
 /// Month-end reminder (F2-03 §4). Overridden in `main()`.
 final remindersProvider = Provider<Reminders>((ref) => throw UnimplementedError('remindersProvider must be overridden'));
+
+/// Local error log (F3-01 §5). Overridden in `main()` with a file in app support.
+final errorLogProvider = Provider<ErrorLog>((ref) => ErrorLog.disabled());
 
 /// When OZONE was first opened (UTC ms), for "no export yet" in Needs attention.
 final firstRunAtProvider = FutureProvider<int?>((ref) async {

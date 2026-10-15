@@ -43,8 +43,15 @@ if ($hits) { Fail ("possible secrets: " + ($hits | ForEach-Object { "$($_.Path):
 Write-Host 'No secrets found.'
 
 Step '6/8 Release builds (universal + per-CPU for size)'
-Run flutter @('build', 'apk', '--release')
-Run flutter @('build', 'apk', '--release', '--split-per-abi')
+# Debug symbols stay outside the APK (−1.5 MB, decision M9-9), kept per version next to the
+# signing key so an error log from the phone can be read: flutter symbolize -d <symbols file>.
+$ver = (Select-String -Path (Join-Path $app 'pubspec.yaml') -Pattern '^version:\s*(\S+)').Matches[0].Groups[1].Value
+$symbols = Join-Path $env:USERPROFILE ".ozone-keys\symbols\$ver"
+New-Item -ItemType Directory -Force $symbols | Out-Null
+$shrink = @("--split-debug-info=$symbols", '--obfuscate', "--extra-gen-snapshot-options=--save-obfuscation-map=$(Join-Path $symbols 'obfuscation-map.json')")
+Run flutter (@('build', 'apk', '--release') + $shrink)
+Run flutter (@('build', 'apk', '--release', '--split-per-abi') + $shrink)
+Write-Host "Debug symbols: $symbols"
 $out = Join-Path $app 'build\app\outputs\flutter-apk'
 $apk = Join-Path $out 'app-release.apk'
 

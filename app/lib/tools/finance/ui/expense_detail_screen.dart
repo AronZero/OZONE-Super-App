@@ -87,7 +87,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: c.surfaceSunken,
                     foregroundColor: c.ink,
-                    minimumSize: const Size(48, 40),
+                    minimumSize: const Size(48, 48),
                     shape: const StadiumBorder(),
                   ),
                   child: const Text('Edit', style: TextStyle(fontWeight: FontWeight.w800)),
@@ -105,7 +105,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
                     const SizedBox(height: Space.s),
                     Wrap(spacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
                       Text(
-                        money(context, e.amount),
+                        money(context, e.amount), semanticsLabel: spokenAmounts(money(context, e.amount)),
                         style: text.displaySmall!.copyWith(
                           fontSize: 32,
                           letterSpacing: -0.6,

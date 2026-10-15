@@ -87,4 +87,18 @@ void main() {
     expect(await s.enable(), EnableResult.enabled);
     expect((await settings.get(SettingKeys.appLock)).on, isTrue);
   });
+  test('turning off and changing the delay are saved; inactive changes nothing', () async {
+    final s = await start(relock: 60);
+    await s.unlock();
+    await s.setRelockAfter(0);
+    await pumpEventQueue();
+    expect((await settings.get(SettingKeys.appLock)).relockAfterS, 0);
+    s.didChangeAppLifecycleState(AppLifecycleState.inactive);
+    expect(s.locked.value, isFalse);
+    await s.disable();
+    await pumpEventQueue();
+    expect((await settings.get(SettingKeys.appLock)).on, isFalse);
+    expect(s.setting.on, isFalse);
+    s.dispose();
+  });
 }

@@ -326,7 +326,7 @@ class _VaultForgotScreenState extends ConsumerState<VaultForgotScreen> {
                     style: text.bodyMedium!.copyWith(fontSize: 13, height: 1.5, fontWeight: FontWeight.w600, color: c.inkMuted)),
                 TextButton(
                   onPressed: () => context.pushReplacement('/notes/vault/reset'),
-                  style: TextButton.styleFrom(foregroundColor: c.danger, padding: EdgeInsets.zero, minimumSize: const Size(48, 44)),
+                  style: TextButton.styleFrom(foregroundColor: c.danger, padding: EdgeInsets.zero, minimumSize: const Size(48, 48)),
                   child: const Text('Reset vault…', style: TextStyle(fontWeight: FontWeight.w800)),
                 ),
               ]),
