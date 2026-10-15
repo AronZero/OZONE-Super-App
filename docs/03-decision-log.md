@@ -103,6 +103,14 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M4-1 | Library sort | Recently acquired (default; no date last) · Title A–Z · Author A–Z · Highest rated (not rated last) (rec.) |
 | M4-2 | Rating input | The − / + half-star stepper with "Clear rating" on both the book form and Book detail (rec.) |
 | M4-3 | Library Home widgets | Currently reading and Library snapshot are built in M4 (rec.) |
+| M4 | Library | **Approved** 15 Oct 2026 |
+| M5-1 | Notes Home widgets | Pinned notes (up to 4) and Recent notes (last 3) are built in M5 (rec.) |
+| M5-2 | Lock note before M6 | Shown in the note menu but disabled, saying the vault arrives in M6 (rec.) |
+| M5-3 | New note from a filter | A new note made while a folder or tag filter is on goes into that folder and gets that tag (rec.) |
+| M5-4 | Grid or list | Notes home remembers the layout in settings key `notes.view` (grid by default) (rec.) |
+| M5-5 | Editor content | Drafts hold the title and the Delta; anything the toolbar can't make (links, fonts, sizes, images, quotes) is removed on save, typed web addresses stay plain text, and pasting from other apps brings plain text (rec.) |
+| M5-6 | Notes filters | Folder chips (All, Unfiled, folders in creation order) plus one tag at a time from the tags in use; Restore in Trash has Undo, as on the W3 board (rec.) |
+| M5 | Notes | **Approved** 15 Oct 2026 (owner fixes: tags on one line with ellipsis; date always right-aligned) |
 
 ## Open
 

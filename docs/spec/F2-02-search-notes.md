@@ -40,7 +40,9 @@ The index is rebuilt from scratch after an import and after a schema migration (
 
 - Package: `flutter_quill` (MIT, verified publisher; F3 pins the version). Content is stored as **Quill Delta JSON** in `notes.content`.
 - Toolbar (W1 board): bold, italic, underline, heading, bulleted list, numbered list, checklist, highlight, text colour, undo.
-  Highlight and text colour use the fixed palettes from the Components board. No images, links or fonts in v1.
+  Highlight and text colour use the fixed palettes from the Components board. No images, links or fonts in v1:
+  every save keeps only the formats the toolbar makes, typed web addresses stay plain text, and pasting from other apps
+  brings plain text (decision M5-5). Colours are stored as their light-theme value and drawn with the dark value in dark mode.
 - `plain_text` is created from the Delta on every save (checklist items as "☐ item" / "☑ item").
 - Body text is 17/26 (docs/05). It respects the phone's text size up to 200%.
 
@@ -50,7 +52,7 @@ The index is rebuilt from scratch after an import and after a schema migration (
 |---|---|
 | Typing stops for **1 s** | Save the note (content, plain text, `edited_at`, index), then show "Saved". |
 | App goes to the background or the screen closes | Save immediately. |
-| Between saves (every keystroke) | Write the Delta to `note_drafts` at most once per second. That's cheap and it survives a crash. |
+| Between saves (every keystroke) | Write the title and Delta to `note_drafts` at most once per second, as JSON `{"title": …, "ops": […]}`. That's cheap and it survives a crash. |
 | App starts with a row in `note_drafts` newer than the note's `edited_at` | Open a banner on that note: "Recovered unsaved changes", with **Keep** (default) and **Discard**. |
 | A new note is left with no title and no text | Delete it silently (never trashed, no tombstone). |
 | Locked note | The same rules, but the draft is encrypted with DK, and drafts are deleted when the vault relocks. |

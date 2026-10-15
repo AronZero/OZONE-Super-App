@@ -27,6 +27,9 @@ class SettingKey<T> {
 
 enum ThemeChoice { system, light, dark }
 
+/// Notes home layout (decision M5-4).
+enum NotesView { grid, list }
+
 /// One dashboard widget's place and visibility.
 class WidgetSetting {
   const WidgetSetting(this.id, this.on);
@@ -100,6 +103,8 @@ abstract final class SettingKeys {
     },
   );
 
+  static final notesView = SettingKey<NotesView>('notes.view', NotesView.grid, (j) => NotesView.values.byName(j! as String));
+
   static final appLock = SettingKey<AppLockSetting>(
     'app_lock',
     const AppLockSetting(on: false, relockAfterS: 60),
@@ -151,6 +156,7 @@ class SettingsRepo {
 
   static Object? _encode(Object? v) => switch (v) {
         final ThemeChoice t => t.name,
+        final NotesView n => n.name,
         final AppLockSetting a => a.toJson(),
         final List<WidgetSetting> l => [for (final w in l) w.toJson()],
         _ => v,

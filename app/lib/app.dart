@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,6 +11,7 @@ import 'core/state/today.dart';
 import 'core/ui/theme/app_theme.dart';
 import 'core/ui/theme/tokens.dart';
 import 'shell/ui/lock_gate/lock_gate.dart';
+import 'tools/notes/state/notes_providers.dart';
 
 /// Root widget: theme from Settings › Appearance, the App lock gate above
 /// everything, the Undo message, and an edge-to-edge status bar.
@@ -27,13 +29,18 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Notes trashed over 30 days ago are deleted on start and on resume (F2-02 §5).
+    ref.read(notesRepoProvider).purge();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Pending Undo deletes are committed when OZONE goes to the background (F2-02 §6).
     if (state == AppLifecycleState.paused) ref.read(undoControllerProvider).flush();
-    if (state == AppLifecycleState.resumed) ref.read(todayProvider.notifier).refresh();
+    if (state == AppLifecycleState.resumed) {
+      ref.read(todayProvider.notifier).refresh();
+      ref.read(notesRepoProvider).purge();
+    }
   }
 
   @override
@@ -60,6 +67,8 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
         ThemeChoice.dark => ThemeMode.dark,
       },
       routerConfig: _router,
+      // The note editor's few built-in labels (flutter_quill).
+      localizationsDelegates: const [FlutterQuillLocalizations.delegate],
       builder: (context, child) {
         final dark = Theme.of(context).brightness == Brightness.dark;
         return AnnotatedRegion<SystemUiOverlayStyle>(

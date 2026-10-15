@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/ui/theme/tokens.dart';
 import '../../shell/tool_registry.dart';
-import '../../shell/ui/placeholder_screen.dart';
+import 'ui/folders_tags_screen.dart';
+import 'ui/note_editor_screen.dart';
+import 'ui/notes_home.dart';
+import 'ui/notes_widgets.dart';
+import 'ui/trash_screen.dart';
 
-/// Notes tool definition. Screens arrive in milestone M5–M6 (docs/spec/F3-04).
+/// Notes tool definition (M5, docs/spec/F3-04). The vault arrives in M6.
 const ToolDefinition notesTool = ToolDefinition(
   id: 'notes',
   name: 'Notes',
@@ -12,11 +17,25 @@ const ToolDefinition notesTool = ToolDefinition(
   icon: Icons.description_rounded,
   routeBase: '/notes',
   home: _home,
+  routes: _routes,
+  widgets: {'pinned_notes': _pinned, 'recent_notes': _recent},
 );
 
-Widget _home(BuildContext context) => const PlaceholderScreen(
-      title: 'Notes',
-      message: 'Notes and the vault arrive in milestones M5 and M6.',
-      tint: ToolTint.notes,
-      icon: Icons.description_rounded,
-    );
+Widget _home(BuildContext context) => const NotesHome();
+Widget _pinned(BuildContext context) => const PinnedNotesWidget();
+Widget _recent(BuildContext context) => const RecentNotesWidget();
+
+/// The editor, Folders & tags and Trash open above the bar (docs/04).
+List<RouteBase> _routes(GlobalKey<NavigatorState> root) {
+  GoRoute full(String path, Widget Function(GoRouterState s) build) =>
+      GoRoute(path: path, parentNavigatorKey: root, builder: (context, state) => build(state));
+  return [
+    full('n/:id', (s) => NoteEditorScreen(
+          key: ValueKey(s.pathParameters['id']),
+          noteId: s.pathParameters['id']!,
+          isNew: s.uri.queryParameters['new'] == '1',
+        )),
+    full('manage', (_) => const FoldersTagsScreen()),
+    full('trash', (_) => const TrashScreen()),
+  ];
+}

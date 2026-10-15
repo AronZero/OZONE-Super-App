@@ -99,6 +99,7 @@ Hidden values are stored in settings key `lists.hidden` (§4). No separate table
 | `savings.month_end_reminder` | `{ "on": true, "time": "20:00" }`, on the last day of each month | Yes |
 | `gold.stale_days` | `30` | Yes |
 | `lists.hidden` | `{ "vendor": [], "platform": [], "type": [] }` | Yes |
+| `notes.view` | `grid` (`list`), Notes home layout (decision M5-4) | Yes |
 | `app_lock` | `{ "on": false, "relock_after_s": 60 }` (0, 60, 300) | **No** (belongs to this phone) |
 | `vault.biometric` | `false` | **No** (belongs to this phone) |
 | `search.recent` | up to 5 strings | **No** |
