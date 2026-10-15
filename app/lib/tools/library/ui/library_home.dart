@@ -166,7 +166,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                 else if (data.rows.isEmpty)
                   Container(
                     padding: const EdgeInsets.all(Space.xl),
-                    decoration: BoxDecoration(color: libraryTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+                    decoration: BoxDecoration(color: libraryCard(context), borderRadius: BorderRadius.circular(Radii.card)),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text('No books yet', style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
                       const SizedBox(height: Space.xs),

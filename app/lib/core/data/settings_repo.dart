@@ -99,6 +99,9 @@ abstract final class SettingKeys {
     (j) => ThemeChoice.values.byName(j! as String),
   );
 
+  /// Monochrome (UR2): greys only, over whichever theme is active.
+  static final monochrome = SettingKey<bool>('theme.monochrome', false, (j) => j! as bool);
+
   static final hideAmountsOnOpen = SettingKey<bool>('amounts.hide_on_open', false, (j) => j! as bool);
 
   static final dashboardWidgets = SettingKey<List<WidgetSetting>>(

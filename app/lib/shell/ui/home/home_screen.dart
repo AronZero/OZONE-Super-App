@@ -107,7 +107,6 @@ class _QuickAddButton extends ConsumerWidget {
   Future<void> _open(BuildContext context, WidgetRef ref) async {
     final bar = ref.read(barToolsProvider).value ?? defaultBarTools;
     final tools = toolsInBarOrder(bar);
-    final b = Theme.of(context).brightness;
     // The menu opens just above the add button, which sits higher while the bar shows.
     final addBottom = ShellBarScope.visibleOf(context)
         ? MediaQuery.paddingOf(context).bottom + BarSize.aboveBar
@@ -153,8 +152,8 @@ class _QuickAddButton extends ConsumerWidget {
                                       Container(
                                         width: 36,
                                         height: 36,
-                                        decoration: BoxDecoration(color: t.tint.tile(b), borderRadius: BorderRadius.circular(12)),
-                                        child: Icon(a.icon, size: 20, color: t.tint.accent(b)),
+                                        decoration: BoxDecoration(color: t.tint.tileOf(context), borderRadius: BorderRadius.circular(12)),
+                                        child: Icon(a.icon, size: 20, color: t.tint.accentOf(context)),
                                       ),
                                       const SizedBox(width: Space.m),
                                       Flexible(
@@ -279,8 +278,8 @@ class _WidgetFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final bg = info.tint?.tile(brightness) ?? c.attentionBg;
-    final fg = info.tint?.accent(brightness) ?? c.attentionInk;
+    final bg = info.tint?.cardOf(context) ?? c.attentionBg;
+    final fg = info.tint?.accentOf(context) ?? c.attentionInk;
     return Semantics(
       container: true,
       child: Container(

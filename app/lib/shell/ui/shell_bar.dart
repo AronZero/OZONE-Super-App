@@ -36,7 +36,6 @@ class OzoneBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
-    final b = Theme.of(context).brightness;
     final m = Motion.of(context);
     final label = Theme.of(context).textTheme.labelLarge!.copyWith(fontSize: 13, fontWeight: FontWeight.w800, height: 1);
     return Container(
@@ -52,7 +51,7 @@ class OzoneBar extends StatelessWidget {
         final activeW = math.min(box.maxWidth * 0.5, 60 + 52 * textScale);
         final restW = n > 1 ? (box.maxWidth - activeW) / (n - 1) : 0.0;
         double leftOf(int i) => i <= current ? i * restW : activeW + (i - 1) * restW;
-        final pill = items[current].tint?.accent(b) ?? c.ink;
+        final pill = items[current].tint?.accentOf(context) ?? c.ink;
         return Stack(children: [
           AnimatedPositioned(
             left: leftOf(current),

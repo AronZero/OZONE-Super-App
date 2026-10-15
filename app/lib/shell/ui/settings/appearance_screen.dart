@@ -26,6 +26,7 @@ class AppearanceScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final current = ref.watch(themeChoiceProvider).value ?? ThemeChoice.system;
     void pick(ThemeChoice t) => ref.read(settingsRepoProvider).set(SettingKeys.theme, t);
+    final mono = ref.watch(monochromeProvider).value ?? false;
 
     return Scaffold(
       body: SafeArea(
@@ -57,9 +58,18 @@ class AppearanceScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(Space.xs, Space.m, Space.xs, Space.l),
                     child: Text(_hints[current]!, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
                   ),
-                  const GroupCard(children: [
-                    SettingsRow(title: 'Text size', subtitle: 'Follows your phone’s font size, up to 200%'),
-                    SettingsRow(title: 'Animations', subtitle: 'Turned off when your phone’s "remove animations" setting is on'),
+                  GroupCard(children: [
+                    SettingsRow(
+                      title: 'Monochrome',
+                      subtitle: 'Shades of grey only. Gains, losses, warnings and delete keep green and red.',
+                      trailing: OzoneSwitch(
+                        label: 'Monochrome',
+                        value: mono,
+                        onChanged: (v) => ref.read(settingsRepoProvider).set(SettingKeys.monochrome, v),
+                      ),
+                    ),
+                    const SettingsRow(title: 'Text size', subtitle: 'Follows your phone’s font size, up to 200%'),
+                    const SettingsRow(title: 'Animations', subtitle: 'Turned off when your phone’s "remove animations" setting is on'),
                   ]),
                 ],
               ),
@@ -128,8 +138,11 @@ class _ThemeCard extends StatelessWidget {
                   child: SizedBox(
                     height: 96,
                     child: Row(children: [
-                      if (choice != ThemeChoice.dark) half(OzoneColors.light, ToolTint.finance.tileLight),
-                      if (choice != ThemeChoice.light) half(OzoneColors.dark, ToolTint.finance.tileDark),
+                      // The previews follow the Monochrome switch.
+                      if (choice != ThemeChoice.dark)
+                        half(c.mono ? OzoneColors.monoLight : OzoneColors.light, c.mono ? OzoneColors.monoLight.surface : ToolTint.finance.tileLight),
+                      if (choice != ThemeChoice.light)
+                        half(c.mono ? OzoneColors.monoDark : OzoneColors.dark, c.mono ? OzoneColors.monoDark.surface : ToolTint.finance.tileDark),
                     ]),
                   ),
                 ),

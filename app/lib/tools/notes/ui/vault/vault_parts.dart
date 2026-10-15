@@ -218,7 +218,7 @@ class _RecoveryCodeViewState extends State<RecoveryCodeView> {
                                   fontSize: 22,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 2.2,
-                                  color: dark ? notesAccent(context) : const Color(0xFF2E1F52),
+                                  color: dark || OzoneThemeColors.of(context).mono ? notesAccent(context) : const Color(0xFF2E1F52),
                                 ),
                               ),
                             ],

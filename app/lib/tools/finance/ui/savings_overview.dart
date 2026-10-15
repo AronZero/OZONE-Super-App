@@ -81,7 +81,7 @@ class _TotalCard extends StatelessWidget {
       final now = ref.watch(todayProvider);
       return Container(
         padding: const EdgeInsets.fromLTRB(18, Space.l, 18, Space.l),
-        decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+        decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,7 +127,7 @@ class _TotalCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: Space.s),
-              _PillButton(label: 'History', bg: c.surface, fg: c.ink, onTap: () => context.push('/finance/savings/history')),
+              _PillButton(label: 'History', bg: c.onCard, fg: c.ink, onTap: () => context.push('/finance/savings/history')),
             ]),
           ],
         ),
@@ -223,7 +223,7 @@ class _Empty extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(Space.xl),
-          decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+          decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('No savings accounts yet', style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Space.xs),

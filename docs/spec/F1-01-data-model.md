@@ -92,6 +92,7 @@ Hidden values are stored in settings key `lists.hidden` (§4). No separate table
 | Key | Default | In workbook |
 |---|---|---|
 | `theme` | `system` (`light`, `dark`) | Yes |
+| `theme.monochrome` | `false`, greys only over the active theme (decision UR2-1) | Yes |
 | `amounts.hide_on_open` | `false` | Yes |
 | `dashboard.widgets` | ordered list of the 10 widgets with on/off, defaults as in docs/04 | Yes |
 | `bar.tools` | `["finance","library","notes"]` (0–3 tool IDs, ordered) | Yes |

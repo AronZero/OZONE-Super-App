@@ -84,7 +84,7 @@ class FinanceWidgetTile extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
         button: true,
         child: Material(
-          color: financeTile(context),
+          color: financeCard(context),
           borderRadius: BorderRadius.circular(Radii.card),
           child: InkWell(
             borderRadius: BorderRadius.circular(Radii.card),

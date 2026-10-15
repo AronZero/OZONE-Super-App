@@ -57,6 +57,8 @@ on the design canvas (Foundations board and the scaling board's tint palette).
 
 - Clear space: half an atom's radius (12 units) on every side.
 - Minimum size: 32 px for full colour; use the silhouette below that.
+- In the app's Monochrome mode the mark is drawn in greys (decision UR2-3): on dark, the greys of
+  `ios/AppIcon-1024-tinted.svg`; on light, greys matched to the light mark with a dark core (#363636).
 - Wordmark: Manrope ExtraBold (800), all caps, +14% letter spacing. In the
   horizontal lockup the mark is 1.7× the cap height.
 - Never stretch, rotate, recolour outside these versions, add effects, or

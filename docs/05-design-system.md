@@ -37,6 +37,25 @@ Spending changes use ink-muted (neither good nor bad). Carried months use a dash
 
 The Finance chart's mid tint is `#8CC9C7` (dark `#3A6E6C`). Brand pale `#E2ECF7` is used only for the app icon, splash and first run.
 
+### Monochrome (UR2-1..UR2-3)
+
+A switch in Settings › Appearance, over whichever theme is active. Tokens: `OzoneColors.monoLight` / `monoDark`.
+
+| Token | Light | Dark |
+|---|---|---|
+| canvas | `#F4F4F4` | `#0B0B0B` |
+| surface | `#FFFFFF` | `#161616` |
+| surface-sunken | `#EBEBEB` | `#1F1F1F` |
+| bar | `#E8E8E8` | `#1A1A1A` |
+| outline | `#D4D4D4` | `#2E2E2E` |
+| ink | `#111111` | `#F2F2F2` |
+| ink-muted | `#5C5C5C` | `#A6A6A6` |
+| gain / loss, danger | `#1B6B3E` / `#A3361F` | `#7FD6A0` / `#F59B85` |
+| attention bg / ink (red) | `#FBE5E1` / `#8C2B18` | `#2A1512` / `#F59B85` |
+
+Tool colours resolve through the context (`ToolTint.accentOf/tileOf/cardOf/selectedOf`): accent → ink, card → surface,
+tile → surface-sunken, selected → ink with on-accent text. The logo becomes the greyscale mark (UR2-3).
+
 ## Type: Manrope (SIL OFL 1.1), tabular figures for all numbers
 
 | Token | Size / line height · weight |

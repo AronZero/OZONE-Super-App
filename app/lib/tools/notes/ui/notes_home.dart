@@ -148,7 +148,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                 borderRadius: BorderRadius.circular(18),
                 onTap: onTap,
                 child: Container(
-                  constraints: const BoxConstraints(minHeight: 48),
+                  constraints: const BoxConstraints(minHeight: 48, minWidth: PillSize.minWidth),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   alignment: Alignment.center,
                   child: Text(label,
@@ -216,7 +216,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                               borderRadius: BorderRadius.circular(16),
                               onTap: () => setState(() => _tag = _tag == t.id ? null : t.id),
                               child: Container(
-                                constraints: const BoxConstraints(minHeight: 48),
+                                constraints: const BoxConstraints(minHeight: 48, minWidth: PillSize.minWidth),
                                 padding: const EdgeInsets.symmetric(horizontal: 10),
                                 alignment: Alignment.center,
                                 child: Text('#${t.name}',
@@ -238,7 +238,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                   Container(
                     margin: const EdgeInsets.only(top: Space.s),
                     padding: const EdgeInsets.all(Space.xl),
-                    decoration: BoxDecoration(color: notesTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+                    decoration: BoxDecoration(color: notesCard(context), borderRadius: BorderRadius.circular(Radii.card)),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text('No notes yet', style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
                       const SizedBox(height: Space.xs),

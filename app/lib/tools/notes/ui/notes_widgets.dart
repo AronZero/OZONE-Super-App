@@ -31,7 +31,7 @@ class _Frame extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     return Container(
-      decoration: BoxDecoration(color: notesTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: notesCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         InkWell(
@@ -66,7 +66,7 @@ class _MiniNote extends ConsumerWidget {
       label: spokenAmounts(locked ? 'Locked note' : (note.title ?? 'Untitled')),
       excludeSemantics: true,
       child: Material(
-        color: c.surface,
+        color: c.onCard,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),

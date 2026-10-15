@@ -97,7 +97,7 @@ class RecentExpensesWidget extends ConsumerWidget {
     final today = ref.watch(todayProvider);
     final rows = ref.watch(expensesDataProvider).value?.rows ?? const [];
     return Container(
-      decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         InkWell(
@@ -119,7 +119,7 @@ class RecentExpensesWidget extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(Space.s, 0, Space.s, Space.s),
             child: Material(
-              color: c.surface,
+              color: c.onCard,
               borderRadius: BorderRadius.circular(18),
               clipBehavior: Clip.antiAlias,
               child: Column(children: [for (final r in rows.take(3)) ExpenseRowTile(row: r, today: today)]),

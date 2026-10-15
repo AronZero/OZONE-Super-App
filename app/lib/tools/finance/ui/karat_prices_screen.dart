@@ -184,7 +184,7 @@ class _KaratPricesScreenState extends ConsumerState<KaratPricesScreen> {
                     if (held.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.fromLTRB(Space.l, 14, Space.l, 14),
-                        decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+                        decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

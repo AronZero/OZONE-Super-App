@@ -1,14 +1,14 @@
-name: ozone
+﻿name: ozone
 description: "OZONE: personal offline super app"
 publish_to: 'none'
-version: 1.1.0+12
+version: 1.1.0+13
 
 environment:
   sdk: ^3.13.4
   flutter: 3.47.5
 
 # Every version is pinned exactly and was checked on 14 Oct 2026 (docs/spec/F3-02-packages.md).
-# Follow the safety procedure in F3-02 §4 before changing any line.
+# Follow the safety procedure in F3-02 Â§4 before changing any line.
 dependencies:
   flutter:
     sdk: flutter

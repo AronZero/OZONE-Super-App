@@ -18,7 +18,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = OzoneThemeColors.of(context);
-    final b = Theme.of(context).brightness;
     final theme = ref.watch(themeChoiceProvider).value ?? ThemeChoice.system;
     final widgets = ref.watch(dashboardWidgetsProvider).value ?? defaultDashboard;
     final bar = ref.watch(barToolsProvider).value ?? const <String>[];
@@ -70,8 +69,8 @@ class SettingsScreen extends ConsumerWidget {
                   GroupCard(children: [
                     SettingsRow(
                       icon: OzIcons.accountBalanceWallet,
-                      iconBg: ToolTint.finance.tile(b),
-                      iconFg: ToolTint.finance.accent(b),
+                      iconBg: ToolTint.finance.tileOf(context),
+                      iconFg: ToolTint.finance.accentOf(context),
                       title: 'Finance',
                       subtitle: 'Month-end reminder · karat prices',
                       onTap: () => context.push('/settings/finance'),

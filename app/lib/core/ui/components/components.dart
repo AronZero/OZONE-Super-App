@@ -222,9 +222,13 @@ class SettingsRow extends StatelessWidget {
         ),
       ),
     );
-    return Opacity(
-      opacity: enabled ? 1 : 0.55,
-      child: onTap == null || !enabled ? row : InkWell(onTap: onTap, child: row),
+    // One TalkBack node per row (title, subtitle and its switch or action), so a
+    // switch never absorbs the labels of the rest of the screen.
+    return MergeSemantics(
+      child: Opacity(
+        opacity: enabled ? 1 : 0.55,
+        child: onTap == null || !enabled ? row : InkWell(onTap: onTap, child: row),
+      ),
     );
   }
 }

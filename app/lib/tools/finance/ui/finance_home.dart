@@ -7,7 +7,6 @@ import '../../../core/ui/theme/tokens.dart';
 import 'expenses_overview.dart';
 import 'gold_overview.dart';
 import 'savings_overview.dart';
-import 'savings_parts.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
@@ -89,7 +88,7 @@ class _FinanceTabs extends StatelessWidget {
                 label: spokenAmounts('$name tab'),
                 excludeSemantics: true,
                 child: Material(
-                  color: i == selected ? financeTile(context) : Colors.transparent,
+                  color: i == selected ? ToolTint.finance.selectedOf(context).$1 : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
@@ -101,7 +100,7 @@ class _FinanceTabs extends StatelessWidget {
                             style: text.bodyMedium!.copyWith(
                               fontSize: 14,
                               fontWeight: i == selected ? FontWeight.w800 : FontWeight.w700,
-                              color: i == selected ? financeAccent(context) : c.inkMuted,
+                              color: i == selected ? ToolTint.finance.selectedOf(context).$2 : c.inkMuted,
                             )),
                       ),
                     ),

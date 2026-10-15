@@ -22,7 +22,7 @@ class CurrentlyReadingWidget extends ConsumerWidget {
     final reading = [...?ref.watch(booksDataProvider).value?.rows.where((b) => b.status == BookStatus.reading.key)]
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return Container(
-      decoration: BoxDecoration(color: libraryTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: libraryCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         InkWell(
@@ -94,7 +94,7 @@ class LibrarySnapshotWidget extends ConsumerWidget {
     return Semantics(
       button: true,
       child: Material(
-        color: libraryTile(context),
+        color: libraryCard(context),
         borderRadius: BorderRadius.circular(Radii.card),
         child: InkWell(
           borderRadius: BorderRadius.circular(Radii.card),

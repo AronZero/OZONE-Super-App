@@ -115,7 +115,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               borderRadius: BorderRadius.circular(18),
               onTap: () => _pickScope(value),
               child: Container(
-                constraints: const BoxConstraints(minHeight: 48),
+                constraints: const BoxConstraints(minHeight: 48, minWidth: PillSize.minWidth),
                 padding: const EdgeInsets.symmetric(horizontal: 13),
                 alignment: Alignment.center,
                 child: Text(label, style: text.bodyMedium!.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: on ? c.canvas : c.ink)),
@@ -193,7 +193,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       for (final g in groups) {
         final s = _source(g.entity);
         if (s == null) continue;
-        final tint = toolRegistry.firstWhere((t) => t.searchSources.contains(s)).tint.accent(Theme.of(context).brightness);
+        final tint = toolRegistry.firstWhere((t) => t.searchSources.contains(s)).tint.accentOf(context);
         body.add(Row(children: [
           const SizedBox(width: Space.xs),
           ExcludeSemantics(child: Container(width: 10, height: 10, decoration: BoxDecoration(color: tint, shape: BoxShape.circle))),
@@ -314,7 +314,7 @@ class _HitRow extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final info = source.describe(context, ref, hit.recordId);
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final mark = dark ? const Color(0xFF6B5A12) : const Color(0xFFFFE98A);
+    final mark = c.mono ? c.outline : (dark ? const Color(0xFF6B5A12) : const Color(0xFFFFE98A));
 
     TextSpan runs(String marked, TextStyle base) => TextSpan(children: [
           for (final (s, m) in highlightRuns(marked)) TextSpan(text: s, style: m ? base.copyWith(backgroundColor: mark, color: c.ink) : base),

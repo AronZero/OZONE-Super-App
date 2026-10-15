@@ -20,7 +20,6 @@ class EditBarScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final b = Theme.of(context).brightness;
     final bar = ref.watch(barToolsProvider).value ?? const <String>[];
     final repo = ref.read(settingsRepoProvider);
     Future<void> save(List<String> l) => repo.set(SettingKeys.barTools, l);
@@ -32,8 +31,8 @@ class EditBarScreen extends ConsumerWidget {
     Widget toolTile(ToolDefinition t) => Container(
           width: 36,
           height: 36,
-          decoration: BoxDecoration(color: t.tint.tile(b), borderRadius: BorderRadius.circular(12)),
-          child: Icon(t.icon, size: 20, color: t.tint.accent(b)),
+          decoration: BoxDecoration(color: t.tint.tileOf(context), borderRadius: BorderRadius.circular(12)),
+          child: Icon(t.icon, size: 20, color: t.tint.accentOf(context)),
         );
 
     return Scaffold(

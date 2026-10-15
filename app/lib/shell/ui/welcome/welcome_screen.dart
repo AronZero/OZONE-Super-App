@@ -43,7 +43,7 @@ class WelcomeScreen extends ConsumerWidget {
       body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Container(
           decoration: BoxDecoration(
-            color: ToolTint.library.tile(Theme.of(context).brightness),
+            color: ToolTint.library.tileOf(context),
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(36)),
           ),
           child: SafeArea(
@@ -57,7 +57,7 @@ class WelcomeScreen extends ConsumerWidget {
                 const SizedBox(height: Space.s),
                 Text('Money, books and notes, bonded in one app',
                     textAlign: TextAlign.center,
-                    style: text.bodyLarge!.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: dark ? c.inkMuted : const Color(0xFF2A3B52))),
+                    style: text.bodyLarge!.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: dark || c.mono ? c.inkMuted : const Color(0xFF2A3B52))),
               ]),
             ),
           ),
@@ -126,7 +126,6 @@ class ReminderAskScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final b = Theme.of(context).brightness;
     final s = ref.watch(monthEndReminderProvider).value;
     final time = s == null ? '8:00 pm' : formatTime(s.hour, s.minute);
     return Scaffold(
@@ -141,8 +140,8 @@ class ReminderAskScreen extends ConsumerWidget {
                     Container(
                       width: 64,
                       height: 64,
-                      decoration: BoxDecoration(color: ToolTint.finance.tile(b), borderRadius: BorderRadius.circular(22)),
-                      child: Icon(OzIcons.notifications, size: 32, color: ToolTint.finance.accent(b)),
+                      decoration: BoxDecoration(color: ToolTint.finance.tileOf(context), borderRadius: BorderRadius.circular(22)),
+                      child: Icon(OzIcons.notifications, size: 32, color: ToolTint.finance.accentOf(context)),
                     ),
                     const SizedBox(height: 18),
                     Semantics(header: true, child: Text('Get a month-end reminder?', style: text.headlineMedium!.copyWith(fontSize: 28, height: 1.2))),

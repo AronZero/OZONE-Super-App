@@ -193,7 +193,7 @@ class _Header extends ConsumerWidget {
     final carried = monthBalance(history, today, today).status == MonthStatus.carried;
     return Container(
       padding: const EdgeInsets.fromLTRB(18, Space.l, 18, Space.l),
-      decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

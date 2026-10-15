@@ -6,8 +6,8 @@ import 'tokens.dart';
 
 /// Builds the Material theme for one brightness from the OZONE tokens.
 /// The shell is neutral (ink buttons); tools apply their own tint locally.
-ThemeData buildOzoneTheme(Brightness brightness) {
-  final c = brightness == Brightness.dark ? OzoneColors.dark : OzoneColors.light;
+ThemeData buildOzoneTheme(Brightness brightness, {bool mono = false}) {
+  final c = OzoneColors.resolve(brightness, mono: mono);
   final text = _textTheme(c.ink);
   return ThemeData(
     useMaterial3: true,
@@ -37,6 +37,34 @@ ThemeData buildOzoneTheme(Brightness brightness) {
     }),
     extensions: [OzoneThemeColors(c)],
   );
+}
+
+/// A tool's colours for the current theme. In Monochrome every accent is ink,
+/// a [cardOf] is a plain surface card, a [tileOf] (chips, avatars, small
+/// buttons) is the sunken grey, and a selected state is solid ink.
+extension ToolTintOf on ToolTint {
+  Color accentOf(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    return c.mono ? c.ink : accent(Theme.of(context).brightness);
+  }
+
+  Color tileOf(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    return c.mono ? c.surfaceSunken : tile(Theme.of(context).brightness);
+  }
+
+  /// A card on the screen background (Radii.card containers, dashboard widgets).
+  Color cardOf(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    return c.mono ? c.surface : tile(Theme.of(context).brightness);
+  }
+
+  /// Fill and text of a selected tab or segment that is tinted in colour.
+  (Color, Color) selectedOf(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    final b = Theme.of(context).brightness;
+    return c.mono ? (c.ink, c.onAccent) : (tile(b), accent(b));
+  }
 }
 
 /// Gives widgets access to the full token set: `OzoneThemeColors.of(context)`.

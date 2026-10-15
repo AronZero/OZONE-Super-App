@@ -63,14 +63,15 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
   @override
   Widget build(BuildContext context) {
     final theme = ref.watch(themeChoiceProvider).value ?? ThemeChoice.system;
+    final mono = ref.watch(monochromeProvider).value ?? false;
     final lock = ref.watch(appLockServiceProvider);
     final undo = ref.watch(undoControllerProvider);
 
     return MaterialApp.router(
       title: 'OZONE',
       debugShowCheckedModeBanner: false,
-      theme: buildOzoneTheme(Brightness.light),
-      darkTheme: buildOzoneTheme(Brightness.dark),
+      theme: buildOzoneTheme(Brightness.light, mono: mono),
+      darkTheme: buildOzoneTheme(Brightness.dark, mono: mono),
       themeMode: switch (theme) {
         ThemeChoice.system => ThemeMode.system,
         ThemeChoice.light => ThemeMode.light,

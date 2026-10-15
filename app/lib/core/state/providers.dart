@@ -21,6 +21,9 @@ final deletionsRepoProvider = Provider<DeletionsRepo>((ref) => DeletionsRepo(ref
 final themeChoiceProvider = StreamProvider<ThemeChoice>(
     (ref) => ref.watch(settingsRepoProvider).watch(SettingKeys.theme));
 
+final monochromeProvider = StreamProvider<bool>(
+    (ref) => ref.watch(settingsRepoProvider).watch(SettingKeys.monochrome));
+
 final barToolsProvider = StreamProvider<List<String>>(
     (ref) => ref.watch(settingsRepoProvider).watch(SettingKeys.barTools));
 

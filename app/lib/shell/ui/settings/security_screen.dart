@@ -157,7 +157,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                         SettingsRow(
                           title: 'Unlock with fingerprint',
                           subtitle: 'Only shown when the phone has one set up',
-                          trailing: OzoneSwitch(label: 'Unlock with fingerprint', value: _bioOn, onChanged: _toggleBio, accent: ToolTint.notes.accent(Theme.of(context).brightness)),
+                          trailing: OzoneSwitch(label: 'Unlock with fingerprint', value: _bioOn, onChanged: _toggleBio, accent: ToolTint.notes.accentOf(context)),
                         ),
                       SettingsRow(title: 'Make a new recovery code', subtitle: 'The old code stops working', onTap: _newCode),
                       SettingsRow(title: 'Forgot vault password', onTap: () => context.push('/notes/vault/forgot')),

@@ -10,8 +10,9 @@ import '../domain/savings_history.dart';
 import '../domain/savings_rules.dart';
 
 /// Finance accent and tile for the current theme (docs/05 tool tints).
-Color financeAccent(BuildContext context) => ToolTint.finance.accent(Theme.of(context).brightness);
-Color financeTile(BuildContext context) => ToolTint.finance.tile(Theme.of(context).brightness);
+Color financeAccent(BuildContext context) => ToolTint.finance.accentOf(context);
+Color financeTile(BuildContext context) => ToolTint.finance.tileOf(context);
+Color financeCard(BuildContext context) => ToolTint.finance.cardOf(context);
 
 /// The 40 dp initials tile in account rows. Archived accounts are neutral.
 class AccountTile extends StatelessWidget {
@@ -53,7 +54,7 @@ class ChangePill extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(color: c.onCard, borderRadius: BorderRadius.circular(999)),
       child: Text('${moneyChange(context, amount)}$suffix', semanticsLabel: spokenAmounts('${moneyChange(context, amount)}$suffix'),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, amount))),
     );

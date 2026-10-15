@@ -24,7 +24,6 @@ class PlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
-    final b = Theme.of(context).brightness;
     final text = Theme.of(context).textTheme;
     return SafeArea(
       bottom: false,
@@ -36,13 +35,13 @@ class PlaceholderScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(Space.xl),
             decoration: BoxDecoration(
-              color: tint?.tile(b) ?? c.surface,
+              color: tint?.tileOf(context) ?? c.surface,
               borderRadius: BorderRadius.circular(Radii.card),
             ),
             child: Row(
               children: [
                 if (icon != null) ...[
-                  Icon(icon, color: tint?.accent(b) ?? c.ink, size: 28),
+                  Icon(icon, color: tint?.accentOf(context) ?? c.ink, size: 28),
                   const SizedBox(width: Space.l),
                 ],
                 Expanded(child: Text(message, style: text.bodyLarge)),

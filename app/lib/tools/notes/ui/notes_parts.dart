@@ -10,8 +10,9 @@ import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// Notes accent and tile for the current theme (docs/05 tool tints).
-Color notesAccent(BuildContext context) => ToolTint.notes.accent(Theme.of(context).brightness);
-Color notesTile(BuildContext context) => ToolTint.notes.tile(Theme.of(context).brightness);
+Color notesAccent(BuildContext context) => ToolTint.notes.accentOf(context);
+Color notesTile(BuildContext context) => ToolTint.notes.tileOf(context);
+Color notesCard(BuildContext context) => ToolTint.notes.cardOf(context);
 
 /// A stored timestamp (UTC ms) as the phone's local date.
 LocalDate localDateOf(int ms) => LocalDate.fromDateTime(DateTime.fromMillisecondsSinceEpoch(ms));

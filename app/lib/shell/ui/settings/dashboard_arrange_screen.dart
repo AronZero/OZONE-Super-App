@@ -19,7 +19,6 @@ class DashboardArrangeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final b = Theme.of(context).brightness;
     final repo = ref.read(settingsRepoProvider);
     final list = ref.watch(dashboardWidgetsProvider).value ?? defaultDashboard;
     final shown = list.where((w) => w.on).length;
@@ -68,7 +67,7 @@ class DashboardArrangeScreen extends ConsumerWidget {
                 itemBuilder: (context, i) {
                   final w = list[i];
                   final info = widgetCatalog[w.id];
-                  final tint = info?.tint?.accent(b) ?? c.attentionInk;
+                  final tint = info?.tint?.accentOf(context) ?? c.attentionInk;
                   return Padding(
                     key: ValueKey(w.id),
                     padding: const EdgeInsets.only(bottom: 6),

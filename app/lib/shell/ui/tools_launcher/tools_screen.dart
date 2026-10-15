@@ -120,7 +120,6 @@ class _Grid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final b = Theme.of(context).brightness;
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     return GridView.count(
@@ -134,7 +133,7 @@ class _Grid extends StatelessWidget {
       children: [
         for (final t in tools)
           Material(
-            color: t.tint.tile(b),
+            color: t.tint.cardOf(context),
             borderRadius: BorderRadius.circular(Radii.card),
             child: InkWell(
               borderRadius: BorderRadius.circular(Radii.card),
@@ -148,7 +147,7 @@ class _Grid extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.tile)),
-                      child: Icon(t.icon, color: t.tint.accent(b), size: 22),
+                      child: Icon(t.icon, color: t.tint.accentOf(context), size: 22),
                     ),
                     const Spacer(),
                     Text(t.name, style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),

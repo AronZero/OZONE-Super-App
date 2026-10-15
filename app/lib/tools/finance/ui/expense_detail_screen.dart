@@ -100,7 +100,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Container(
                   padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(color: e.isRefunded ? c.surface : financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+                  decoration: BoxDecoration(color: e.isRefunded ? c.surface : financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(e.item, style: text.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
                     const SizedBox(height: Space.s),

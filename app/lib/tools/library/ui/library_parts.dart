@@ -7,8 +7,9 @@ import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// Library accent and tile for the current theme (docs/05 tool tints).
-Color libraryAccent(BuildContext context) => ToolTint.library.accent(Theme.of(context).brightness);
-Color libraryTile(BuildContext context) => ToolTint.library.tile(Theme.of(context).brightness);
+Color libraryAccent(BuildContext context) => ToolTint.library.accentOf(context);
+Color libraryTile(BuildContext context) => ToolTint.library.tileOf(context);
+Color libraryCard(BuildContext context) => ToolTint.library.cardOf(context);
 
 /// The blue book tile in rows (40 × 52) and on Book detail (64 × 88).
 class BookTile extends StatelessWidget {
@@ -78,8 +79,8 @@ class LibraryChoice<T> extends StatelessWidget {
             customBorder: const StadiumBorder(),
             onTap: () => onSelected(o.$1),
             // widthFactor 1: a pill is as wide as its label (in a grid, Expanded stretches it).
-            child: SizedBox(
-              height: 48,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: PillSize.minWidth, minHeight: 48, maxHeight: 48),
               child: Center(
                 widthFactor: 1,
                 child: Padding(

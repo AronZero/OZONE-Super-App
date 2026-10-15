@@ -196,7 +196,7 @@ class _YearCard extends StatelessWidget {
         : '${tenths > 0 ? '▲' : tenths < 0 ? '▼' : ''} ${percentTenths(tenths)} vs $period (${money(context, ytd.lastYear)})'.trim();
     return Container(
       padding: const EdgeInsets.fromLTRB(Space.l, 10, Space.l, 14),
-      decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           IconButton(
@@ -214,7 +214,7 @@ class _YearCard extends StatelessWidget {
           if (hasAny)
             Flexible(
               child: Material(
-                color: c.surface,
+                color: c.onCard,
                 shape: const StadiumBorder(),
                 child: InkWell(
                   customBorder: const StadiumBorder(),
@@ -223,7 +223,11 @@ class _YearCard extends StatelessWidget {
                     constraints: const BoxConstraints(minHeight: 48),
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     alignment: Alignment.center,
-                    child: Text('Yearly report', textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
+                    // One line; shrinks instead of wrapping when space is short (owner, 15 Oct 2026).
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Yearly report', maxLines: 1, softWrap: false, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
+                    ),
                   ),
                 ),
               ),
@@ -286,6 +290,7 @@ class _FilterRow extends StatelessWidget {
               onTap: onTap,
               child: Container(
                 height: 48,
+                constraints: const BoxConstraints(minWidth: PillSize.minWidth),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 alignment: Alignment.center,
                 child: Text(label, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: on ? c.onAccent : c.ink)),

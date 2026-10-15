@@ -153,6 +153,11 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | UR1-4 | Version | The UI refresh ships as 1.1.0; step 1 is build 11, the review fixes build 12 |
 | UR1-5 | Review fixes (owner, 15 Oct 2026) | Add buttons lose their shadow (flat like the bar). Home's top bar shows the OZONE mark (36 dp, full colour, light/dark variants) before the title |
 
+| UR2-1 | Monochrome (owner M1–M6, canvas approved 15 Oct 2026) | A Monochrome switch in Settings › Appearance (setting `theme.monochrome`, in workbooks) recolours whichever theme is active. Light: screen #F4F4F4, cards #FFFFFF, inputs #EBEBEB, bar #E8E8E8, ink #111111, secondary #5C5C5C. Dark (near-black, from the owner's samples): #0B0B0B, #161616, #1F1F1F, #1A1A1A, ink #F2F2F2, secondary #A6A6A6. Every text pair ≥ 5.4:1 |
+| UR2-2 | What keeps colour | Only green and red, at their existing values: gains, losses, form errors, Needs attention (red, M3) and delete/destructive actions. Tool accents become ink; tinted cards become plain cards; chips, avatars and small tiles use the input grey; selected tabs, chips, pills and buttons are solid ink. Charts: current period ink, past periods ink at 45% (M4). The user's note colours stay (M5). Search highlight becomes grey |
+| UR2-3 | Logo in Monochrome (owner, 15 Oct 2026; replaces M2's silhouette) | The greyscale mark. Dark uses the iOS tinted source greys (design/brand/ios/AppIcon-1024-tinted.svg); light uses greys matched to the colour light mark's brightness (#7A7A7A, #6F6F6F, #8D8D8D circles; #5B5B5B, #6A6A6A, #686868 overlaps; core #363636), so the core stays dark on a light screen. App icon and splash keep the colour brand |
+| UR2-4 | Owner fixes with step 2 | Finance › Expenses "Yearly report" stays on one line (shrinks instead of wrapping). Pill chips (Library status, Notes folders and tags, Expenses filters, Search scopes) are at least 72 dp wide (PillSize.minWidth), the width of a "Gold" pill, so "All" stays a pill. Version 1.1.0 build 13 |
+
 ## Open
 
 - Trademark search for "OZONE", needed only before any public app-store release.

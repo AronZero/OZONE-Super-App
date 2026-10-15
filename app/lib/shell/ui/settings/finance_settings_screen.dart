@@ -76,7 +76,6 @@ class _FinanceSettingsScreenState extends ConsumerState<FinanceSettingsScreen> w
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final b = Theme.of(context).brightness;
     final s = ref.watch(monthEndReminderProvider).value ?? const MonthEndReminder(on: true, hour: 20, minute: 0);
     final stale = ref.watch(_staleDaysProvider).value ?? 30;
     final blocked = s.on && _notificationsOn == false;
@@ -95,7 +94,7 @@ class _FinanceSettingsScreenState extends ConsumerState<FinanceSettingsScreen> w
                   SettingsRow(
                     title: 'Remind me to update balances',
                     subtitle: 'On the last day of each month. It never shows amounts.',
-                    trailing: OzoneSwitch(label: 'Month-end reminder', value: s.on, onChanged: _toggle, accent: ToolTint.finance.accent(b)),
+                    trailing: OzoneSwitch(label: 'Month-end reminder', value: s.on, onChanged: _toggle, accent: ToolTint.finance.accentOf(context)),
                   ),
                   if (s.on)
                     SettingsRow(

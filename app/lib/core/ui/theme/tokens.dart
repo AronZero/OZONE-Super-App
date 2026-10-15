@@ -19,6 +19,7 @@ class OzoneColors {
     required this.attentionInk,
     required this.danger,
     required this.onAccent,
+    this.mono = false,
   });
 
   final Color canvas;
@@ -37,6 +38,13 @@ class OzoneColors {
 
   /// Text and icons on a tool-accent fill (white in light, canvas in dark).
   final Color onAccent;
+
+  /// Monochrome (UR2): tool colours resolve to greys; only gain/loss/danger/attention keep colour.
+  final bool mono;
+
+  /// Fill for badges, buttons and tiles placed on a tool card: white on a tinted
+  /// card, the sunken grey on a Monochrome card (which is already surface).
+  Color get onCard => mono ? surfaceSunken : surface;
 
   static const light = OzoneColors(
     canvas: Color(0xFFF3F5F2),
@@ -71,6 +79,48 @@ class OzoneColors {
     danger: Color(0xFFF59B85),
     onAccent: Color(0xFF0F1412),
   );
+
+  /// Monochrome over light (UR2-1): greys only; green and red keep their light values.
+  static const monoLight = OzoneColors(
+    canvas: Color(0xFFF4F4F4),
+    surface: Color(0xFFFFFFFF),
+    surfaceSunken: Color(0xFFEBEBEB),
+    bar: Color(0xFFE8E8E8),
+    barActive: Color(0xFFD4D4D4),
+    outline: Color(0xFFD4D4D4),
+    ink: Color(0xFF111111),
+    inkMuted: Color(0xFF5C5C5C),
+    gain: Color(0xFF1B6B3E),
+    loss: Color(0xFFA3361F),
+    attentionBg: Color(0xFFFBE5E1),
+    attentionInk: Color(0xFF8C2B18),
+    danger: Color(0xFFA3361F),
+    onAccent: Color(0xFFFFFFFF),
+    mono: true,
+  );
+
+  /// Monochrome over dark (UR2-1): near-black, not pure black (owner's samples).
+  static const monoDark = OzoneColors(
+    canvas: Color(0xFF0B0B0B),
+    surface: Color(0xFF161616),
+    surfaceSunken: Color(0xFF1F1F1F),
+    bar: Color(0xFF1A1A1A),
+    barActive: Color(0xFF2E2E2E),
+    outline: Color(0xFF2E2E2E),
+    ink: Color(0xFFF2F2F2),
+    inkMuted: Color(0xFFA6A6A6),
+    gain: Color(0xFF7FD6A0),
+    loss: Color(0xFFF59B85),
+    attentionBg: Color(0xFF2A1512),
+    attentionInk: Color(0xFFF59B85),
+    danger: Color(0xFFF59B85),
+    onAccent: Color(0xFF0B0B0B),
+    mono: true,
+  );
+
+  static OzoneColors resolve(Brightness b, {bool mono = false}) => b == Brightness.dark
+      ? (mono ? monoDark : dark)
+      : (mono ? monoLight : light);
 }
 
 /// A tool's colour pair (accent + tile) in both themes (docs/05, "Tool tints").
@@ -120,6 +170,12 @@ abstract final class Space {
   static const double xxl = 24;
   static const double xxxl = 32;
   static const double screen = 16;
+}
+
+/// Pill chips (filters, folders, scopes): never narrower than a "Gold" pill,
+/// so one-word labels like "All" stay pills instead of circles (owner, 15 Oct 2026).
+abstract final class PillSize {
+  static const double minWidth = 72;
 }
 
 /// Corner radii (docs/05).

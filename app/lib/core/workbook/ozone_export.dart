@@ -30,6 +30,7 @@ abstract final class Layout {
   /// Settings that travel in the workbook (F1-01 §4 "In workbook"), with a line for people.
   static const settingKeys = {
     'theme': 'Light, dark or follow the phone',
+    'theme.monochrome': 'Monochrome: greys only (true or false)',
     'amounts.hide_on_open': 'Hide amounts when OZONE opens',
     'dashboard.widgets': 'Home widgets, in order, shown or hidden',
     'bar.tools': 'Tools in the bottom bar',

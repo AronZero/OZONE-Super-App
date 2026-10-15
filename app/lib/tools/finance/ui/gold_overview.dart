@@ -99,7 +99,7 @@ class _ValueCard extends ConsumerWidget {
     Widget tile(String label, String value) => Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: Space.m, vertical: 10),
-            decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.tile)),
+            decoration: BoxDecoration(color: c.onCard, borderRadius: BorderRadius.circular(Radii.tile)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(label, style: text.labelLarge!.copyWith(color: c.inkMuted)),
               const SizedBox(height: 2),
@@ -109,7 +109,7 @@ class _ValueCard extends ConsumerWidget {
         );
     return Container(
       padding: const EdgeInsets.fromLTRB(18, Space.l, 18, Space.l),
-      decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -172,7 +172,7 @@ class GainPill extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(color: c.onCard, borderRadius: BorderRadius.circular(999)),
       child: Text('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}', semanticsLabel: spokenAmounts('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}'),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
     );
@@ -276,7 +276,7 @@ class _EmptyCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.all(Space.xl),
-      decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
+      decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('No gold items yet', style: text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Space.xs),
