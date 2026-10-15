@@ -207,6 +207,67 @@ class NotesRepo {
         return true;
       });
 
+  // ── Locked notes (the crypto is in VaultService; these are the writes) ──
+
+  /// Lock a note (F2-01 §4): the cipher replaces title, text and tags, and the
+  /// draft goes, in one transaction. M7 removes its search row here too.
+  Future<void> lockNote(String id, String cipher) => _db.transaction(() async {
+        await (_db.delete(_db.noteTags)..where((l) => l.noteId.equals(id))).go();
+        await (_db.delete(_db.noteDrafts)..where((d) => d.noteId.equals(id))).go();
+        await (_db.update(_db.notes)..where((n) => n.id.equals(id))).write(NotesCompanion(
+          isLocked: const Value(true),
+          cipher: Value(cipher),
+          title: const Value(null),
+          content: const Value(null),
+          plainText: const Value(null),
+          updatedAt: Value(_clock()),
+        ));
+      });
+
+  /// "Remove lock": the plain columns and tags come back from the decrypted note.
+  Future<void> unlockNote(String id, {required String? title, required String content, required List<String> tagNames}) => _db.transaction(() async {
+        final clean = sanitizeDelta(jsonDecode(content) as List<Object?>);
+        await (_db.update(_db.notes)..where((n) => n.id.equals(id))).write(NotesCompanion(
+          isLocked: const Value(false),
+          cipher: const Value(null),
+          title: Value(title),
+          content: Value(jsonEncode(clean)),
+          plainText: Value(plainTextFromDelta(clean)),
+          updatedAt: Value(_clock()),
+        ));
+        for (final name in tagNames) {
+          final parsed = parseTag(name).valueOrNull;
+          if (parsed == null) continue;
+          await _db.into(_db.noteTags).insert(NoteTagsCompanion.insert(noteId: id, tagId: await ensureTag(parsed)), mode: InsertMode.insertOrIgnore);
+        }
+        await (_db.delete(_db.noteDrafts)..where((d) => d.noteId.equals(id))).go();
+      });
+
+  /// Autosave of a locked note: the new cipher and `edited_at`; the draft goes.
+  Future<void> saveLocked(String id, String cipher) => _db.transaction(() async {
+        final cur = await note(id);
+        await (_db.delete(_db.noteDrafts)..where((d) => d.noteId.equals(id))).go();
+        if (cur == null || !cur.isLocked) return;
+        final now = _clock();
+        await (_db.update(_db.notes)..where((n) => n.id.equals(id))).write(NotesCompanion(
+          cipher: Value(cipher),
+          editedAt: Value(now == cur.createdAt ? now + 1 : now),
+          updatedAt: Value(now),
+        ));
+      });
+
+  /// An encrypted draft of a locked note (F2-02 §3), stored as given.
+  Future<void> writeSealedDraft(String id, String sealed) =>
+      _db.into(_db.noteDrafts).insertOnConflictUpdate(NoteDraftsCompanion.insert(noteId: id, content: sealed, savedAt: _clock()));
+
+  /// A locked note's draft newer than its last save, still sealed.
+  Future<NoteDraftRow?> sealedDraft(String id) async {
+    final n = await note(id);
+    final row = await (_db.select(_db.noteDrafts)..where((d) => d.noteId.equals(id))).getSingleOrNull();
+    if (n == null || row == null || row.savedAt <= n.editedAt) return null;
+    return row;
+  }
+
   Future<void> setPinned(String id, bool pinned) => (_db.update(_db.notes)..where((n) => n.id.equals(id))).write(NotesCompanion(
         isPinned: Value(pinned),
         pinnedAt: Value(pinned ? _clock() : null),

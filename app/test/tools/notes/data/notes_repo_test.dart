@@ -208,7 +208,11 @@ void main() {
     testWidgets('saves 1 s after typing stops; drafts at most once a second', (tester) async {
       var typed = '';
       final log = <String>[];
-      final auto = NoteAutosave(repo: _Spy(db, deletions, log), noteId: 'n1', read: () => ('T', _text(typed)));
+      final auto = NoteAutosave(
+        save: (_, _) async => log.add('save'),
+        draft: (_, _) async => log.add('draft'),
+        read: () => ('T', _text(typed)),
+      );
       for (var i = 0; i < 25; i++) {
         typed += 'a';
         auto.changed();
@@ -229,22 +233,4 @@ void main() {
       auto.dispose();
     });
   });
-}
-
-/// Counts the writes [NoteAutosave] makes.
-class _Spy extends NotesRepo {
-  _Spy(super.db, super.deletions, this.log);
-  final List<String> log;
-
-  @override
-  Future<bool> save(String id, {required String title, required List<Object?> ops}) {
-    log.add('save');
-    return Future.value(true);
-  }
-
-  @override
-  Future<void> writeDraft(String id, {required String title, required List<Object?> ops}) {
-    log.add('draft');
-    return Future.value();
-  }
 }

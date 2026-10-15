@@ -8,8 +8,9 @@ import 'ui/note_editor_screen.dart';
 import 'ui/notes_home.dart';
 import 'ui/notes_widgets.dart';
 import 'ui/trash_screen.dart';
+import 'ui/vault/vault_screens.dart';
 
-/// Notes tool definition (M5, docs/spec/F3-04). The vault arrives in M6.
+/// Notes tool definition (M5 notes, M6 vault; docs/spec/F3-04).
 const ToolDefinition notesTool = ToolDefinition(
   id: 'notes',
   name: 'Notes',
@@ -37,5 +38,11 @@ List<RouteBase> _routes(GlobalKey<NavigatorState> root) {
         )),
     full('manage', (_) => const FoldersTagsScreen()),
     full('trash', (_) => const TrashScreen()),
+    // The notes vault (M6, F2-01 §4); Settings › Security opens these too.
+    full('vault/setup', (s) => VaultSetupScreen(forLocking: s.uri.queryParameters['lock'] == '1')),
+    full('vault/forgot', (_) => const VaultForgotScreen()),
+    full('vault/reset', (_) => const VaultResetScreen()),
+    full('vault/password', (_) => const VaultChangePasswordScreen()),
+    full('vault/code', (_) => const VaultNewCodeScreen()),
   ];
 }

@@ -1,6 +1,7 @@
 package ph.ozone.ozone
 
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -31,6 +32,8 @@ class MainActivity : FlutterFragmentActivity() {
                         result.success(false)
                     }
                 }
+                // Vault fingerprint unlock needs Android 9+ (biometric-bound keys).
+                "sdkInt" -> result.success(Build.VERSION.SDK_INT)
                 else -> result.notImplemented()
             }
         }

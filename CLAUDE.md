@@ -1,7 +1,7 @@
 # OZONE: project guide for Claude
 
 Personal, offline, local-only super app (Finance, Library, Notes), built in Flutter in `app/`.
-**Current phase: build. M0–M5 approved (branches `build/m0`–`build/m5`); next M6 · Notes vault on `build/m6`.**
+**Current phase: build. M0–M6 approved (branches `build/m0`–`build/m6`); next M7 · Search and dashboard on `build/m7`.**
 
 ## Read first
 
@@ -21,12 +21,12 @@ Read its `project/canvas.json` before adding boards. Users may move boards by ha
 - Keep confirmed requirements, recommendations and open questions clearly separate.
 - Never invent data or totals in specs. Sample data on the canvas is labelled as such.
 - App shell neutral, colour per tool (Finance teal, Library blue, Notes violet). Bar = Home + up to 3 tools + Tools.
-- Don't commit or push unless asked. Keep the docs in `docs/` up to date when decisions change.
+- Commit as soon as the owner approves a milestone (owner rule, 15 Oct 2026); otherwise only when asked. Never push unless asked. Keep the docs in `docs/` up to date when decisions change.
 
 ## Build workflow
 
 - Follow `docs/spec/` exactly; milestones are in `docs/spec/F3-04-build-order.md`. If the spec is missing or wrong, ask, then update it and `docs/03`.
-- One branch per milestone (`build/mN`, from the previous one). Commit only when the owner asks; never push unless asked.
+- One branch per milestone (`build/mN`, from the previous one). Commit when the owner approves the milestone; never push unless asked.
 - Before handing over an APK: `app/tool/release_check.ps1` must pass (lockfile, analyzer, tests, osv-scanner, secret scan, permissions, signature, size).
 - Test on the emulator `OZONE_A03_API33` (PIN 1234), then record the result in the build log in `docs/06-design-progress.md`.
 - Packages: follow the safety procedure in `docs/spec/F3-02-packages.md` §4 before adding or updating any package.

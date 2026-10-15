@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:local_auth/local_auth.dart';
 
 import '../data/settings_repo.dart';
-import '../platform/platform_channel.dart';
+import 'secure_screen.dart';
 
 /// Talks to the phone's screen lock. A seam so tests can fake it.
 abstract class DeviceAuth {
@@ -77,12 +77,12 @@ class AppLockService with WidgetsBindingObserver {
   Future<void> start() async {
     _setting = await _settings.get(SettingKeys.appLock);
     locked.value = _setting.on;
-    await OzonePlatform.setSecureScreen(_setting.on);
+    SecureScreen.set(SecureReason.appLock, _setting.on);
     WidgetsBinding.instance.addObserver(this);
     _sub = _settings.watch(SettingKeys.appLock).listen((s) {
       _setting = s;
       if (!s.on) locked.value = false;
-      unawaited(OzonePlatform.setSecureScreen(s.on));
+      SecureScreen.set(SecureReason.appLock, s.on);
     });
   }
 

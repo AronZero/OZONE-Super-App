@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../data/notes_repo.dart';
+/// Writes the editor's title and Delta ops somewhere (plain or sealed).
+typedef NoteWrite = Future<void> Function(String title, List<Object?> ops);
 
 /// Autosave and drafts for one open note (F2-02 §3):
 /// - typing stops for 1 s → save, then "Saved";
@@ -10,15 +11,15 @@ import '../data/notes_repo.dart';
 /// - [saveNow] when the app goes to the background or the screen closes.
 class NoteAutosave extends ChangeNotifier {
   NoteAutosave({
-    required this.repo,
-    required this.noteId,
+    required this.save,
+    required this.draft,
     required this.read,
     this.idle = const Duration(seconds: 1),
     this.draftEvery = const Duration(seconds: 1),
   });
 
-  final NotesRepo repo;
-  final String noteId;
+  final NoteWrite save;
+  final NoteWrite draft;
 
   /// The editor's current title and Delta ops.
   final (String, List<Object?>) Function() read;
@@ -52,7 +53,7 @@ class NoteAutosave extends ChangeNotifier {
       if (!_dirty) return;
       _lastDraft = DateTime.now();
       final (title, ops) = read();
-      _run(() => repo.writeDraft(noteId, title: title, ops: ops));
+      _run(() => draft(title, ops));
     });
   }
 
@@ -64,12 +65,12 @@ class NoteAutosave extends ChangeNotifier {
     if (!_dirty) return _chain;
     _dirty = false;
     final (title, ops) = read();
-    final done = _run(() => repo.save(noteId, title: title, ops: ops));
+    final done = _run(() => save(title, ops));
     notifyListeners();
     return done;
   }
 
-  Future<void> _run(Future<Object?> Function() write) {
+  Future<void> _run(Future<void> Function() write) {
     _chain = _chain.then((_) => write()).then<void>((_) {}, onError: (Object e, StackTrace s) {
       // A failed write marks the note unsaved again, so the next change retries.
       _dirty = true;

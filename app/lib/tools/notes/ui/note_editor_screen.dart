@@ -6,6 +6,9 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/data/database.dart';
+import '../../../core/security/vault_crypto.dart';
+import '../../../core/security/vault_service.dart';
+import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -13,9 +16,11 @@ import '../data/notes_repo.dart';
 import '../domain/notes.dart';
 import '../state/note_autosave.dart';
 import '../state/notes_providers.dart';
+import '../state/notes_vault.dart';
 import 'note_sheets.dart';
 import 'note_toolbar.dart';
 import 'notes_parts.dart';
+import 'vault/vault_unlock.dart';
 
 /// W1 · Note editor: folder and tag chips, title, "Edited …", rich text and the
 /// formatting bar. Saves itself (F2-02 §3) and never asks "discard changes?".
@@ -30,6 +35,8 @@ class NoteEditorScreen extends ConsumerStatefulWidget {
 
 class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with WidgetsBindingObserver {
   late final NotesRepo _repo = ref.read(notesRepoProvider);
+  late final VaultService _vault = ref.read(vaultServiceProvider);
+  late final NotesVault _notesVault = ref.read(notesVaultProvider);
   final _title = TextEditingController();
   final _titleFocus = FocusNode();
   final _bodyFocus = FocusNode();
@@ -41,28 +48,82 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
   bool _recovered = false;
   bool _trashing = false;
 
+  /// A locked note: its text is sealed with DK on every save, its tags live
+  /// inside the lock (read-only here, decision M6-2), and it closes when the
+  /// vault relocks (F2-01 §4).
+  bool _locked = false;
+  List<String> _lockedTags = const [];
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _vault.isOpen.addListener(_vaultChanged);
+    _vault.addBeforeLock(_saveBeforeLock);
     unawaited(_load());
   }
 
+  Future<void> _saveBeforeLock() async => _autosave?.saveNow();
+
+  /// The vault relocked: a locked note closes (its text was saved first).
+  void _vaultChanged() {
+    if (_locked && !_vault.isOpen.value && mounted) Navigator.of(context).maybePop();
+  }
+
   Future<void> _load() async {
+    _title.removeListener(_titleChanged);
+    _autosave?.removeListener(_rebuild);
+    _autosave?.dispose();
+    _autosave = null;
     final n = await _repo.note(widget.noteId);
     if (!mounted) return;
-    if (n == null || n.isLocked || n.trashedAt != null) {
+    if (n == null || n.trashedAt != null || (n.isLocked && !_vault.isOpen.value)) {
       setState(() => _missing = true);
       return;
     }
-    final draft = await _repo.recoverableDraft(n.id);
+    final id = n.id;
+    NoteDraft? draft;
+    String? title;
+    List<Object?> ops;
+    if (n.isLocked) {
+      final LockedNote p;
+      try {
+        p = await _notesVault.read(id, n.cipher!);
+      } on Object {
+        if (mounted) setState(() => _missing = true);
+        return;
+      }
+      draft = await _notesVault.recoverableDraft(id);
+      title = p.title;
+      ops = _decode(p.content);
+      _lockedTags = p.tags;
+      _autosave = NoteAutosave(
+        save: (t, o) => _notesVault.save(id, title: t, ops: o, tags: _lockedTags),
+        draft: (t, o) => _notesVault.writeDraft(id, title: t, ops: o),
+        read: _read,
+      );
+    } else {
+      draft = await _repo.recoverableDraft(id);
+      title = n.title;
+      ops = _decode(n.content);
+      _lockedTags = const [];
+      _autosave = NoteAutosave(
+        save: (t, o) => _repo.save(id, title: t, ops: o),
+        draft: (t, o) => _repo.writeDraft(id, title: t, ops: o),
+        read: _read,
+      );
+    }
     if (!mounted) return;
-    _title.text = draft?.title ?? n.title ?? '';
+    _locked = n.isLocked;
+    _title.text = draft?.title ?? title ?? '';
     _lastTitle = _title.text;
-    _setDocument(draft?.ops ?? _decode(n.content));
-    _autosave = NoteAutosave(repo: _repo, noteId: n.id, read: _read)..addListener(_rebuild);
+    _setDocument(draft?.ops ?? ops);
+    _autosave!.addListener(_rebuild);
     _title.addListener(_titleChanged);
-    setState(() => _recovered = draft != null);
+    setState(() {
+      _missing = false;
+      _recovered = draft != null;
+    });
     if (widget.isNew) _titleFocus.requestFocus();
   }
 
@@ -136,6 +197,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _vault.isOpen.removeListener(_vaultChanged);
+    _vault.removeBeforeLock(_saveBeforeLock);
     final save = _autosave?.saveNow() ?? Future<void>.value();
     final repo = _repo;
     final id = widget.noteId;
@@ -159,21 +222,39 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
 
   Future<void> _discard() async {
     await _repo.discardDraft(widget.noteId);
-    final n = await _repo.note(widget.noteId);
-    if (!mounted || n == null) return;
-    _title.removeListener(_titleChanged);
-    _title.text = n.title ?? '';
-    _lastTitle = _title.text;
-    _title.addListener(_titleChanged);
-    _setDocument(_decode(n.content));
-    setState(() => _recovered = false);
+    await _load();
   }
 
   Future<void> _menu() async {
     await _autosave?.saveNow();
     if (!mounted) return;
     final r = await showNoteMenu(context, widget.noteId);
-    if (r == NoteMenuResult.trash && mounted) await _trash();
+    if (!mounted) return;
+    switch (r) {
+      case NoteMenuResult.trash:
+        await _trash();
+      case NoteMenuResult.lock:
+        await _lockNote();
+      case NoteMenuResult.removeLock:
+        await _removeLock();
+      case null:
+        break;
+    }
+  }
+
+  /// Lock note (F2-01 §4): set up the vault the first time, else unlock it; then seal.
+  Future<void> _lockNote() async {
+    await _autosave?.saveNow();
+    if (!mounted || !await ensureVaultOpen(context, ref, forLocking: true) || !mounted) return;
+    await _notesVault.lock(widget.noteId);
+    await _load();
+    if (mounted) ScaffoldMessenger.maybeOf(context)?.showSnackBar(const SnackBar(content: Text('Note locked. It isn’t searched while locked.')));
+  }
+
+  Future<void> _removeLock() async {
+    await _autosave?.saveNow();
+    await _notesVault.removeLock(widget.noteId);
+    await _load();
   }
 
   Future<void> _trash() async {
@@ -307,8 +388,17 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
                     ],
                     Wrap(spacing: Space.s, runSpacing: Space.s, crossAxisAlignment: WrapCrossAlignment.center, children: [
                       pill('$folderName ▾', icon: Icons.folder_outlined, onTap: () => showFolderPicker(context, widget.noteId)),
-                      for (final t in tags) pill('#${t.name}', tinted: true, onTap: () => showTagsSheet(context, widget.noteId)),
-                      pill('+ Tag', plain: true, onTap: () => showTagsSheet(context, widget.noteId)),
+                      if (_locked) ...[
+                        pill('Locked', icon: Icons.lock_outline_rounded, tinted: true, onTap: _menu),
+                        // Tags are sealed with the note; they change after Remove lock (M6-2).
+                        for (final t in _lockedTags)
+                          pill('#$t', tinted: true, onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Tags of a locked note change after you remove the lock.')),
+                              )),
+                      ] else ...[
+                        for (final t in tags) pill('#${t.name}', tinted: true, onTap: () => showTagsSheet(context, widget.noteId)),
+                        pill('+ Tag', plain: true, onTap: () => showTagsSheet(context, widget.noteId)),
+                      ],
                     ]),
                     const SizedBox(height: 14),
                     TextField(

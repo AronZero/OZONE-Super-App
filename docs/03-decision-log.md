@@ -110,6 +110,15 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M5-4 | Grid or list | Notes home remembers the layout in settings key `notes.view` (grid by default) (rec.) |
 | M5-5 | Editor content | Drafts hold the title and the Delta; anything the toolbar can't make (links, fonts, sizes, images, quotes) is removed on save, typed web addresses stay plain text, and pasting from other apps brings plain text (rec.) |
 | M5-6 | Notes filters | Folder chips (All, Unfiled, folders in creation order) plus one tag at a time from the tags in use; Restore in Trash has Undo, as on the W3 board (rec.) |
+| M6-1 | Argon2id cost | Memory fixed at 19 MiB, parallelism 1; iterations calibrated at setup for about 1 s (2–10) (rec.) |
+| M6-2 | Tags of locked notes | Sealed inside the lock and read-only while locked; change them after Remove lock (rec.) |
+| M6-3 | Lock now | A "Lock notes now" button on Notes home while the vault is open (F2-01 "Lock button") (rec.) |
+| M6-4 | Wrong-password wait | Stored in phone-only setting `vault.lockout`; applies to the password, not the recovery code (rec.) |
+| M6-5 | Screens not drawn | Change vault password: current, new, again, strength meter. New recovery code: shown with the saved checkbox; the old code keeps working until "Use this code" (rec.) |
+| M6-6 | Codes commit on Done | Setup, Forgot password and New code only write the vault when the last button is pressed, so leaving midway changes nothing (rec.) |
+| M6-7 | Recovery code order | The four groups are numbered 1–4 and read left to right, then down (owner) |
+| M6 | Notes vault | **Approved** 15 Oct 2026 |
+| Process | Commits | Commit automatically whenever the owner approves a milestone (owner, 15 Oct 2026) |
 | M5 | Notes | **Approved** 15 Oct 2026 (owner fixes: tags on one line with ellipsis; date always right-aligned) |
 
 ## Open

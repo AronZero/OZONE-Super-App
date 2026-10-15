@@ -4,7 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/app.dart';
+
+import 'package:cryptography/dart.dart';
 import 'package:ozone/core/data/database.dart';
+import 'package:ozone/core/data/deletions_repo.dart';
+import 'package:ozone/core/security/biometric_key_store.dart';
+import 'package:ozone/core/security/vault_crypto.dart';
+import 'package:ozone/core/security/vault_service.dart';
 import 'package:ozone/core/data/settings_repo.dart';
 import 'package:ozone/core/security/app_lock_service.dart';
 import 'package:ozone/core/domain/dates.dart';
@@ -27,6 +33,49 @@ class FakeDeviceAuth implements DeviceAuth {
   }
 }
 
+/// A fake fingerprint store: [next] decides what the next read does.
+class FakeBiometricKeyStore implements BiometricKeyStore {
+  bool isAvailable = true;
+  Uint8List? stored;
+  BiometricRead next = BiometricRead.ok;
+
+  @override
+  Future<bool> available() async => isAvailable;
+
+  @override
+  Future<bool> save(Uint8List dk) async {
+    stored = Uint8List.fromList(dk);
+    return true;
+  }
+
+  @override
+  Future<(BiometricRead, Uint8List?)> read() async {
+    if (next != BiometricRead.ok) return (next, null);
+    final s = stored;
+    return s == null ? (BiometricRead.invalidated, null) : (BiometricRead.ok, Uint8List.fromList(s));
+  }
+
+  @override
+  Future<void> delete() async => stored = null;
+}
+
+/// SHA-256(secret ‖ salt): a stand-in for Argon2id in widget tests, whose fake
+/// clock times out cryptography's Argon2 helper isolates. The real KDF is
+/// covered by test/core/security/vault_test.dart.
+Future<Uint8List> fakeDerive(List<int> secret, List<int> salt, KdfParams p) async =>
+    Uint8List.fromList(const DartSha256().hashSync([...secret, ...salt]).bytes);
+
+/// A vault for tests: OWASP-minimum Argon2id derived in place, or [fakeDerive] with [fastKdf].
+VaultService testVault(AppDatabase db, {BiometricKeyStore? bio, int Function()? clock, bool fastKdf = false}) => VaultService(
+      db,
+      SettingsRepo(db),
+      DeletionsRepo(db),
+      bio ?? FakeBiometricKeyStore(),
+      clock: clock,
+      calibrateKdf: () async => KdfParams.minimum,
+      derive: fastKdf ? fakeDerive : deriveKeySync,
+    );
+
 AppDatabase memoryDb() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   return AppDatabase(NativeDatabase.memory());
@@ -34,14 +83,16 @@ AppDatabase memoryDb() {
 
 /// Pumps the whole app on an in-memory database.
 /// [today] defaults to 13 Oct 2026, the date on the W1 boards.
-Future<(AppDatabase, AppLockService)> pumpApp(WidgetTester tester, {AppDatabase? db, LocalDate? today}) async {
+Future<(AppDatabase, AppLockService)> pumpApp(WidgetTester tester, {AppDatabase? db, LocalDate? today, VaultService? vault}) async {
   final d = db ?? memoryDb();
+  final v = vault ?? testVault(d, fastKdf: true);
   final lock = AppLockService(SettingsRepo(d), FakeDeviceAuth());
   await tester.runAsync(lock.start);
   await tester.pumpWidget(ProviderScope(
     overrides: [
       databaseProvider.overrideWithValue(d),
       appLockServiceProvider.overrideWithValue(lock),
+      vaultServiceProvider.overrideWithValue(v),
       todayProvider.overrideWith(() => FixedToday(today ?? LocalDate(2026, 10, 13))),
     ],
     child: const OzoneApp(),

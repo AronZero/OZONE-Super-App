@@ -16,6 +16,15 @@ abstract final class OzonePlatform {
     }
   }
 
+  /// The Android API level, or 0 elsewhere.
+  static Future<int> androidSdk() async {
+    try {
+      return await _channel.invokeMethod<int>('sdkInt') ?? 0;
+    } on Object {
+      return 0;
+    }
+  }
+
   /// Opens the phone's security settings (to set a screen lock).
   static Future<bool> openSecuritySettings() async {
     try {

@@ -14,6 +14,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../data/notes_repo.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
+import 'vault/vault_unlock.dart';
 
 /// Folder filter: all notes, Unfiled, or one folder.
 sealed class FolderFilter {
@@ -36,6 +37,15 @@ class InFolder extends FolderFilter {
   int get hashCode => id.hashCode;
 }
 
+/// Whether the vault is open, for the "Lock notes now" button.
+final _vaultOpenProvider = Provider.autoDispose<bool>((ref) {
+  final v = ref.watch(vaultServiceProvider).isOpen;
+  void changed() => ref.invalidateSelf();
+  v.addListener(changed);
+  ref.onDispose(() => v.removeListener(changed));
+  return v.value;
+});
+
 /// Notes home (W2 · Notes home): folder chips, tag chips, pinned first,
 /// grid or list, and the New note button.
 class NotesHome extends ConsumerStatefulWidget {
@@ -56,6 +66,11 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
     return true;
   }
 
+  /// A locked note opens after the vault unlocks (W1 · Vault unlock).
+  Future<void> _openLocked(String id) async {
+    if (await ensureVaultOpen(context, ref) && mounted) openNote(context, id);
+  }
+
   Future<void> _newNote() async {
     final data = ref.read(notesDataProvider).value;
     final f = _folder;
@@ -73,6 +88,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
     final today = ref.watch(todayProvider);
     final data = ref.watch(notesDataProvider).value;
     final view = ref.watch(notesViewProvider).value ?? NotesView.grid;
+    final vaultOpen = ref.watch(_vaultOpenProvider);
 
     // A folder or tag deleted elsewhere drops out of the filter.
     final f = _folder;
@@ -92,7 +108,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
           list: view == NotesView.list,
           onTap: () {
             if (n.isLocked) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Locked notes open with the vault, which arrives in M6.')));
+              unawaited(_openLocked(n.id));
             } else {
               openNote(context, n.id);
             }
@@ -147,6 +163,9 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
           padding: const EdgeInsets.only(bottom: 104),
           children: [
             MainTopBar(title: 'Notes', actions: [
+              // While the vault is open: lock it again now (F2-01 §4 "Lock button").
+              if (vaultOpen)
+                RoundIconButton(icon: Icons.lock_open_rounded, label: 'Lock notes now', onPressed: () => ref.read(vaultServiceProvider).lock()),
               RoundIconButton(
                 icon: view == NotesView.grid ? Icons.view_agenda_outlined : Icons.grid_view_rounded,
                 label: view == NotesView.grid ? 'Switch to list view' : 'Switch to grid view',

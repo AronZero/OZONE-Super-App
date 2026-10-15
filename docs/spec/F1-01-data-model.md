@@ -102,6 +102,7 @@ Hidden values are stored in settings key `lists.hidden` (§4). No separate table
 | `notes.view` | `grid` (`list`), Notes home layout (decision M5-4) | Yes |
 | `app_lock` | `{ "on": false, "relock_after_s": 60 }` (0, 60, 300) | **No** (belongs to this phone) |
 | `vault.biometric` | `false` | **No** (belongs to this phone) |
+| `vault.lockout` | `{ "failures": 0, "until": 0 }`, wrong vault passwords and the wait (decision M6-4) | **No** (belongs to this phone) |
 | `search.recent` | up to 5 strings | **No** |
 | `backup.last_export_at` | none | **No** (comes from `exports_log`) |
 

@@ -52,6 +52,16 @@ class AppLockSetting {
   Map<String, Object> toJson() => {'on': on, 'relock_after_s': relockAfterS};
 }
 
+class VaultLockout {
+  const VaultLockout({required this.failures, required this.untilMs});
+  final int failures;
+
+  /// No password is tried before this moment (UTC ms).
+  final int untilMs;
+
+  Map<String, Object> toJson() => {'failures': failures, 'until': untilMs};
+}
+
 /// Default dashboard order and visibility (docs/04, widgets W1–W10).
 const List<WidgetSetting> defaultDashboard = [
   WidgetSetting('needs_attention', true),
@@ -104,6 +114,21 @@ abstract final class SettingKeys {
   );
 
   static final notesView = SettingKey<NotesView>('notes.view', NotesView.grid, (j) => NotesView.values.byName(j! as String));
+
+  /// Vault unlock with fingerprint (F2-01 §4). Belongs to this phone.
+  static final vaultBiometric = SettingKey<bool>('vault.biometric', false, (j) => j! as bool, inWorkbook: false);
+
+  /// Wrong vault passwords in a row and the wait they caused (F2-01 §4), so
+  /// the wait survives a restart. Belongs to this phone.
+  static final vaultLockout = SettingKey<VaultLockout>(
+    'vault.lockout',
+    const VaultLockout(failures: 0, untilMs: 0),
+    (j) {
+      final m = j! as Map<String, Object?>;
+      return VaultLockout(failures: m['failures']! as int, untilMs: m['until']! as int);
+    },
+    inWorkbook: false,
+  );
 
   static final appLock = SettingKey<AppLockSetting>(
     'app_lock',
@@ -158,6 +183,7 @@ class SettingsRepo {
         final ThemeChoice t => t.name,
         final NotesView n => n.name,
         final AppLockSetting a => a.toJson(),
+        final VaultLockout v => v.toJson(),
         final List<WidgetSetting> l => [for (final w in l) w.toJson()],
         _ => v,
       };

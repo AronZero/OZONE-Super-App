@@ -77,6 +77,16 @@ moved to another note. Each save re-encrypts with a new nonce.
 - Never write DK or the password to disk, except the biometric-protected copy described above.
 - Never put locked note content in the search index, notifications, widgets or crash reports.
 
+## Build notes (M6)
+
+- Argon2id runs in a background isolate; the `cryptography` package also spreads its work over helper isolates.
+  Known-answer tests: RFC 9106 §5.3 (Argon2id) and NIST GCM test case 14 (AES-256-GCM).
+- The fingerprint copy of DK uses `flutter_secure_storage` `AndroidOptions.biometric` (strong biometric only, a prompt
+  for every read, Android 9+). Widget tests use a fake key store and a SHA-256 stand-in for Argon2id.
+- Drafts of locked notes are sealed with DK (associated data `draft:<note id>`). A relock deletes them; after a crash
+  they stay until the note is next opened with the vault open.
+- `FLAG_SECURE` is on while any reason holds: app lock, vault open, or a recovery code on screen.
+
 ## Decisions (owner, 14 Oct 2026)
 
 1. On Android, while app lock is on, the app-switcher preview is **blank** and screenshots are blocked everywhere in OZONE.

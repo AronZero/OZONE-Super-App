@@ -4,6 +4,7 @@ import '../data/database.dart';
 import '../data/deletions_repo.dart';
 import '../data/settings_repo.dart';
 import '../security/app_lock_service.dart';
+import '../security/vault_service.dart';
 import 'undo.dart';
 
 /// The open database. Overridden in `main()` (and with an in-memory database in tests).
@@ -36,3 +37,9 @@ final undoControllerProvider = Provider<UndoController>((ref) {
   ref.onDispose(c.dispose);
   return c;
 });
+
+/// The notes vault (F2-01 §2–4). Overridden in `main()` with a started service.
+final vaultServiceProvider = Provider<VaultService>((ref) => throw UnimplementedError('vaultServiceProvider must be overridden'));
+
+/// Whether a vault has been set up on this phone.
+final vaultExistsProvider = StreamProvider<bool>((ref) => ref.watch(vaultServiceProvider).watchExists());

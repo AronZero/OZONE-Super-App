@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/data/settings_repo.dart';
 import '../../../core/platform/platform_channel.dart';
@@ -8,9 +9,10 @@ import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../tools/notes/ui/vault/vault_unlock.dart';
 
-/// Security (W3 · Security & app lock). App lock and "Hide amounts" work in M1;
-/// the notes vault section arrives with M6.
+/// Security (W3 · Security & app lock): app lock, "Hide amounts" and the
+/// notes vault (password, fingerprint, recovery code, forgot, reset).
 class SecurityScreen extends ConsumerStatefulWidget {
   const SecurityScreen({super.key});
 
@@ -21,6 +23,39 @@ class SecurityScreen extends ConsumerStatefulWidget {
 class _SecurityScreenState extends ConsumerState<SecurityScreen> {
   bool _needsScreenLock = false;
   bool _busy = false;
+  bool? _bioAvailable;
+  bool _bioOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _readBio();
+  }
+
+  Future<void> _readBio() async {
+    final v = ref.read(vaultServiceProvider);
+    final a = await v.biometricAvailable(), on = await v.biometricOn();
+    if (mounted) {
+      setState(() {
+        _bioAvailable = a;
+        _bioOn = on;
+      });
+    }
+  }
+
+  Future<void> _toggleBio(bool on) async {
+    final v = ref.read(vaultServiceProvider);
+    if (on && !await ensureVaultOpen(context, ref)) return;
+    final ok = await v.setBiometric(on);
+    if (!mounted) return;
+    if (!ok) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fingerprint unlock wasn’t turned on.')));
+    await _readBio();
+  }
+
+  /// "Make a new recovery code" needs the vault open (F2-01 §4).
+  Future<void> _newCode() async {
+    if (await ensureVaultOpen(context, ref) && mounted) await context.push('/notes/vault/code');
+  }
 
   Future<void> _toggleLock(bool on) async {
     final svc = ref.read(appLockServiceProvider);
@@ -115,13 +150,32 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                     ),
                   ]),
                   const SectionLabel('Notes vault'),
-                  const GroupCard(children: [
-                    SettingsRow(
-                      title: 'Not set up yet',
-                      subtitle: 'The vault is set up the first time you lock a note (arrives in M6)',
-                      enabled: false,
-                    ),
-                  ]),
+                  if (ref.watch(vaultExistsProvider).value ?? false)
+                    GroupCard(children: [
+                      SettingsRow(title: 'Change vault password', onTap: () => context.push('/notes/vault/password')),
+                      if (_bioAvailable ?? false)
+                        SettingsRow(
+                          title: 'Unlock with fingerprint',
+                          subtitle: 'Only shown when the phone has one set up',
+                          trailing: OzoneSwitch(label: 'Unlock with fingerprint', value: _bioOn, onChanged: _toggleBio, accent: ToolTint.notes.accent(Theme.of(context).brightness)),
+                        ),
+                      SettingsRow(title: 'Make a new recovery code', subtitle: 'The old code stops working', onTap: _newCode),
+                      SettingsRow(title: 'Forgot vault password', onTap: () => context.push('/notes/vault/forgot')),
+                      SettingsRow(
+                        title: 'Reset vault',
+                        subtitle: 'Deletes every locked note',
+                        titleColor: c.danger,
+                        onTap: () => context.push('/notes/vault/reset'),
+                      ),
+                    ])
+                  else
+                    const GroupCard(children: [
+                      SettingsRow(
+                        title: 'Not set up yet',
+                        subtitle: 'The vault is set up the first time you lock a note, from the note’s menu',
+                        enabled: false,
+                      ),
+                    ]),
                 ],
               ),
             ),

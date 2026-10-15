@@ -181,7 +181,7 @@ Future<T?> _sheet<T>(BuildContext context, Widget child) => showOzoneSheet<T>(
     );
 
 /// What the note menu asks the editor to do.
-enum NoteMenuResult { trash }
+enum NoteMenuResult { trash, lock, removeLock }
 
 /// W3 · Note menu sheet: pin, folder, tags, lock, move to trash.
 Future<NoteMenuResult?> showNoteMenu(BuildContext context, String noteId) => _sheet(context, _NoteMenu(noteId: noteId));
@@ -200,7 +200,7 @@ class _NoteMenu extends ConsumerWidget {
     final tags = data.tagsOf(n.id);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
       _SheetHead(
-        title: n.title ?? 'Untitled',
+        title: n.isLocked ? 'Locked note' : (n.title ?? 'Untitled'),
         subtitle: 'Created ${localDateOf(n.createdAt).format(ref.watch(todayProvider))} · edited ${dateTimeText(n.editedAt)}',
       ),
       _MenuRow(
@@ -215,17 +215,29 @@ class _NoteMenu extends ConsumerWidget {
         value: data.folder(n.folderId)?.name ?? 'Unfiled',
         onTap: () => showFolderPicker(context, n.id),
       ),
-      _MenuRow(
-        icon: Icons.tag_rounded,
-        label: 'Tags',
-        value: tags.isEmpty ? 'None' : tags.map((t) => '#${t.name}').join(' '),
-        onTap: () => showTagsSheet(context, n.id),
-      ),
-      const _MenuRow(
-        icon: Icons.lock_outline_rounded,
-        label: 'Lock note',
-        detail: 'Moves it into the vault. Locked notes aren\'t searched. The vault arrives in M6.',
-      ),
+      if (n.isLocked)
+        const _MenuRow(icon: Icons.tag_rounded, label: 'Tags', detail: 'Kept inside the lock. Remove the lock to change them.')
+      else
+        _MenuRow(
+          icon: Icons.tag_rounded,
+          label: 'Tags',
+          value: tags.isEmpty ? 'None' : tags.map((t) => '#${t.name}').join(' '),
+          onTap: () => showTagsSheet(context, n.id),
+        ),
+      if (n.isLocked)
+        _MenuRow(
+          icon: Icons.lock_open_rounded,
+          label: 'Remove lock',
+          detail: 'Takes it out of the vault. It can be searched again.',
+          onTap: () => Navigator.of(context).pop(NoteMenuResult.removeLock),
+        )
+      else
+        _MenuRow(
+          icon: Icons.lock_outline_rounded,
+          label: 'Lock note',
+          detail: 'Moves it into the vault. Locked notes aren\'t searched.',
+          onTap: () => Navigator.of(context).pop(NoteMenuResult.lock),
+        ),
       Divider(height: 9, indent: 10, endIndent: 10, color: c.surfaceSunken),
       _MenuRow(
         icon: Icons.delete_outline_rounded,
@@ -394,7 +406,7 @@ Future<void> trashWithUndo(WidgetRef ref, NoteRow n) async {
   final undo = ref.read(undoControllerProvider);
   await repo.trash(n.id);
   await undo.run(
-    message: '${n.title ?? 'Note'} moved to trash',
+    message: n.isLocked ? 'Locked note moved to trash' : '${n.title ?? 'Note'} moved to trash',
     hideNow: () {},
     commit: () async {},
     restore: () => repo.restore(n.id),
