@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/domain/money.dart';
 import '../../../core/state/providers.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -134,7 +134,7 @@ class BookDetailScreen extends ConsumerWidget {
                 GroupCard(children: [
                   fact('On Kindle', b.onKindle ? (b.sizeKb == null ? 'Yes · no size' : 'Yes · ${formatStorage(b.sizeKb!)}') : 'No'),
                   fact('Acquired', '${acq.label} · ${acquiredText(b.acquiredDate, today)}'),
-                  if (acq == Acquisition.purchased && b.amount != null) fact('Amount', Money.format(b.amount!), strong: true),
+                  if (acq == Acquisition.purchased && b.amount != null) fact('Amount', money(context, b.amount!), strong: true),
                   if (b.remarks != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.m),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/ui/theme/tokens.dart';
 import '../../shell/tool_registry.dart';
+import 'finance_search.dart';
 import 'state/finance_providers.dart';
 import 'state/savings_providers.dart';
 import 'ui/account_detail_screen.dart';
@@ -36,6 +37,8 @@ const ToolDefinition financeTool = ToolDefinition(
     'recent_expenses': _recentExpenses,
   },
   attention: _attention,
+  searchSources: financeSearch,
+  quickAdd: financeQuickAdd,
 );
 
 Widget _home(BuildContext context) => const FinanceHome();

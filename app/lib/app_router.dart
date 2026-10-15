@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'shell/tool_registry.dart';
 import 'shell/ui/edit_bar/edit_bar_screen.dart';
 import 'shell/ui/home/home_screen.dart';
+import 'shell/ui/search/search_screen.dart';
 import 'shell/ui/settings/about_screen.dart';
 import 'shell/ui/settings/appearance_screen.dart';
 import 'shell/ui/settings/dashboard_arrange_screen.dart';
@@ -50,5 +51,11 @@ GoRouter buildRouter() => GoRouter(
         _full('/settings/security', const SecurityScreen()),
         _full('/settings/about', const AboutScreen()),
         _full('/edit-bar', const EditBarScreen()),
+        // Global search above everything; `?scope=book` preselects a scope chip.
+        GoRoute(
+          path: '/search',
+          parentNavigatorKey: _rootKey,
+          builder: (context, state) => SearchScreen(scope: state.uri.queryParameters['scope']),
+        ),
       ],
     );

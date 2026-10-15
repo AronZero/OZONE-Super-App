@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -94,9 +94,9 @@ class _TotalCard extends StatelessWidget {
             ]),
             const SizedBox(height: Space.s),
             Semantics(
-              label: 'Total savings ${Money.spoken(month.total ?? 0)}',
+              label: 'Total savings ${moneySpoken(context, month.total ?? 0)}',
               excludeSemantics: true,
-              child: Text(Money.format(month.total ?? 0), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+              child: Text(money(context, month.total ?? 0), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
             ),
             const SizedBox(height: Space.s),
             Wrap(
@@ -117,7 +117,7 @@ class _TotalCard extends StatelessWidget {
               data: totalsToBars(months, now),
               accent: accent,
               labelColor: c.inkMuted,
-              semanticLabel: totalsChartLabel(months),
+              semanticLabel: totalsChartLabel(context, months),
             ),
             const SizedBox(height: Space.s),
             Row(children: [
@@ -180,7 +180,7 @@ class _AccountRow extends ConsumerWidget {
     final sub = [?platform, date].join(' · ');
     return Semantics(
       button: true,
-      label: '${history.name}, ${Money.spoken(last.balance)}, ${carried ? 'carried from $date' : 'updated $date'}',
+      label: '${history.name}, ${moneySpoken(context, last.balance)}, ${carried ? 'carried from $date' : 'updated $date'}',
       excludeSemantics: true,
       child: Material(
         color: c.surface,
@@ -203,7 +203,7 @@ class _AccountRow extends ConsumerWidget {
                   ]),
                 ),
                 const SizedBox(width: Space.s),
-                Text(Money.format(last.balance), style: text.bodyLarge!.copyWith(fontSize: 15.5, fontWeight: FontWeight.w800)),
+                Text(money(context, last.balance), style: text.bodyLarge!.copyWith(fontSize: 15.5, fontWeight: FontWeight.w800)),
               ]),
             ),
           ),

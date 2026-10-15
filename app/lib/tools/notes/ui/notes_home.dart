@@ -171,7 +171,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                 label: view == NotesView.grid ? 'Switch to list view' : 'Switch to grid view',
                 onPressed: () => ref.read(settingsRepoProvider).set(SettingKeys.notesView, view == NotesView.grid ? NotesView.list : NotesView.grid),
               ),
-              const RoundIconButton(icon: Icons.search_rounded, label: 'Search (arrives in M7)', onPressed: null),
+              RoundIconButton(icon: Icons.search_rounded, label: 'Search', onPressed: () => context.push('/search?scope=note')),
               RoundIconButton(icon: Icons.more_vert_rounded, label: 'Notes options: folders, tags, trash', onPressed: () => context.push('/notes/manage')),
             ]),
             if (!emptyAll) ...[

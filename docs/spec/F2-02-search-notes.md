@@ -36,6 +36,12 @@ tokenize = "unicode61 remove_diacritics 2"
 Budget: under 100 ms per query on the reference phone with 20,000 indexed rows.
 The index is rebuilt from scratch after an import and after a schema migration (shows "Updating search…").
 
+**Build notes (M7).** The index is kept in step by SQLite triggers on every indexed table (and on `balance_updates`,
+`note_tags` and tag renames), so each write and its index row share one transaction whichever code made it. A small
+`search_keys` table gives each record a fixed rowid, so its index row is replaced without scanning (schema v2; the v1 → v2
+migration builds the index for existing data). Queries are restricted to `title`, `body` and `extra`; typed quotes and
+operators never reach FTS5 (only letters and digits do).
+
 ## 2. Note editor
 
 - Package: `flutter_quill` (MIT, verified publisher; F3 pins the version). Content is stored as **Quill Delta JSON** in `notes.content`.

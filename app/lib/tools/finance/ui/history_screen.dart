@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/forms.dart';
@@ -178,16 +179,16 @@ class _YearCard extends StatelessWidget {
           else if (!hasBase) ...[
             Text('Total at the end of ${yearTotal.month.monthName}', style: muted),
             const SizedBox(height: 6),
-            Text(Money.format(end!), style: text.headlineSmall!.copyWith(fontSize: 26)),
+            Text(money(context, end!), style: text.headlineSmall!.copyWith(fontSize: 26)),
             const SizedBox(height: 6),
             Text('Tracking started in $year, so there is no change to show yet.', style: muted.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600)),
           ] else ...[
             Text('Change since 31 Dec ${year - 1}', style: muted),
             const SizedBox(height: 6),
-            Text(Money.change(yearTotal.change), style: text.headlineSmall!.copyWith(fontSize: 26)),
+            Text(moneyChange(context, yearTotal.change), style: text.headlineSmall!.copyWith(fontSize: 26)),
             const SizedBox(height: 6),
             Text(
-              '${Money.format(baseTotal.total!)} → ${end == null ? 'no data' : Money.format(end)} · '
+              '${money(context, baseTotal.total!)} → ${end == null ? 'no data' : money(context, end)} · '
               '${yearTotal.change >= 0 ? '+' : '−'}${Money.percent(yearTotal.change.abs(), baseTotal.total!)}',
               style: muted.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600),
             ),
@@ -243,7 +244,7 @@ class _MonthTable extends ConsumerWidget {
               Text(m.monthShort, style: text.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: fg)),
               t.hasData
                   ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(Money.format(t.total!), style: text.bodyLarge!.copyWith(fontSize: 14.5, fontWeight: FontWeight.w800, color: fg)),
+                      Text(money(context, t.total!), style: text.bodyLarge!.copyWith(fontSize: 14.5, fontWeight: FontWeight.w800, color: fg)),
                       if (tag != null) ...[const SizedBox(height: 3), DashedPill(tag)],
                     ])
                   : Text('— No data', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
@@ -252,7 +253,7 @@ class _MonthTable extends ConsumerWidget {
                   : t.countedAccounts == 0
                       ? Text(t.newAccounts > 0 ? 'Start' : 'Not counted', style: changeStyle.copyWith(color: c.inkMuted))
                       : Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                          Text(Money.change(t.change), style: changeStyle.copyWith(color: changeColor(c, t.change))),
+                          Text(moneyChange(context, t.change), style: changeStyle.copyWith(color: changeColor(c, t.change))),
                           if (t.newAccounts > 0)
                             Text('+${t.newAccounts} new, not counted', style: text.labelSmall!.copyWith(fontSize: 11, color: c.inkMuted)),
                         ]),
@@ -301,7 +302,7 @@ class _YearChart extends ConsumerWidget {
           accent: financeAccent(context),
           labelColor: c.inkMuted,
           height: 160,
-          semanticLabel: '${totalsChartLabel(totals, scope: 'in $year')} Switch to the table for every value.',
+          semanticLabel: '${totalsChartLabel(context, totals, scope: 'in $year')} Switch to the table for every value.',
         ),
       ]),
     );

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
@@ -73,7 +75,13 @@ class LibrarySnapshotWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final s = ref.watch(booksDataProvider).value?.stats;
+    final data = ref.watch(booksDataProvider).value;
+    final s = data?.stats;
+    final today = ref.watch(todayProvider);
+    final spentThisYear = [
+      for (final f in data?.facts ?? const <BookFacts>[])
+        if (f.acquisition == Acquisition.purchased && f.acquired?.year == today.year) f.amount ?? 0,
+    ].fold<int>(0, (a, b) => a + b);
     Widget fig(String value, String label) => Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(value, style: text.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
@@ -98,12 +106,18 @@ class LibrarySnapshotWidget extends ConsumerWidget {
               const SizedBox(height: Space.s),
               if (s == null || s.total == 0)
                 Text('No books yet.', style: text.bodyLarge!.copyWith(color: c.inkMuted))
-              else
+              else ...[
                 Row(children: [
                   fig('${s.total}', s.total == 1 ? 'book' : 'books'),
                   fig('${s.byStatus[BookStatus.finished]}', 'finished'),
-                  fig(formatStorage(s.kindleKb), 'on Kindle'),
                 ]),
+                const SizedBox(height: Space.m),
+                Row(children: [
+                  fig(formatStorage(s.kindleKb), 'on Kindle'),
+                  // Spent on books acquired this year (UX3 board W8).
+                  fig(money(context, spentThisYear), 'spent in ${today.year}'),
+                ]),
+              ],
             ]),
           ),
         ),

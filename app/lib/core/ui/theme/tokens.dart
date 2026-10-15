@@ -1,5 +1,5 @@
-import 'package:flutter/painting.dart';
 import 'package:flutter/foundation.dart' show Brightness;
+import 'package:flutter/painting.dart';
 
 /// Colour tokens from docs/05-design-system.md. Widgets read these through
 /// `OzoneThemeColors.of(context)`; nothing else in the app hard-codes a colour.

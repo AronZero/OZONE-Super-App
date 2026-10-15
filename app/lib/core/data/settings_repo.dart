@@ -115,6 +115,14 @@ abstract final class SettingKeys {
 
   static final notesView = SettingKey<NotesView>('notes.view', NotesView.grid, (j) => NotesView.values.byName(j! as String));
 
+  /// The last 5 submitted searches (F2-02 §1). Belongs to this phone.
+  static final searchRecent = SettingKey<List<String>>(
+    'search.recent',
+    const [],
+    (j) => [for (final e in j! as List<Object?>) e! as String].take(5).toList(),
+    inWorkbook: false,
+  );
+
   /// Vault unlock with fingerprint (F2-01 §4). Belongs to this phone.
   static final vaultBiometric = SettingKey<bool>('vault.biometric', false, (j) => j! as bool, inWorkbook: false);
 

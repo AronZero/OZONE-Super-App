@@ -1,7 +1,7 @@
 # OZONE: project guide for Claude
 
 Personal, offline, local-only super app (Finance, Library, Notes), built in Flutter in `app/`.
-**Current phase: build. M0–M6 approved (branches `build/m0`–`build/m6`); next M7 · Search and dashboard on `build/m7`.**
+**Current phase: build. M0–M7 approved (branches `build/m0`–`build/m7`); next M8 · Backup and first run on `build/m8`.**
 
 ## Read first
 

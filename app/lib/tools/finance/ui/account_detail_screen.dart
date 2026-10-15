@@ -5,11 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
-import '../../../core/domain/money.dart';
 import '../../../core/domain/validation.dart';
 import '../../../core/state/providers.dart';
-import '../../../core/state/undo.dart';
 import '../../../core/state/today.dart';
+import '../../../core/state/undo.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/forms.dart';
@@ -198,7 +198,7 @@ class _Header extends ConsumerWidget {
         children: [
           if (facts.isNotEmpty) Text(facts, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
           const SizedBox(height: Space.s),
-          Text(Money.format(last?.balance ?? 0), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+          Text(money(context, last?.balance ?? 0), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           const SizedBox(height: Space.s),
           Wrap(
             spacing: Space.s,
@@ -283,13 +283,13 @@ class _ByMonth extends ConsumerWidget {
     return [
       Text(m.monthShortYear, style: text.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: carried ? c.inkMuted : c.ink)),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(Money.format(u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: carried ? c.inkMuted : c.ink)),
+        Text(money(context, u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: carried ? c.inkMuted : c.ink)),
         const SizedBox(height: 3),
         if (carried) DashedPill('Carried from ${u.date.monthShort}') else Text(note, style: text.labelSmall!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
       ]),
       switch (change) {
         CountedChange(:final amount, :final base) => Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(Money.change(amount), textAlign: TextAlign.right, style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: changeColor(c, amount))),
+            Text(moneyChange(context, amount), textAlign: TextAlign.right, style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: changeColor(c, amount))),
             if (base.status == MonthStatus.carried)
               Text('vs ${base.update!.date.monthShort}', style: text.labelSmall!.copyWith(fontSize: 11, color: c.inkMuted)),
           ]),
@@ -349,7 +349,7 @@ class _AllUpdates extends ConsumerWidget {
       for (final u in newest)
         Semantics(
           button: true,
-          label: '${LocalDate.parseIso(u.date).valueOrNull!.formatLong()}, ${Money.spoken(u.balance)}${u.isUnchanged ? ', unchanged' : ''}. Edit',
+          label: '${LocalDate.parseIso(u.date).valueOrNull!.formatLong()}, ${moneySpoken(context, u.balance)}${u.isUnchanged ? ', unchanged' : ''}. Edit',
           excludeSemantics: true,
           child: InkWell(
             onTap: () => showUpdateSheet(context, accountId: accountId, existing: u),
@@ -364,7 +364,7 @@ class _AllUpdates extends ConsumerWidget {
                           maxLines: 2, overflow: TextOverflow.ellipsis, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
                   ]),
                 ),
-                Text(Money.format(u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+                Text(money(context, u.balance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(width: Space.xs),
                 Icon(Icons.chevron_right_rounded, color: c.inkMuted),
               ]),
@@ -396,8 +396,8 @@ class _Chart extends ConsumerWidget {
     final withData = [for (var i = 0; i < bars.length; i++) if (bars[i].value != null) i];
     final label = withData.isEmpty
         ? 'Month-end balances chart. No data yet.'
-        : 'Month-end balances for ${history.name}, from ${Money.format(bars[withData.first].value!)} in ${months[withData.first].monthName} '
-            'to ${Money.format(bars[withData.last].value!)} in ${months[withData.last].monthName}. The By month tab lists every value.';
+        : 'Month-end balances for ${history.name}, from ${money(context, bars[withData.first].value!)} in ${months[withData.first].monthName} '
+            'to ${money(context, bars[withData.last].value!)} in ${months[withData.last].monthName}. The By month tab lists every value.';
     return Container(
       padding: const EdgeInsets.all(Space.l),
       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),

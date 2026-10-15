@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/ui/theme/tokens.dart';
 import '../../shell/tool_registry.dart';
+import 'notes_search.dart';
 import 'ui/folders_tags_screen.dart';
 import 'ui/note_editor_screen.dart';
 import 'ui/notes_home.dart';
@@ -20,6 +21,8 @@ const ToolDefinition notesTool = ToolDefinition(
   home: _home,
   routes: _routes,
   widgets: {'pinned_notes': _pinned, 'recent_notes': _recent},
+  searchSources: notesSearch,
+  quickAdd: notesQuickAdd,
 );
 
 Widget _home(BuildContext context) => const NotesHome();

@@ -6,6 +6,7 @@ import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -166,7 +167,7 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
               ),
             ),
             // Refunded expenses never count (F1-04 §5).
-            Text(Money.format(e.value.where((r) => !r.isRefunded).fold(0, (a, r) => a + r.amount)),
+            Text(money(context, e.value.where((r) => !r.isRefunded).fold(0, (a, r) => a + r.amount)),
                 style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
           ]),
         ),
@@ -194,7 +195,7 @@ class _YearCard extends StatelessWidget {
     final period = current ? 'same period in ${year - 1}' : '${year - 1}';
     final compare = tenths == null
         ? 'Nothing spent in the $period'
-        : '${tenths > 0 ? '▲' : tenths < 0 ? '▼' : ''} ${percentTenths(tenths)} vs $period (${Money.format(ytd.lastYear)})'.trim();
+        : '${tenths > 0 ? '▲' : tenths < 0 ? '▼' : ''} ${percentTenths(tenths)} vs $period (${money(context, ytd.lastYear)})'.trim();
     return Container(
       padding: const EdgeInsets.fromLTRB(Space.l, 10, Space.l, 14),
       decoration: BoxDecoration(color: financeTile(context), borderRadius: BorderRadius.circular(Radii.card)),
@@ -231,9 +232,9 @@ class _YearCard extends StatelessWidget {
         Text(current ? 'Spent so far this year' : 'Spent in $year', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
         const SizedBox(height: Space.xs),
         Semantics(
-          label: '${current ? 'Spent so far this year' : 'Spent in $year'}: ${Money.spoken(ytd.thisYear)}',
+          label: '${current ? 'Spent so far this year' : 'Spent in $year'}: ${moneySpoken(context, ytd.thisYear)}',
           excludeSemantics: true,
-          child: Text(Money.format(ytd.thisYear), style: text.displaySmall!.copyWith(fontSize: 30, letterSpacing: -0.6)),
+          child: Text(money(context, ytd.thisYear), style: text.displaySmall!.copyWith(fontSize: 30, letterSpacing: -0.6)),
         ),
         const SizedBox(height: Space.xs),
         // Spending changes use the neutral muted colour (docs/05).
@@ -295,10 +296,10 @@ class _FilterRow extends StatelessWidget {
     final amountLabel = min == null && max == null
         ? 'Amount ▾'
         : min != null && max != null
-            ? '${Money.compact(min!)}–${Money.compact(max!)}'
+            ? '${moneyCompact(context, min!)}–${moneyCompact(context, max!)}'
             : min != null
-                ? '≥ ${Money.compact(min!)}'
-                : '≤ ${Money.compact(max!)}';
+                ? '≥ ${moneyCompact(context, min!)}'
+                : '≤ ${moneyCompact(context, max!)}';
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(children: [
@@ -364,8 +365,8 @@ class _FilterRow extends StatelessWidget {
   }
 
   Future<void> _pickAmount(BuildContext context) async {
-    final lo = TextEditingController(text: min == null ? '' : Money.format(min!).substring(1));
-    final hi = TextEditingController(text: max == null ? '' : Money.format(max!).substring(1));
+    final lo = TextEditingController(text: min == null ? '' : money(context, min!).substring(1));
+    final hi = TextEditingController(text: max == null ? '' : money(context, max!).substring(1));
     final result = await showOzoneSheet<(int?, int?)>(
       context,
       builder: (context) => SheetFrame(
@@ -423,7 +424,7 @@ class ExpenseRowTile extends StatelessWidget {
     final date = LocalDate.parseIso(row.date).valueOrNull!.format(today);
     return Semantics(
       button: true,
-      label: '${row.item}, ${row.vendor}, $date, ${Money.spoken(row.amount)}${row.isRefunded ? ', refunded, not counted' : ''}',
+      label: '${row.item}, ${row.vendor}, $date, ${moneySpoken(context, row.amount)}${row.isRefunded ? ', refunded, not counted' : ''}',
       excludeSemantics: true,
       child: InkWell(
         onTap: () => context.push('/finance/expenses/${row.id}'),
@@ -442,7 +443,7 @@ class ExpenseRowTile extends StatelessWidget {
               const SizedBox(width: Space.s),
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text(
-                  Money.format(row.amount),
+                  money(context, row.amount),
                   style: text.bodyLarge!.copyWith(
                     fontWeight: FontWeight.w800,
                     color: row.isRefunded ? c.inkMuted : c.ink,

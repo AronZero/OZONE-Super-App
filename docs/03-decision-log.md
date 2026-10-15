@@ -119,6 +119,13 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | M6-7 | Recovery code order | The four groups are numbered 1–4 and read left to right, then down (owner) |
 | M6 | Notes vault | **Approved** 15 Oct 2026 |
 | Process | Commits | Commit automatically whenever the owner approves a milestone (owner, 15 Oct 2026) |
+| M7-1 | Search groups order | Bar order as in F2-02 (Finance · Library · Notes as arranged), not the fixed order on the W2 board; scope chips follow the same order (rec.) |
+| M7-2 | Search scope from a tool | Finance preselects the tab in view (Accounts, Gold or Expenses), Library → Books, Notes → Notes, Home → All (rec.) |
+| M7-3 | Hide amounts reach | Every display screen and Home widget; forms where amounts are typed keep showing them; chart axis labels go blank; percentages stay (rec.) |
+| M7-4 | Quick-add menu | The 5 actions on the Components board (Update balances, Add expense, Add gold item, Add book, New note), grouped in bar order (rec.) |
+| M7-5 | Gold results | Open the gold item sheet above the search, since items have no screen of their own (M3-1) (rec.) |
+| M7-6 | Widget gaps (UX3 board) | Needs attention collapses to "All up to date"; Library snapshot adds "spent in <year>"; locked notes on Home ask to unlock, then open (rec.) |
+| M7 | Search and dashboard | **Approved** 15 Oct 2026 |
 | M5 | Notes | **Approved** 15 Oct 2026 (owner fixes: tags on one line with ellipsis; date always right-aligned) |
 
 ## Open

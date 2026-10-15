@@ -9,7 +9,7 @@ import '../../../core/ui/theme/tokens.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  static const version = '0.7.0 (M6)';
+  static const version = '0.8.0 (M7)';
 
   @override
   Widget build(BuildContext context) {

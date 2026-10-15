@@ -6,6 +6,7 @@ import '../../../core/data/database.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/domain/weight.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../data/gold_repo.dart';
@@ -121,16 +122,16 @@ class _ValueCard extends ConsumerWidget {
           ]),
           const SizedBox(height: Space.s),
           Semantics(
-            label: t.hasValue ? 'Estimated value ${Money.spoken(t.value)}' : 'No estimated value yet',
+            label: t.hasValue ? 'Estimated value ${moneySpoken(context, t.value)}' : 'No estimated value yet',
             excludeSemantics: true,
-            child: Text(t.hasValue ? Money.format(t.value) : '—', style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+            child: Text(t.hasValue ? money(context, t.value) : '—', style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           ),
           if (t.unpricedNote != null) ...[
             const SizedBox(height: Space.xs),
             Text(t.unpricedNote!, style: text.bodyMedium!.copyWith(color: c.attentionInk, fontWeight: FontWeight.w700)),
           ],
           const SizedBox(height: Space.s),
-          Row(children: [tile('Total weight', Weight.format(t.weightMg)), const SizedBox(width: Space.s), tile('Total cost', Money.format(t.cost))]),
+          Row(children: [tile('Total weight', Weight.format(t.weightMg)), const SizedBox(width: Space.s), tile('Total cost', money(context, t.cost))]),
           const SizedBox(height: Space.m),
           Row(children: [
             Expanded(
@@ -175,7 +176,7 @@ class GainPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(999)),
-      child: Text('${Money.change(gain)} · ${Money.percent(gain.abs(), cost)}',
+      child: Text('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}',
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
     );
   }
@@ -197,10 +198,10 @@ class GoldItemRowTile extends ConsumerWidget {
     final held = item.status == 'held';
     final v = value;
     final gain = v == null ? null : v - item.cost;
-    final sub = subtitle ?? '${Weight.format(item.weightMg)} · cost ${Money.format(item.cost)}';
+    final sub = subtitle ?? '${Weight.format(item.weightMg)} · cost ${money(context, item.cost)}';
     return Semantics(
       button: true,
-      label: '${item.name}, ${item.karat} karat, $sub${v == null ? '' : ', estimated ${Money.spoken(v)}'}',
+      label: '${item.name}, ${item.karat} karat, $sub${v == null ? '' : ', estimated ${moneySpoken(context, v)}'}',
       excludeSemantics: true,
       child: Material(
         color: c.surface,
@@ -225,7 +226,7 @@ class GoldItemRowTile extends ConsumerWidget {
                 const SizedBox(width: Space.s),
                 if (held)
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    Text(v == null ? 'No ${item.karat}K price' : Money.format(v),
+                    Text(v == null ? 'No ${item.karat}K price' : money(context, v),
                         style: v == null
                             ? text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.attentionInk)
                             : text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
@@ -234,7 +235,7 @@ class GoldItemRowTile extends ConsumerWidget {
                           style: text.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
                   ])
                 else
-                  Text(Money.format(item.cost), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
+                  Text(money(context, item.cost), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
               ]),
             ),
           ),

@@ -6,10 +6,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/data/database.dart';
 import '../../../core/domain/dates.dart';
-import '../../../core/domain/money.dart';
 import '../../../core/domain/validation.dart';
 import '../../../core/state/providers.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -121,7 +121,7 @@ class _ArchivedCard extends StatelessWidget {
             ]),
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(Money.format(lastBalance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+            Text(money(context, lastBalance), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
             Text('last balance', style: text.labelSmall!.copyWith(color: c.inkMuted)),
           ]),
         ]),

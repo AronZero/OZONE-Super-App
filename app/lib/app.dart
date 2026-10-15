@@ -8,6 +8,7 @@ import 'app_router.dart';
 import 'core/data/settings_repo.dart';
 import 'core/state/providers.dart';
 import 'core/state/today.dart';
+import 'core/ui/amounts.dart';
 import 'core/ui/theme/app_theme.dart';
 import 'core/ui/theme/tokens.dart';
 import 'shell/ui/lock_gate/lock_gate.dart';
@@ -82,7 +83,7 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
           ),
           child: Stack(
             children: [
-              child ?? const SizedBox.shrink(),
+              AmountsScope(visibility: ref.watch(amountsVisibilityProvider), child: child ?? const SizedBox.shrink()),
               ListenableBuilder(
                 listenable: undo,
                 builder: (context, _) => undo.pending == null ? const SizedBox.shrink() : _UndoBar(message: undo.pending!.message, onUndo: undo.undo),

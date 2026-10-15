@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/domain/weight.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/expenses.dart';
@@ -26,7 +27,7 @@ class GoldHoldingsWidget extends ConsumerWidget {
     final has = t != null && t.items > 0;
     return FinanceWidgetTile(
       onTap: () => context.go('/finance?tab=gold'),
-      semantics: !has ? 'Gold holdings, no items yet' : 'Gold holdings, estimated ${t.hasValue ? Money.spoken(t.value) : 'not priced yet'}',
+      semantics: !has ? 'Gold holdings, no items yet' : 'Gold holdings, estimated ${t.hasValue ? moneySpoken(context, t.value) : 'not priced yet'}',
       children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
@@ -36,7 +37,7 @@ class GoldHoldingsWidget extends ConsumerWidget {
               if (!has)
                 Text('Add your gold items to see an estimate here.', style: text.bodyLarge!.copyWith(color: c.inkMuted))
               else ...[
-                Text(t.hasValue ? Money.format(t.value) : 'No prices yet', style: text.headlineSmall),
+                Text(t.hasValue ? money(context, t.value) : 'No prices yet', style: text.headlineSmall),
                 const SizedBox(height: Space.xs),
                 Text(
                   '${Weight.format(t.weightMg)}${t.pricesAsOf == null ? '' : ' · prices ${t.pricesAsOf!.format(today)}'}',
@@ -71,11 +72,11 @@ class SpendingThisYearWidget extends ConsumerWidget {
         context.go('/finance?tab=expenses');
         if (spends.isNotEmpty) context.push('/finance/expenses/years');
       },
-      semantics: 'Spending this year ${Money.spoken(y.thisYear)}',
+      semantics: 'Spending this year ${moneySpoken(context, y.thisYear)}',
       children: [
         Text('Spending this year', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Space.xs),
-        Text(Money.format(y.thisYear), style: text.headlineSmall),
+        Text(money(context, y.thisYear), style: text.headlineSmall),
         const SizedBox(height: Space.xs),
         Text(
           tenths == null ? 'Nothing to compare with last year yet' : '${percentTenths(tenths)} vs the same period in ${today.year - 1}',

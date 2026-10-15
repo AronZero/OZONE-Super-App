@@ -141,7 +141,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                   GroupCard(children: [
                     SettingsRow(
                       title: 'Hide amounts when OZONE opens',
-                      subtitle: 'Shows ₱ •••• until you tap the eye on Home (from M7)',
+                      subtitle: 'Shows ₱ •••• until you tap the eye on Home',
                       trailing: OzoneSwitch(
                         label: 'Hide amounts when OZONE opens',
                         value: hide,

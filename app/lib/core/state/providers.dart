@@ -4,7 +4,9 @@ import '../data/database.dart';
 import '../data/deletions_repo.dart';
 import '../data/settings_repo.dart';
 import '../security/app_lock_service.dart';
+import '../search/search_repo.dart';
 import '../security/vault_service.dart';
+import '../ui/amounts.dart';
 import 'undo.dart';
 
 /// The open database. Overridden in `main()` (and with an in-memory database in tests).
@@ -43,3 +45,13 @@ final vaultServiceProvider = Provider<VaultService>((ref) => throw Unimplemented
 
 /// Whether a vault has been set up on this phone.
 final vaultExistsProvider = StreamProvider<bool>((ref) => ref.watch(vaultServiceProvider).watchExists());
+
+/// Global search (F2-02 §1).
+final searchRepoProvider = Provider<SearchRepo>((ref) => SearchRepo(ref.watch(databaseProvider), ref.watch(settingsRepoProvider)));
+
+/// Hide amounts (docs/04). `main()` overrides it with the "hide when OZONE opens" setting.
+final amountsVisibilityProvider = Provider<AmountsVisibility>((ref) {
+  final v = AmountsVisibility();
+  ref.onDispose(v.dispose);
+  return v;
+});

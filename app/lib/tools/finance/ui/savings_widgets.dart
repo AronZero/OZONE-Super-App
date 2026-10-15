@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -23,7 +23,7 @@ class TotalSavingsWidget extends ConsumerWidget {
     final carried = t == null || t.carried == 0 ? '' : (t.allCarried ? ' · all carried' : ' · includes ${t.carried} carried');
     return FinanceWidgetTile(
       onTap: () => context.go('/finance?tab=savings'),
-      semantics: t?.total == null ? 'Total savings, no accounts yet' : 'Total savings ${Money.spoken(t!.total!)}',
+      semantics: t?.total == null ? 'Total savings, no accounts yet' : 'Total savings ${moneySpoken(context, t!.total!)}',
       children: [
         Row(children: [
           Expanded(child: Text('Total savings', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800))),
@@ -33,7 +33,7 @@ class TotalSavingsWidget extends ConsumerWidget {
         if (t?.total == null)
           Text('Add a savings account to see your total here.', style: text.bodyLarge!.copyWith(color: c.inkMuted))
         else ...[
-          Text(Money.format(t!.total!), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+          Text(money(context, t!.total!), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           const SizedBox(height: 6),
           Text('As of ${today.format(today)}$carried', style: text.bodyMedium!.copyWith(color: c.inkMuted)),
         ],
@@ -67,7 +67,7 @@ class SavingsTrendWidget extends ConsumerWidget {
             data: totalsToBars(months, today),
             accent: financeAccent(context),
             labelColor: c.inkMuted,
-            semanticLabel: totalsChartLabel(months),
+            semanticLabel: totalsChartLabel(context, months),
           ),
       ],
     );

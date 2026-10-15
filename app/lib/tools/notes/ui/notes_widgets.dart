@@ -10,6 +10,12 @@ import '../data/notes_repo.dart';
 import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
+import 'vault/vault_unlock.dart';
+
+/// A locked note from Home: unlock first (UX3 board: "asks to unlock if locked").
+Future<void> _openLocked(BuildContext context, WidgetRef ref, String id) async {
+  if (await ensureVaultOpen(context, ref) && context.mounted) openNote(context, id, fromOtherTab: true);
+}
 
 /// The violet frame of the Notes Home widgets, with a title that opens Notes.
 class _Frame extends StatelessWidget {
@@ -44,12 +50,12 @@ class _Frame extends StatelessWidget {
 }
 
 /// A small white note tile (W1 · Home "Pinned notes").
-class _MiniNote extends StatelessWidget {
+class _MiniNote extends ConsumerWidget {
   const _MiniNote(this.note);
   final NoteRow note;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     final locked = note.isLocked;
@@ -62,7 +68,7 @@ class _MiniNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: locked ? () => context.go('/notes') : () => openNote(context, note.id, fromOtherTab: true),
+          onTap: locked ? () => _openLocked(context, ref, note.id) : () => openNote(context, note.id, fromOtherTab: true),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 76),
             child: Padding(
@@ -129,7 +135,7 @@ class RecentNotesWidget extends ConsumerWidget {
               for (final n in recent.take(3))
                 InkWell(
                   borderRadius: BorderRadius.circular(Radii.tile),
-                  onTap: n.isLocked ? () => context.go('/notes') : () => openNote(context, n.id, fromOtherTab: true),
+                  onTap: n.isLocked ? () => _openLocked(context, ref, n.id) : () => openNote(context, n.id, fromOtherTab: true),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: Space.xs, vertical: Space.s),
                     child: Row(children: [

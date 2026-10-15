@@ -13,17 +13,17 @@ void main() {
 
   int now() => DateTime.now().millisecondsSinceEpoch;
 
-  test('schema v1 creates every F1-01 table, the search index and app meta', () async {
+  test('schema v2 creates every F1-01 table, the search index, its keys and app meta', () async {
     final rows = await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'table'").get();
     final names = rows.map((r) => r.read<String>('name')).toSet();
     for (final t in [
       'app_meta', 'settings', 'deletions', 'exports_log', 'savings_accounts', 'balance_updates', 'gold_items',
-      'karat_prices', 'expenses', 'books', 'folders', 'tags', 'notes', 'note_tags', 'note_drafts', 'vault', 'search_index',
+      'karat_prices', 'expenses', 'books', 'folders', 'tags', 'notes', 'note_tags', 'note_drafts', 'vault', 'search_index', 'search_keys',
     ]) {
       expect(names, contains(t));
     }
     final meta = {for (final r in await db.select(db.appMeta).get()) r.key: r.value};
-    expect(meta['schema_version'], '1');
+    expect(meta['schema_version'], '2');
     expect(isId(meta['install_id']!), isTrue);
   });
 

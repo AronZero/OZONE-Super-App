@@ -42,8 +42,13 @@ class _FinanceHomeState extends State<FinanceHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const MainTopBar(title: 'Finance', actions: [
-            RoundIconButton(icon: Icons.search_rounded, label: 'Search (arrives in M7)', onPressed: null),
+          MainTopBar(title: 'Finance', actions: [
+            // Search opens on the entity of the tab in view.
+            RoundIconButton(
+              icon: Icons.search_rounded,
+              label: 'Search',
+              onPressed: () => context.push('/search?scope=${const ['savings_account', 'gold_item', 'expense'][_tab]}'),
+            ),
           ]),
           _FinanceTabs(selected: _tab, onSelected: (i) => context.go('/finance?tab=${_tabs[i]}')),
           Expanded(

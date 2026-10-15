@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/dates.dart';
-import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -48,9 +48,9 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
 
     final tenths = ytd.changeTenths;
     final summary = tenths == null
-        ? '${today.year} so far is ${Money.format(ytd.thisYear)}. Refunded items aren’t counted.'
-        : '${today.year} so far is ${Money.format(ytd.thisYear)}, ${percentTenths(tenths.abs()).replaceFirst('+', '')} '
-            '${tenths < 0 ? 'less' : 'more'} than the same period of ${today.year - 1} (${Money.format(ytd.lastYear)}). Refunded items aren’t counted.';
+        ? '${today.year} so far is ${money(context, ytd.thisYear)}. Refunded items aren’t counted.'
+        : '${today.year} so far is ${money(context, ytd.thisYear)}, ${percentTenths(tenths.abs()).replaceFirst('+', '')} '
+            '${tenths < 0 ? 'less' : 'more'} than the same period of ${today.year - 1} (${money(context, ytd.lastYear)}). Refunded items aren’t counted.';
 
     return Scaffold(
       body: SafeArea(
@@ -72,12 +72,12 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       MonthBars(
                         data: [for (final y in years) BarDatum(y.soFar ? '${y.year}*' : '${y.year}', y.total, highlight: y.soFar)],
-                        valueLabels: [for (final y in years) Money.compact(y.total)],
+                        valueLabels: [for (final y in years) moneyCompact(context, y.total)],
                         labelEvery: 1,
                         height: 150,
                         accent: financeAccent(context),
                         labelColor: c.inkMuted,
-                        semanticLabel: 'Yearly spending: ${years.map((y) => '${y.year}${y.soFar ? ' so far' : ''} ${Money.format(y.total)}').join('; ')}.',
+                        semanticLabel: 'Yearly spending: ${years.map((y) => '${y.year}${y.soFar ? ' so far' : ''} ${money(context, y.total)}').join('; ')}.',
                       ),
                       const SizedBox(height: Space.s),
                       Text('* ${today.year} so far (to ${today.format(today)})', style: text.labelSmall!.copyWith(color: c.inkMuted)),
@@ -94,7 +94,7 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
                         _row(
                           context,
                           Text(years[i].soFar ? '${years[i].year}*' : '${years[i].year}', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w700)),
-                          Text(Money.format(years[i].total), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
+                          Text(money(context, years[i].total), style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                           Text(vsPrior(i), style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
                         ),
                     ]),
@@ -117,7 +117,7 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
                       accent: financeAccent(context),
                       labelColor: c.inkMuted,
                       semanticLabel: '${today.year} spending by month: '
-                          '${[for (var m = 0; m < 12; m++) if (months[m] != null) '${LocalDate(today.year, m + 1, 1).monthName} ${Money.format(months[m]!)}'].join('; ')}.',
+                          '${[for (var m = 0; m < 12; m++) if (months[m] != null) '${LocalDate(today.year, m + 1, 1).monthName} ${money(context, months[m]!)}'].join('; ')}.',
                     ),
                   ]),
                 ),

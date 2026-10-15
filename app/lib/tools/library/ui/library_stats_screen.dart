@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -71,7 +72,7 @@ class _LibraryStatsScreenState extends ConsumerState<LibraryStatsScreen> {
                       tinted: true,
                     ),
                     const SizedBox(width: 10),
-                    tile('Spent on books', Money.format(s.spent), '${s.purchased} purchased', tinted: true),
+                    tile('Spent on books', money(context, s.spent), '${s.purchased} purchased', tinted: true),
                   ]),
                   const SizedBox(height: 10),
                   Row(children: [

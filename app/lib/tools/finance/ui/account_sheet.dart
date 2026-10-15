@@ -10,8 +10,8 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/forms.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../data/lists_repo.dart';
-import '../state/finance_providers.dart';
 import '../domain/savings_rules.dart';
+import '../state/finance_providers.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
 

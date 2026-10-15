@@ -3,6 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../domain/ids.dart';
+import '../search/search_index.dart';
 import 'tables.dart';
 
 part 'database.g.dart';
@@ -41,25 +42,30 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
 
+  /// v1: every F1-01 table. v2 (M7): search keys and the triggers that keep the
+  /// search index in step; the index is rebuilt for existing data.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
-          // Global search index (F2-02 §1). Filled from M7; locked and trashed notes are never added.
-          await customStatement(
-            'CREATE VIRTUAL TABLE search_index USING fts5('
-            'tool, entity, record_id UNINDEXED, title, body, extra, label UNINDEXED, '
-            'tokenize = "unicode61 remove_diacritics 2")',
-          );
+          // Global search index and its triggers (F2-02 §1).
+          await SearchIndex.install(this);
           final now = DateTime.now().toUtc().millisecondsSinceEpoch.toString();
           await batch((b) => b.insertAll(appMeta, [
-                AppMetaCompanion.insert(key: 'schema_version', value: '1'),
+                AppMetaCompanion.insert(key: 'schema_version', value: '$schemaVersion'),
                 AppMetaCompanion.insert(key: 'install_id', value: newId()),
                 AppMetaCompanion.insert(key: 'first_run_at', value: now),
               ]));
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await SearchIndex.install(this);
+            await SearchIndex.rebuild(this);
+          }
+          await into(appMeta).insertOnConflictUpdate(AppMetaCompanion.insert(key: 'schema_version', value: '$to'));
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

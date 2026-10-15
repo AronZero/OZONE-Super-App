@@ -3,66 +3,169 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/state/providers.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../dashboard/widget_catalog.dart';
 import '../../tool_registry.dart';
 
-/// Home (W1 · Home): the dashboard, following the "Home dashboard" arrangement.
-/// Tools supply their widgets through the registry; the rest say when they arrive.
+/// Home (W1 · Home): the dashboard, following the "Home dashboard" arrangement,
+/// with search, Hide amounts, Settings and the quick-add menu.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final widgets = ref.watch(dashboardWidgetsProvider).value ?? const [];
-    final shown = [for (final w in widgets) if (w.on && widgetCatalog.containsKey(w.id)) w.id];
+    final shown = [
+      for (final w in widgets)
+        if (w.on && widgetCatalog.containsKey(w.id)) w.id,
+    ];
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
     final b = Theme.of(context).brightness;
+    final hidden = AmountsScope.hidden(context);
 
-    return SafeArea(
-      bottom: false,
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: Space.xxxl),
-        children: [
-          MainTopBar(title: 'Home', actions: [
-            RoundIconButton(
-              icon: Icons.search_rounded,
-              label: 'Search (arrives in M7)',
-              onPressed: null,
-            ),
-            RoundIconButton(
-              icon: Icons.settings_rounded,
-              label: 'Settings',
-              onPressed: () => context.push('/settings'),
-            ),
-          ]),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.screen),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (shown.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(Space.xl),
-                    decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),
-                    child: Text('All widgets are hidden. Show them in Settings › Home dashboard.', style: text.bodyLarge),
+    return Stack(
+      children: [
+        SafeArea(
+          bottom: false,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 104),
+            children: [
+              MainTopBar(
+                title: 'Home',
+                actions: [
+                  RoundIconButton(icon: Icons.search_rounded, label: 'Search', onPressed: () => context.push('/search')),
+                  // Hide amounts: every ₱ figure shows as ₱ •••• until tapped again (docs/04).
+                  RoundIconButton(
+                    icon: hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    label: hidden ? 'Show amounts' : 'Hide amounts',
+                    onPressed: () => ref.read(amountsVisibilityProvider).toggle(),
                   ),
-                for (final id in shown)
-                  if (id == 'needs_attention')
-                    const _NeedsAttention()
-                  else ...[
-                    _toolWidget(id)?.call(context) ?? _WidgetFrame(info: widgetCatalog[id]!, brightness: b),
-                    const SizedBox(height: Space.m),
+                  RoundIconButton(icon: Icons.settings_rounded, label: 'Settings', onPressed: () => context.push('/settings')),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Space.screen),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (shown.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(Space.xl),
+                        decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),
+                        child: Text('All widgets are hidden. Show them in Settings › Home dashboard.', style: text.bodyLarge),
+                      ),
+                    for (final id in shown)
+                      if (id == 'needs_attention')
+                        const _NeedsAttention()
+                      else ...[
+                        _toolWidget(id)?.call(context) ?? _WidgetFrame(info: widgetCatalog[id]!, brightness: b),
+                        const SizedBox(height: Space.m),
+                      ],
                   ],
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
+        Positioned(right: Space.screen, bottom: Space.screen, child: _QuickAddButton()),
+      ],
+    );
+  }
+}
+
+/// Home's add button (Components "Quick-add menu"): one entry per tool action,
+/// in bar order (decision M7-4).
+class _QuickAddButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = OzoneThemeColors.of(context);
+    return Tooltip(
+      message: 'Quick add',
+      child: Material(
+        color: c.ink,
+        elevation: 4,
+        shadowColor: c.ink.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(Radii.addButton),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Radii.addButton),
+          onTap: () => _open(context, ref),
+          child: SizedBox(width: 60, height: 60, child: Icon(Icons.add_rounded, size: 28, color: c.canvas)),
+        ),
       ),
     );
+  }
+
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
+    final bar = ref.read(barToolsProvider).value ?? defaultBarTools;
+    final tools = toolsInBarOrder(bar);
+    final b = Theme.of(context).brightness;
+    final picked = await showGeneralDialog<QuickAddAction>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close quick add',
+      barrierColor: Colors.black.withValues(alpha: 0.32),
+      transitionDuration: const Duration(milliseconds: 150),
+      pageBuilder: (ctx, _, _) {
+        final c = OzoneThemeColors.of(ctx);
+        final text = Theme.of(ctx).textTheme;
+        return SafeArea(
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: Space.screen, bottom: 76 + Space.screen + 60 + Space.s),
+              child: Material(
+                color: c.canvas,
+                elevation: 6,
+                borderRadius: BorderRadius.circular(Radii.card),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 280),
+                  child: Padding(
+                    padding: const EdgeInsets.all(Space.s),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final t in tools)
+                          for (final a in t.quickAdd)
+                            InkWell(
+                              borderRadius: BorderRadius.circular(Radii.tile),
+                              onTap: () => Navigator.of(ctx).pop(a),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minHeight: 52),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(color: t.tint.tile(b), borderRadius: BorderRadius.circular(12)),
+                                        child: Icon(a.icon, size: 20, color: t.tint.accent(b)),
+                                      ),
+                                      const SizedBox(width: Space.m),
+                                      Flexible(
+                                        child: Text(a.label, style: text.bodyLarge!.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    if (picked != null && context.mounted) picked.run(context);
   }
 }
 
@@ -82,9 +185,26 @@ class _NeedsAttention extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = [for (final t in toolRegistry) ...t.attention(ref)];
-    if (items.isEmpty) return const SizedBox.shrink();
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
+    // Nothing to do: the widget collapses to one line (UX3 board).
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: Space.m),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: Space.l + 2, vertical: Space.m),
+          decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),
+          child: Row(
+            children: [
+              Icon(Icons.check_circle_outline_rounded, size: 20, color: c.gain),
+              const SizedBox(width: Space.s),
+              Text('All up to date', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
+            ],
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: Space.m),
       child: Container(
@@ -93,17 +213,27 @@ class _NeedsAttention extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Needs attention', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.attentionInk)),
+            Text(
+              'Needs attention',
+              style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.attentionInk),
+            ),
             for (final i in items)
               InkWell(
                 borderRadius: BorderRadius.circular(Radii.tile),
                 onTap: () => context.push(i.route),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 44),
-                  child: Row(children: [
-                    Expanded(child: Text(i.message, style: text.bodyLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: c.attentionInk))),
-                    Icon(Icons.chevron_right_rounded, color: c.attentionInk),
-                  ]),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          i.message,
+                          style: text.bodyLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: c.attentionInk),
+                        ),
+                      ),
+                      Icon(Icons.chevron_right_rounded, color: c.attentionInk),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -134,7 +264,10 @@ class _WidgetFrame extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(info.name, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: fg)),
+            Text(
+              info.name,
+              style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: fg),
+            ),
             const SizedBox(height: Space.xs),
             Text('Arrives with milestone ${info.milestone}', style: text.bodyMedium!.copyWith(color: c.inkMuted)),
           ],

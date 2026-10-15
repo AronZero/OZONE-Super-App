@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/dates.dart';
-import '../../../core/domain/money.dart';
 import '../../../core/state/providers.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -105,7 +105,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
                     const SizedBox(height: Space.s),
                     Wrap(spacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
                       Text(
-                        Money.format(e.amount),
+                        money(context, e.amount),
                         style: text.displaySmall!.copyWith(
                           fontSize: 32,
                           letterSpacing: -0.6,

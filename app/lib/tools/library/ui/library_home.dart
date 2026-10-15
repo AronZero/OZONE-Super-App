@@ -114,7 +114,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const RoundIconButton(icon: Icons.search_rounded, label: 'Search (arrives in M7)', onPressed: null),
+                RoundIconButton(icon: Icons.search_rounded, label: 'Search', onPressed: () => context.push('/search?scope=book')),
               ]),
             ),
             SingleChildScrollView(

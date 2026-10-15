@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/domain/dates.dart';
-import '../../../core/domain/money.dart';
+import '../../../core/ui/amounts.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
@@ -54,7 +54,7 @@ class ChangePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(999)),
-      child: Text('${Money.change(amount)}$suffix',
+      child: Text('${moneyChange(context, amount)}$suffix',
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, amount))),
     );
   }
@@ -70,14 +70,14 @@ List<BarDatum> totalsToBars(List<MonthTotal> months, LocalDate today) => [
     ];
 
 /// Spoken summary of a totals chart.
-String totalsChartLabel(List<MonthTotal> months, {String? scope}) {
+String totalsChartLabel(BuildContext context, List<MonthTotal> months, {String? scope}) {
   final withData = months.where((m) => m.hasData).toList();
   if (withData.isEmpty) return 'Month-end totals chart. No data yet.';
   final first = withData.first, last = withData.last;
   final gaps = months.length - withData.length;
   final carried = months.where((m) => m.hasData && m.allCarried).length;
-  return 'Month-end totals ${scope ?? 'for the last ${months.length} months'}, from ${Money.format(first.total!)} in '
-      '${first.month.monthName} to ${Money.format(last.total!)} in ${last.month.monthName}.'
+  return 'Month-end totals ${scope ?? 'for the last ${months.length} months'}, from ${money(context, first.total!)} in '
+      '${first.month.monthName} to ${money(context, last.total!)} in ${last.month.monthName}.'
       '${gaps > 0 ? ' $gaps ${gaps == 1 ? 'month has' : 'months have'} no data.' : ''}'
       '${carried > 0 ? ' $carried ${carried == 1 ? 'month is' : 'months are'} carried.' : ''}';
 }

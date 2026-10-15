@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/ui/theme/tokens.dart';
 import '../../shell/tool_registry.dart';
+import 'library_search.dart';
 import 'ui/book_detail_screen.dart';
 import 'ui/book_form_screen.dart';
 import 'ui/library_home.dart';
@@ -19,6 +20,8 @@ const ToolDefinition libraryTool = ToolDefinition(
   home: _home,
   routes: _routes,
   widgets: {'currently_reading': _currentlyReading, 'library_snapshot': _snapshot},
+  searchSources: librarySearch,
+  quickAdd: libraryQuickAdd,
 );
 
 Widget _home(BuildContext context) => const LibraryHome();
