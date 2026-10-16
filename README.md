@@ -20,10 +20,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/home-light.png" alt="Home dashboard" width="220">
-  <img src="docs/screenshots/finance-savings.png" alt="Finance: savings" width="220">
-  <img src="docs/screenshots/library.png" alt="Library" width="220">
-  <img src="docs/screenshots/notes.png" alt="Notes" width="220">
+  <img src="docs/screenshots/home-light.png" alt="Home dashboard" width="24%">
+  <img src="docs/screenshots/finance-savings.png" alt="Finance: savings" width="24%">
+  <img src="docs/screenshots/library.png" alt="Library" width="24%">
+  <img src="docs/screenshots/notes.png" alt="Notes" width="24%">
 </p>
 
 <p align="center"><sub>All screenshots use made-up sample data.</sub></p>
@@ -58,16 +58,28 @@ spreadsheet app.
 
 ### Library
 
+<p>
+  <img src="docs/screenshots/library.png" alt="Library book list" width="200" align="right">
+</p>
+
 - Books with author, status (reading, not started, finished, abandoned), half-star ratings, Kindle size and how you
   got the book.
 - Stats: Kindle storage, books finished per year, average rating and spending on books.
 
+<br clear="right">
+
 ### Notes
+
+<p>
+  <img src="docs/screenshots/notes.png" alt="Notes with pinned checklists" width="200" align="right">
+</p>
 
 - Folders, tags, pinned notes, checklists and simple formatting. Notes save themselves as you type.
 - **Locked notes:** a vault protected by your password (Argon2id + AES-256-GCM), with an optional fingerprint unlock
   and a recovery code.
 - Trash keeps deleted notes for 30 days.
+
+<br clear="right">
 
 ### Across the app
 
