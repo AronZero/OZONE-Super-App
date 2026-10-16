@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/domain/dates.dart';
 import '../../../core/state/providers.dart';
-import '../../../core/ui/amounts.dart';
+import '../../../core/ui/rolling_amount.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -14,6 +14,7 @@ import 'expense_sheet.dart';
 import 'expenses_overview.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Expense detail (W3 · Expense detail): facts, Refunded switch with Undo,
 /// Edit, and Delete with Undo.
@@ -79,7 +80,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             DetailTopBar(title: 'Expense', overline: 'Expenses', trailing: [
               Padding(
                 padding: const EdgeInsets.only(right: Space.s),
@@ -105,8 +106,8 @@ class ExpenseDetailScreen extends ConsumerWidget {
                     Text(e.item, style: text.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
                     const SizedBox(height: Space.s),
                     Wrap(spacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                      Text(
-                        money(context, e.amount), semanticsLabel: spokenAmounts(money(context, e.amount)),
+                      RollingAmount(
+                        e.amount,
                         style: text.displaySmall!.copyWith(
                           fontSize: 32,
                           letterSpacing: -0.6,
@@ -157,7 +158,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
                     textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(fontSize: 12.5, color: c.inkMuted)),
               ]),
             ),
-          ],
+          ]),
         ),
       ),
     );

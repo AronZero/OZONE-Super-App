@@ -9,6 +9,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../state/finance_providers.dart';
 import 'gold_overview.dart';
+import '../../../core/ui/motion.dart';
 
 /// Disposed gold items (docs/04 sitemap): kept, but left out of every total.
 /// Tap one to edit it or mark it as held again.
@@ -26,7 +27,7 @@ class DisposedScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Disposed items', overline: 'Gold'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -46,7 +47,7 @@ class DisposedScreen extends ConsumerWidget {
                 ],
               ]),
             ),
-          ],
+          ]),
         ),
       ),
     );

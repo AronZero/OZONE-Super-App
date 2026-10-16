@@ -22,6 +22,8 @@ import 'account_sheet.dart';
 import 'savings_parts.dart';
 import 'update_sheet.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
+import '../../../core/ui/rolling_amount.dart';
 
 /// Account detail (W1 · Account detail): balance card, then By month /
 /// All updates / Chart. The menu edits, archives (or restores) and deletes.
@@ -115,7 +117,7 @@ class _AccountDetailScreenState extends ConsumerState<AccountDetailScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             DetailTopBar(title: a.name, trailing: [
               PopupMenuButton<_Menu>(
                 tooltip: 'Account options',
@@ -164,7 +166,7 @@ class _AccountDetailScreenState extends ConsumerState<AccountDetailScreen> {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -199,7 +201,7 @@ class _Header extends ConsumerWidget {
         children: [
           if (facts.isNotEmpty) Text(facts, style: text.bodyMedium!.copyWith(color: c.inkMuted)),
           const SizedBox(height: Space.s),
-          Text(money(context, last?.balance ?? 0), semanticsLabel: spokenAmounts(money(context, last?.balance ?? 0)), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+          RollingAmount(last?.balance ?? 0, style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           const SizedBox(height: Space.s),
           Wrap(
             spacing: Space.s,
@@ -352,7 +354,7 @@ class _AllUpdates extends ConsumerWidget {
           button: true,
           label: '${LocalDate.parseIso(u.date).valueOrNull!.formatLong()}, ${moneySpoken(context, u.balance)}${u.isUnchanged ? ', unchanged' : ''}. Edit',
           excludeSemantics: true,
-          child: InkWell(
+          child: PressScale(scale: PressScale.card, child: InkWell(
             onTap: () => showUpdateSheet(context, accountId: accountId, existing: u),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.l, vertical: Space.m),
@@ -370,7 +372,7 @@ class _AllUpdates extends ConsumerWidget {
                 Icon(OzIcons.chevronRight, color: c.inkMuted),
               ]),
             ),
-          ),
+          )),
         ),
     ]);
   }

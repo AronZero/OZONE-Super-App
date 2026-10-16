@@ -7,6 +7,7 @@ import '../../../core/domain/dates.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/rolling_amount.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/components/states.dart';
 import '../../../core/ui/components/forms.dart';
@@ -18,6 +19,7 @@ import 'expense_sheet.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 import '../../../core/ui/shell_bar_scope.dart';
+import '../../../core/ui/motion.dart';
 
 enum ExpenseSort {
   newest('Newest'),
@@ -87,9 +89,7 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
             case ExpenseSort.lowest:
               shown.sort((a, b) => a.amount.compareTo(b.amount));
           }
-          return ListView(
-            padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
-            children: [
+          return AnimatedRows(scope: (year, Object.hashAll(_vendors), _min, _max, _refundedOnly, _sort), children: [
               _YearCard(
                 year: year,
                 ytd: yearToDate(d.spends, year, today),
@@ -135,10 +135,12 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
                 else if (_sort == ExpenseSort.newest || _sort == ExpenseSort.oldest)
                   ..._byMonth(shown, today)
                 else
-                  ...GroupCard.rows(context, [for (final r in shown) ExpenseRowTile(row: r, today: today)]),
+                  ...GroupCard.rows(context, [for (final r in shown) ExpenseRowTile(key: ValueKey(r.id), row: r, today: today)]),
               ],
-            ],
-          );
+            ], builder: (rows) => ListView(
+            padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
+            children: staggered(rows),
+          ));
         },
       ),
       ShellAddButtonSlot(child: FinanceAddButton(label: 'Add expense', onPressed: () => showExpenseSheet(context)),
@@ -169,7 +171,7 @@ class _ExpensesOverviewState extends ConsumerState<ExpensesOverview> {
                 style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.inkMuted)),
           ]),
         ),
-        ...GroupCard.rows(context, [for (final r in e.value) ExpenseRowTile(row: r, today: today)]),
+        ...GroupCard.rows(context, [for (final r in e.value) ExpenseRowTile(key: ValueKey(r.id), row: r, today: today)]),
       ],
     ];
   }
@@ -213,7 +215,7 @@ class _YearCard extends StatelessWidget {
           const Spacer(),
           if (hasAny)
             Flexible(
-              child: Material(
+              child: PressScale(scale: PressScale.button, child: Material(
                 color: c.onCard,
                 shape: const StadiumBorder(),
                 child: InkWell(
@@ -230,7 +232,7 @@ class _YearCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
+              )),
             ),
         ]),
         Text(current ? 'Spent so far this year' : 'Spent in $year', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: c.inkMuted)),
@@ -238,7 +240,7 @@ class _YearCard extends StatelessWidget {
         Semantics(
           label: moneySpoken(context, ytd.thisYear), // the line above names it
           excludeSemantics: true,
-          child: Text(money(context, ytd.thisYear), semanticsLabel: spokenAmounts(money(context, ytd.thisYear)), style: text.displaySmall!.copyWith(fontSize: 30, letterSpacing: -0.6)),
+          child: RollingAmount(ytd.thisYear, style: text.displaySmall!.copyWith(fontSize: 30, letterSpacing: -0.6)),
         ),
         const SizedBox(height: Space.xs),
         // Spending changes use the neutral muted colour (docs/05).
@@ -282,7 +284,7 @@ class _FilterRow extends StatelessWidget {
           selected: on,
           label: spokenAmounts(label),
           excludeSemantics: true,
-          child: Material(
+          child: PressScale(scale: PressScale.button, child: FadeMaterial(
             color: on ? financeAccent(context) : c.surfaceSunken,
             shape: const StadiumBorder(),
             child: InkWell(
@@ -296,7 +298,7 @@ class _FilterRow extends StatelessWidget {
                 child: Text(label, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: on ? c.onAccent : c.ink)),
               ),
             ),
-          ),
+          )),
         );
     final amountLabel = min == null && max == null
         ? 'Amount ▾'
@@ -421,7 +423,7 @@ class ExpenseRowTile extends StatelessWidget {
       button: true,
       label: '${row.item}, ${row.vendor}, $date, ${moneySpoken(context, row.amount)}${row.isRefunded ? ', refunded, not counted' : ''}',
       excludeSemantics: true,
-      child: InkWell(
+      child: PressScale(scale: PressScale.card, child: InkWell(
         onTap: () => context.push('/finance/expenses/${row.id}'),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 60),
@@ -451,7 +453,7 @@ class ExpenseRowTile extends StatelessWidget {
             ]),
           ),
         ),
-      ),
+      )),
     );
   }
 }

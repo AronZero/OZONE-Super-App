@@ -13,6 +13,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/workbook/backup_service.dart';
 import '../../../core/workbook/ozone_export.dart';
+import '../../../core/ui/motion.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// The phone's "Save to" dialog; tests replace it.
@@ -200,12 +201,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             padding: const EdgeInsets.fromLTRB(18, 22, 18, 22),
             decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),
             child: Column(children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(color: c.ink, shape: BoxShape.circle),
-                child: Icon(OzIcons.check, size: 30, color: c.canvas),
-              ),
+              DoneTick(background: c.ink, foreground: c.canvas),
               const SizedBox(height: Space.m),
               Semantics(liveRegion: true, child: Text('Export saved', style: text.titleLarge)),
               const SizedBox(height: Space.xs),

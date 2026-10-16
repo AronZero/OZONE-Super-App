@@ -14,6 +14,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Days since the last export, from today's local date.
 int daysSince(int ms, LocalDate today) => max(0, LocalDate.fromDateTime(DateTime.fromMillisecondsSinceEpoch(ms)).daysUntil(today));
@@ -53,7 +54,7 @@ class DataBackupScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Data & backup', overline: 'Settings'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -125,7 +126,7 @@ class DataBackupScreen extends ConsumerWidget {
                 ]),
               ]),
             ),
-          ],
+          ]),
         ),
       ),
     );

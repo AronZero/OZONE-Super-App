@@ -7,7 +7,6 @@ import '../../../core/ui/theme/tokens.dart';
 import 'expenses_overview.dart';
 import 'gold_overview.dart';
 import 'savings_overview.dart';
-import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// Finance (W1 · Savings): top tabs Savings · Gold · Expenses (docs/02).
@@ -72,43 +71,16 @@ class _FinanceTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = OzoneThemeColors.of(context);
-    final text = Theme.of(context).textTheme;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(Space.screen, 2, Space.screen, Space.m),
-      padding: const EdgeInsets.all(Space.xs),
-      decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
-      child: Row(
-        children: [
-          for (final (i, name) in const [(0, 'Savings'), (1, 'Gold'), (2, 'Expenses')])
-            Expanded(
-              child: Semantics(
-                selected: i == selected,
-                button: true,
-                label: spokenAmounts('$name tab'),
-                excludeSemantics: true,
-                child: Material(
-                  color: i == selected ? ToolTint.finance.selectedOf(context).$1 : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () => onSelected(i),
-                    child: SizedBox(
-                      height: 48,
-                      child: Center(
-                        child: Text(name,
-                            style: text.bodyMedium!.copyWith(
-                              fontSize: 14,
-                              fontWeight: i == selected ? FontWeight.w800 : FontWeight.w700,
-                              color: i == selected ? ToolTint.finance.selectedOf(context).$2 : c.inkMuted,
-                            )),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
+    final (pill, pillText) = ToolTint.finance.selectedOf(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Space.screen, 2, Space.screen, Space.m),
+      child: SegmentTabs(
+        labels: const ['Savings', 'Gold', 'Expenses'],
+        selected: selected,
+        onSelected: onSelected,
+        pill: pill,
+        pillText: pillText,
+        spokenSuffix: ' tab',
       ),
     );
   }

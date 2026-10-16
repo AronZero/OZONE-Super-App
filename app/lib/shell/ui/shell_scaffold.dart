@@ -30,11 +30,27 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> with SingleTicker
   final _visible = ValueNotifier(true);
   late final _enter = AnimationController(vsync: this, value: 1);
 
+  /// Bumped on every tab change, and when the App lock lifts, so the screen's
+  /// cards rise in (and Home's figures roll) again.
+  final _opens = ValueNotifier(0);
+  late final _locked = ref.read(appLockServiceProvider).locked;
+
+  void _onLock() {
+    if (!_locked.value) _opens.value++;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _locked.addListener(_onLock);
+  }
+
   @override
   void didUpdateWidget(ShellScaffold old) {
     super.didUpdateWidget(old);
     if (old.shell.currentIndex != widget.shell.currentIndex) {
       _visible.value = true;
+      _opens.value++;
       final m = Motion.of(context);
       if (!m.off) {
         _enter.duration = m.screen;
@@ -47,6 +63,8 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> with SingleTicker
   void dispose() {
     _visible.dispose();
     _enter.dispose();
+    _locked.removeListener(_onLock);
+    _opens.dispose();
     super.dispose();
   }
 
@@ -86,7 +104,7 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> with SingleTicker
         extendBody: true,
         body: NotificationListener<ScrollNotification>(
           onNotification: _onScroll,
-          child: FadeRise(animation: _enter, child: shell),
+          child: EntranceScope(opens: _opens, child: FadeRise(animation: _enter, child: shell)),
         ),
         bottomNavigationBar: ValueListenableBuilder<bool>(
           valueListenable: _visible,

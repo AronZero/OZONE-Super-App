@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../amounts.dart';
 import '../theme/oz_icons.dart';
+import '../motion.dart';
 
 /// Detail top bar (back arrow, optional overline, title, trailing actions)
 /// as on the W3 Settings boards.
@@ -83,7 +84,9 @@ class RoundIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
-    return IconButton(
+    return PressScale(
+      scale: PressScale.button,
+      child: IconButton(
       tooltip: label,
       onPressed: onPressed,
       style: IconButton.styleFrom(
@@ -91,7 +94,8 @@ class RoundIconButton extends StatelessWidget {
         disabledBackgroundColor: c.surfaceSunken,
         fixedSize: const Size(48, 48),
       ),
-      icon: Icon(icon, color: c.ink, size: 22),
+      icon: PopOnChange(value: icon, child: Icon(icon, color: c.ink, size: 22)),
+    ),
     );
   }
 }
@@ -146,6 +150,8 @@ class GroupCard extends StatelessWidget {
     return [
       for (var i = 0; i < children.length; i++)
         Material(
+          // A keyed row keeps its key, so lists can animate it (AnimatedRows).
+          key: children[i].key,
           color: c.surface,
           clipBehavior: Clip.antiAlias,
           borderRadius: BorderRadius.vertical(top: i == 0 ? r : Radius.zero, bottom: i == children.length - 1 ? r : Radius.zero),
@@ -227,7 +233,7 @@ class SettingsRow extends StatelessWidget {
     return MergeSemantics(
       child: Opacity(
         opacity: enabled ? 1 : 0.55,
-        child: onTap == null || !enabled ? row : InkWell(onTap: onTap, child: row),
+        child: onTap == null || !enabled ? row : InkWell(onTap: onTap, child: PressScale(scale: PressScale.card, child: row)),
       ),
     );
   }
@@ -249,7 +255,12 @@ class OzoneSwitch extends StatelessWidget {
       label: spokenAmounts(label),
       child: Switch(
         value: value,
-        onChanged: onChanged,
+        onChanged: onChanged == null
+            ? null
+            : (v) {
+                Haptics.toggle();
+                onChanged!(v);
+              },
         activeThumbColor: c.canvas,
         activeTrackColor: accent ?? c.ink,
         inactiveThumbColor: c.surface,
@@ -288,7 +299,7 @@ class ChoiceChips<T> extends StatelessWidget {
                   button: true,
                   label: spokenAmounts(name),
                   excludeSemantics: true,
-                  child: Material(
+                  child: FadeMaterial(
                     color: v == selected ? c.ink : c.surfaceSunken,
                     borderRadius: BorderRadius.circular(22),
                     child: InkWell(
@@ -334,7 +345,9 @@ class OzoneButton extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     final bg = color ?? (primary ? c.ink : c.surfaceSunken);
     final fg = foreground ?? (primary ? c.canvas : c.ink);
-    return SizedBox(
+    return PressScale(
+      scale: PressScale.button,
+      child: SizedBox(
       // Never under the 48 dp touch target (docs/04 › Accessibility).
       height: height < 48 ? 48 : height,
       width: double.infinity,
@@ -359,6 +372,7 @@ class OzoneButton extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
@@ -404,7 +418,9 @@ class ToolAddButton extends StatelessWidget {
     final c = OzoneThemeColors.of(context);
     return Tooltip(
       message: label,
-      child: Material(
+      child: PressScale(
+        scale: PressScale.button,
+        child: Material(
         color: accent,
         borderRadius: BorderRadius.circular(Radii.addButton),
         child: InkWell(
@@ -413,6 +429,117 @@ class ToolAddButton extends StatelessWidget {
           child: SizedBox(width: 60, height: 60, child: Icon(OzIcons.add, size: 28, color: c.onAccent)),
         ),
       ),
+      ),
     );
   }
+}
+
+/// Rounded segmented tabs on a sunken track (W1 · Account detail, W3 · History,
+/// Finance's top tabs, Folders & tags). The pill slides to the tapped tab with
+/// a slight overshoot, like the bar (step 3, moment 6), with a light haptic.
+class SegmentTabs extends StatelessWidget {
+  const SegmentTabs({
+    super.key,
+    required this.labels,
+    required this.selected,
+    required this.onSelected,
+    this.pill,
+    this.pillText,
+    this.spokenSuffix = '',
+  });
+
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onSelected;
+
+  /// The selected pill and its text (the card colour and ink by default).
+  final Color? pill;
+  final Color? pillText;
+
+  /// Added to each spoken label (" tab").
+  final String spokenSuffix;
+
+  /// The sliding pill (for tests).
+  static const pillKey = ValueKey('segment-pill');
+
+  @override
+  Widget build(BuildContext context) {
+    final c = OzoneThemeColors.of(context);
+    final text = Theme.of(context).textTheme;
+    final m = Motion.of(context);
+    final n = labels.length;
+    return Container(
+      padding: const EdgeInsets.all(Space.xs),
+      decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
+      child: Stack(children: [
+        Positioned.fill(
+          child: AnimatedAlign(
+            alignment: Alignment(n == 1 ? 0 : -1 + 2 * selected / (n - 1), 0),
+            duration: m.tabs,
+            curve: Motion.springy,
+            child: FractionallySizedBox(
+              widthFactor: 1 / n,
+              heightFactor: 1,
+              child: DecoratedBox(key: SegmentTabs.pillKey, decoration: BoxDecoration(color: pill ?? c.surface, borderRadius: BorderRadius.circular(20))),
+            ),
+          ),
+        ),
+        Row(children: [
+          for (var i = 0; i < n; i++)
+            Expanded(
+              child: Semantics(
+                selected: i == selected,
+                button: true,
+                label: spokenAmounts('${labels[i]}$spokenSuffix'),
+                excludeSemantics: true,
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      if (i != selected) Haptics.tab();
+                      onSelected(i);
+                    },
+                    child: SizedBox(
+                      height: 48,
+                      child: Center(
+                        child: AnimatedDefaultTextStyle(
+                          duration: m.tabs,
+                          style: text.bodyMedium!.copyWith(
+                            fontSize: 14,
+                            fontWeight: i == selected ? FontWeight.w800 : FontWeight.w700,
+                            color: i == selected ? (pillText ?? c.ink) : c.inkMuted,
+                          ),
+                          child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ]),
+      ]),
+    );
+  }
+}
+
+/// A [Material] whose colour cross-fades when it changes (chips, step 3 moment 6).
+class FadeMaterial extends StatelessWidget {
+  const FadeMaterial({super.key, required this.color, this.shape, this.borderRadius, required this.child});
+
+  final Color color;
+  final ShapeBorder? shape;
+  final BorderRadius? borderRadius;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<Color?>(
+        tween: ColorTween(end: color),
+        duration: Motion.of(context).tabs,
+        curve: Curves.easeOut,
+        builder: (context, col, child) => Material(color: col, shape: shape, borderRadius: borderRadius, child: child),
+        child: child,
+      );
 }

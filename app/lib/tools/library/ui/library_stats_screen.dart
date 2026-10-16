@@ -11,6 +11,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_parts.dart';
+import '../../../core/ui/motion.dart';
 
 /// Library stats (W2 · Library stats, F1-04 §6).
 class LibraryStatsScreen extends ConsumerStatefulWidget {
@@ -57,7 +58,7 @@ class _LibraryStatsScreenState extends ConsumerState<LibraryStatsScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Library stats', overline: 'Library'),
             if (s != null)
               Padding(
@@ -169,7 +170,7 @@ class _LibraryStatsScreenState extends ConsumerState<LibraryStatsScreen> {
                   ),
                 ]),
               ),
-          ],
+          ]),
         ),
       ),
     );

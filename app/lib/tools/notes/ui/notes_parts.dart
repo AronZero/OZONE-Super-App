@@ -8,6 +8,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/notes.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Notes accent and tile for the current theme (docs/05 tool tints).
 Color notesAccent(BuildContext context) => ToolTint.notes.accentOf(context);
@@ -75,7 +76,7 @@ class NoteCard extends StatelessWidget {
         button: true,
         label: spokenAmounts('Locked note in ${folderName ?? 'Unfiled'}, edited $date'),
         excludeSemantics: true,
-        child: Material(
+        child: PressScale(scale: PressScale.card, child: Material(
           color: notesTile(context),
           borderRadius: shape,
           child: InkWell(
@@ -102,7 +103,7 @@ class NoteCard extends StatelessWidget {
               ),
             ),
           ),
-        ),
+        )),
       );
     }
 
@@ -128,7 +129,7 @@ class NoteCard extends StatelessWidget {
       button: true,
       label: spokenAmounts('$title${note.isPinned ? ', pinned' : ''}, edited $date${tags.isEmpty ? '' : ', tags ${tags.map((t) => '#${t.name}').join(' ')}'}'),
       excludeSemantics: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,
         borderRadius: shape,
         child: InkWell(
@@ -159,7 +160,7 @@ class NoteCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }

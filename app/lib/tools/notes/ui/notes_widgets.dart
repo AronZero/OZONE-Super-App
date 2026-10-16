@@ -13,6 +13,7 @@ import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// A locked note from Home: unlock first (UX3 board: "asks to unlock if locked").
 Future<void> _openLocked(BuildContext context, WidgetRef ref, String id) async {
@@ -34,7 +35,7 @@ class _Frame extends StatelessWidget {
       decoration: BoxDecoration(color: notesCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        InkWell(
+        PressScale(scale: PressScale.card, child: InkWell(
           onTap: () => context.go('/notes'),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, Space.l, Space.m, Space.s),
@@ -44,7 +45,7 @@ class _Frame extends StatelessWidget {
               Icon(OzIcons.chevronRight, color: c.inkMuted),
             ]),
           ),
-        ),
+        )),
         Padding(padding: const EdgeInsets.fromLTRB(14, 0, 14, 14), child: child),
       ]),
     );
@@ -65,7 +66,7 @@ class _MiniNote extends ConsumerWidget {
       button: true,
       label: spokenAmounts(locked ? 'Locked note' : (note.title ?? 'Untitled')),
       excludeSemantics: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: c.onCard,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
@@ -89,7 +90,7 @@ class _MiniNote extends ConsumerWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }
@@ -135,7 +136,7 @@ class RecentNotesWidget extends ConsumerWidget {
             )
           : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               for (final n in recent.take(3))
-                InkWell(
+                PressScale(scale: PressScale.card, child: InkWell(
                   borderRadius: BorderRadius.circular(Radii.tile),
                   onTap: n.isLocked ? () => _openLocked(context, ref, n.id) : () => openNote(context, n.id, fromOtherTab: true),
                   child: Padding(
@@ -149,7 +150,7 @@ class RecentNotesWidget extends ConsumerWidget {
                       Text(localDateOf(n.editedAt).format(today), style: text.bodyMedium!.copyWith(color: c.inkMuted)),
                     ]),
                   ),
-                ),
+                )),
             ]),
     );
   }

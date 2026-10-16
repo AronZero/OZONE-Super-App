@@ -8,6 +8,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/savings_history.dart';
 import '../domain/savings_rules.dart';
+import '../../../core/ui/motion.dart';
 
 /// Finance accent and tile for the current theme (docs/05 tool tints).
 Color financeAccent(BuildContext context) => ToolTint.finance.accentOf(context);
@@ -52,12 +53,12 @@ class ChangePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
-    return Container(
+    return PopOnChange(value: amount, pop: Pop.badge, child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.onCard, borderRadius: BorderRadius.circular(999)),
       child: Text('${moneyChange(context, amount)}$suffix', semanticsLabel: spokenAmounts('${moneyChange(context, amount)}$suffix'),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, amount))),
-    );
+    ));
   }
 }
 
@@ -88,56 +89,6 @@ String accountsLine(MonthTotal t) {
   final n = t.accounts;
   final carried = t.carried == 0 ? '' : (t.allCarried ? ' · all carried' : ' · ${t.carried} carried');
   return '$n ${n == 1 ? 'account' : 'accounts'}$carried';
-}
-
-/// Rounded segmented tabs on a sunken track (W1 · Account detail, W3 · History).
-class SegmentTabs extends StatelessWidget {
-  const SegmentTabs({super.key, required this.labels, required this.selected, required this.onSelected});
-  final List<String> labels;
-  final int selected;
-  final ValueChanged<int> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = OzoneThemeColors.of(context);
-    final text = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.all(Space.xs),
-      decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
-      child: Row(children: [
-        for (var i = 0; i < labels.length; i++)
-          Expanded(
-            child: Semantics(
-              selected: i == selected,
-              button: true,
-              label: spokenAmounts(labels[i]),
-              excludeSemantics: true,
-              child: Material(
-                color: i == selected ? c.surface : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () => onSelected(i),
-                  child: SizedBox(
-                    height: 48,
-                    child: Center(
-                      child: Text(labels[i],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: text.bodyMedium!.copyWith(
-                            fontSize: 14,
-                            fontWeight: i == selected ? FontWeight.w800 : FontWeight.w700,
-                            color: i == selected ? c.ink : c.inkMuted,
-                          )),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ]),
-    );
-  }
 }
 
 

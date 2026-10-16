@@ -10,6 +10,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
+import '../../../core/ui/motion.dart';
 
 /// W3 · Trash: days left, Restore (with Undo), Delete forever and Empty trash
 /// (both confirmed). Purging after 30 days runs on start and resume (F2-02 §5).
@@ -65,7 +66,7 @@ class TrashScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: 104),
-          children: [
+          children: staggered([
             DetailTopBar(title: 'Trash', overline: 'Folders & tags', trailing: [
               if (items.isNotEmpty)
                 TextButton(
@@ -76,7 +77,7 @@ class TrashScreen extends ConsumerWidget {
             ]),
             Padding(
               padding: const EdgeInsets.fromLTRB(Space.screen, Space.xs, Space.screen, 0),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              child: AnimatedRows(children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(Space.xs, 0, Space.xs, Space.m),
                   child: Text('Notes here are deleted for good 30 days after they were moved. They don’t show up in search.',
@@ -92,13 +93,15 @@ class TrashScreen extends ConsumerWidget {
                       Text('Notes you delete wait here for 30 days.', textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w600, color: c.inkMuted)),
                     ]),
                   ),
-                for (final n in items) ...[
-                  _TrashCard(note: n, daysLeft: trashDaysLeft(n.trashedAt!, nowMs), onRestore: () => restore(n), onDelete: () => deleteForever(n)),
-                  const SizedBox(height: 10),
-                ],
-              ]),
+                for (final n in items)
+                  Padding(
+                    key: ValueKey(n.id),
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _TrashCard(note: n, daysLeft: trashDaysLeft(n.trashedAt!, nowMs), onRestore: () => restore(n), onDelete: () => deleteForever(n)),
+                  ),
+              ], builder: (rows) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows)),
             ),
-          ],
+          ]),
         ),
       ),
     );

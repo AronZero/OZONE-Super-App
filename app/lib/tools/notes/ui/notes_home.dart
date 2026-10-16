@@ -19,6 +19,7 @@ import 'vault/vault_unlock.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 import '../../../core/ui/shell_bar_scope.dart';
+import '../../../core/ui/motion.dart';
 
 /// Folder filter: all notes, Unfiled, or one folder.
 sealed class FolderFilter {
@@ -130,7 +131,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
           if (view == NotesView.grid)
             ...NoteGrid.rows([for (final n in notes) card(n)])
           else
-            for (final n in notes) Padding(padding: const EdgeInsets.only(bottom: Space.s), child: card(n)),
+            for (final n in notes) Padding(key: ValueKey(n.id), padding: const EdgeInsets.only(bottom: Space.s), child: card(n)),
         ];
 
     Widget chip(String label, bool selected, VoidCallback onTap) => Padding(
@@ -141,7 +142,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
             button: true,
             label: spokenAmounts(label),
             excludeSemantics: true,
-            child: Material(
+            child: PressScale(scale: PressScale.button, child: FadeMaterial(
               color: selected ? notesAccent(context) : c.surfaceSunken,
               borderRadius: BorderRadius.circular(18),
               child: InkWell(
@@ -155,7 +156,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                       style: text.bodyMedium!.copyWith(fontSize: 13, fontWeight: selected ? FontWeight.w800 : FontWeight.w700, color: selected ? c.onAccent : c.ink)),
                 ),
               ),
-            ),
+            )),
           ),
         );
 
@@ -165,9 +166,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
     return Stack(children: [
       SafeArea(
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.only(bottom: shellListBottom(context)),
-          children: [
+        child: AnimatedRows(scope: (_folder, _tag, view), children: [
             MainTopBar(title: 'Notes', actions: [
               // While the vault is open: lock it again now (F2-01 §4 "Lock button").
               if (vaultOpen)
@@ -209,7 +208,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                           toggled: _tag == t.id,
                           label: spokenAmounts('Tag ${t.name}'),
                           excludeSemantics: true,
-                          child: Material(
+                          child: PressScale(scale: PressScale.button, child: FadeMaterial(
                             color: _tag == t.id ? notesAccent(context) : notesTile(context),
                             borderRadius: BorderRadius.circular(16),
                             child: InkWell(
@@ -223,7 +222,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                                     style: text.labelLarge!.copyWith(fontSize: 12, fontWeight: FontWeight.w800, color: _tag == t.id ? c.onAccent : notesAccent(context))),
                               ),
                             ),
-                          ),
+                          )),
                         ),
                       ),
                   ]),
@@ -257,8 +256,10 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                 ],
               ])
               Padding(padding: const EdgeInsets.symmetric(horizontal: Space.screen), child: w),
-          ],
-        ),
+          ], builder: (rows) => ListView(
+          padding: EdgeInsets.only(bottom: shellListBottom(context)),
+          children: staggered(rows),
+        )),
       ),
       ShellAddButtonSlot(child: ToolAddButton(label: 'New note', accent: notesAccent(context), onPressed: _newNote),
       ),

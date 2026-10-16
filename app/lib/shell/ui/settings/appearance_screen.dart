@@ -8,6 +8,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Appearance (W3 · Appearance): System / Light / Dark. The whole app,
 /// including this screen, switches as soon as a choice is tapped.
@@ -32,7 +33,7 @@ class AppearanceScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Appearance', overline: 'Settings'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -74,7 +75,7 @@ class AppearanceScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -119,7 +120,7 @@ class _ThemeCard extends StatelessWidget {
       button: true,
       label: spokenAmounts('$name theme'),
       excludeSemantics: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -157,7 +158,7 @@ class _ThemeCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }

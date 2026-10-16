@@ -15,6 +15,7 @@ import '../domain/savings_history.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Savings history (W3 · History): one calendar year at a time, up to 5 years
 /// (F1-04 §2), month-on-month or year-on-year, as a table or a chart.
@@ -58,7 +59,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             DetailTopBar(title: 'Savings history', trailing: [
               Padding(
                 padding: const EdgeInsets.only(right: Space.s),
@@ -118,7 +119,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

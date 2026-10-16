@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/core/data/settings_repo.dart';
+import 'package:ozone/core/ui/components/components.dart';
 import 'package:ozone/core/ui/theme/app_theme.dart';
 import 'package:ozone/core/ui/theme/tokens.dart';
 
@@ -50,8 +51,8 @@ void main() {
 
     await tester.tap(bar('Finance'));
     await settle(tester);
-    final tab = tester.widget<Material>(find.ancestor(of: find.text('Savings'), matching: find.byType(Material)).first);
-    expect(tab.color, c.ink);
+    final pill = tester.widget<DecoratedBox>(find.byKey(SegmentTabs.pillKey));
+    expect((pill.decoration as BoxDecoration).color, c.ink);
     await closeApp(tester, db);
   });
 

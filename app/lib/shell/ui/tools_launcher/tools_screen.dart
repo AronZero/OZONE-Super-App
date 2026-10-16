@@ -8,6 +8,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Tools launcher (W3 · Tools launcher): every tool, with the ones in the bar first.
 class ToolsScreen extends ConsumerStatefulWidget {
@@ -33,7 +34,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       bottom: false,
       child: ListView(
         padding: EdgeInsets.only(bottom: Space.xxxl + MediaQuery.paddingOf(context).bottom),
-        children: [
+        children: staggered([
           MainTopBar(title: 'Tools', actions: [
             FilledButton.icon(
               onPressed: () => context.push('/edit-bar'),
@@ -87,7 +88,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
               ],
             ),
           ),
-        ],
+        ]),
       ),
     );
   }
@@ -132,7 +133,7 @@ class _Grid extends StatelessWidget {
       childAspectRatio: 1.45 / (MediaQuery.textScalerOf(context).scale(16) / 16).clamp(1.0, 2.0),
       children: [
         for (final t in tools)
-          Material(
+          PressScale(scale: PressScale.card, child: Material(
             color: t.tint.cardOf(context),
             borderRadius: BorderRadius.circular(Radii.card),
             child: InkWell(
@@ -157,7 +158,7 @@ class _Grid extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          )),
       ],
     );
   }

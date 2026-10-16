@@ -97,7 +97,9 @@ void main() {
     expect(find.text('Not rated'), findsOneWidget);
 
     await tapVisible(tester, find.text('Finished'));
-    expect(find.text('✓ Finished'), findsOneWidget);
+    // The picked chip's tick has grown in.
+    final tick = find.descendant(of: find.ancestor(of: find.text('Finished'), matching: find.byType(Row)).first, matching: find.byType(AnimatedContainer));
+    expect(tester.getSize(tick).width, 19);
     await closeApp(tester, db);
   });
 

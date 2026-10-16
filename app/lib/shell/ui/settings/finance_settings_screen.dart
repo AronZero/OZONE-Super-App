@@ -9,6 +9,7 @@ import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/motion.dart';
 
 /// Settings › Finance (not drawn; decision M8-5): month-end reminder on/off and
 /// time, "Notifications are off for OZONE" with Open settings (F2-03 §4), the
@@ -84,7 +85,7 @@ class _FinanceSettingsScreenState extends ConsumerState<FinanceSettingsScreen> w
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Finance', overline: 'Settings'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -132,7 +133,7 @@ class _FinanceSettingsScreenState extends ConsumerState<FinanceSettingsScreen> w
                 Text('Vendors, platforms and account types are in Settings › Lists.', style: text.bodyMedium!.copyWith(color: c.inkMuted)),
               ]),
             ),
-          ],
+          ]),
         ),
       ),
     );

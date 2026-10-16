@@ -14,6 +14,7 @@ import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'notes_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// A one-field dialog ("New folder", "Rename tag"). Returns the parsed value,
 /// or null when cancelled. [parse] gives the error in words.
@@ -141,7 +142,7 @@ class _MenuRow extends StatelessWidget {
     final fg = danger ? c.danger : c.ink;
     return Opacity(
       opacity: onTap == null ? 0.55 : 1,
-      child: InkWell(
+      child: PressScale(scale: PressScale.card, child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: ConstrainedBox(
@@ -149,7 +150,7 @@ class _MenuRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(children: [
-              Icon(icon, size: 22, fill: fill, color: iconColor ?? fg),
+              FillIcon(icon, size: 22, filled: fill > 0, color: iconColor ?? fg),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -171,7 +172,7 @@ class _MenuRow extends StatelessWidget {
             ]),
           ),
         ),
-      ),
+      )),
     );
   }
 }
@@ -212,7 +213,10 @@ class _NoteMenu extends ConsumerWidget {
         fill: n.isPinned ? 1 : 0,
         iconColor: notesAccent(context),
         label: n.isPinned ? 'Unpin' : 'Pin to top',
-        onTap: () => repo.setPinned(n.id, !n.isPinned),
+        onTap: () {
+          Haptics.toggle();
+          repo.setPinned(n.id, !n.isPinned);
+        },
       ),
       _MenuRow(
         icon: OzIcons.folder,

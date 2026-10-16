@@ -14,6 +14,7 @@ import '../backup/data_backup_screen.dart';
 import '../ozone_mark.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 import '../../../core/ui/shell_bar_scope.dart';
+import '../../../core/ui/motion.dart';
 
 /// Home (W1 · Home): the dashboard, following the "Home dashboard" arrangement,
 /// with search, Hide amounts, Settings and the quick-add menu.
@@ -58,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: Space.screen),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+                  children: staggered([
                     if (shown.isEmpty)
                       Container(
                         padding: const EdgeInsets.all(Space.xl),
@@ -72,7 +73,7 @@ class HomeScreen extends ConsumerWidget {
                         _toolWidget(id)?.call(context) ?? _WidgetFrame(info: widgetCatalog[id]!, brightness: b),
                         const SizedBox(height: Space.m),
                       ],
-                  ],
+                  ]),
                 ),
               ),
             ],
@@ -92,7 +93,7 @@ class _QuickAddButton extends ConsumerWidget {
     final c = OzoneThemeColors.of(context);
     return Tooltip(
       message: 'Quick add',
-      child: Material(
+      child: PressScale(scale: PressScale.button, child: Material(
         color: c.ink,
         borderRadius: BorderRadius.circular(Radii.addButton),
         child: InkWell(
@@ -100,82 +101,134 @@ class _QuickAddButton extends ConsumerWidget {
           onTap: () => _open(context, ref),
           child: SizedBox(width: 60, height: 60, child: Icon(OzIcons.add, size: 28, color: c.canvas)),
         ),
-      ),
+      )),
     );
   }
 
   Future<void> _open(BuildContext context, WidgetRef ref) async {
     final bar = ref.read(barToolsProvider).value ?? defaultBarTools;
-    final tools = toolsInBarOrder(bar);
-    // The menu opens just above the add button, which sits higher while the bar shows.
-    final addBottom = ShellBarScope.visibleOf(context)
-        ? MediaQuery.paddingOf(context).bottom + BarSize.aboveBar
-        : BarSize.bottom(context);
-    final menuBottom = addBottom + 60 + Space.s - MediaQuery.viewPaddingOf(context).bottom;
+    final actions = [
+      for (final t in toolsInBarOrder(bar))
+        for (final a in t.quickAdd) (t, a),
+    ];
+    // The menu grows out of the add button, so it is placed from the button's spot on screen.
+    final box = context.findRenderObject()! as RenderBox;
+    final button = box.localToGlobal(Offset.zero) & box.size;
+    final screen = MediaQuery.sizeOf(context);
+    final m = Motion.of(context);
+    // + turns into × and the menu grows in (260 ms); the actions arrive 30 ms apart.
+    final total = m.off ? Duration.zero : m.quickAdd + const Duration(milliseconds: 30) * (actions.length - 1).clamp(0, 99);
+    double at(int ms) => total == Duration.zero ? 0 : (ms / total.inMilliseconds).clamp(0.0, 1.0);
     final picked = await showGeneralDialog<QuickAddAction>(
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Close quick add',
       barrierColor: Colors.black.withValues(alpha: 0.32),
-      transitionDuration: const Duration(milliseconds: 150),
-      pageBuilder: (ctx, _, _) {
+      transitionDuration: total,
+      transitionBuilder: (ctx, anim, _, child) => child,
+      pageBuilder: (ctx, anim, _) {
         final c = OzoneThemeColors.of(ctx);
         final text = Theme.of(ctx).textTheme;
-        return SafeArea(
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: EdgeInsets.only(right: Space.screen, bottom: menuBottom),
-              child: Material(
-                color: c.canvas,
-                elevation: 6,
-                borderRadius: BorderRadius.circular(Radii.card),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 280),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Space.s),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final t in tools)
-                          for (final a in t.quickAdd)
-                            InkWell(
-                              borderRadius: BorderRadius.circular(Radii.tile),
-                              onTap: () => Navigator.of(ctx).pop(a),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(minHeight: 52),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 36,
-                                        height: 36,
-                                        decoration: BoxDecoration(color: t.tint.tileOf(context), borderRadius: BorderRadius.circular(12)),
-                                        child: Icon(a.icon, size: 20, color: t.tint.accentOf(context)),
-                                      ),
-                                      const SizedBox(width: Space.m),
-                                      Flexible(
-                                        child: Text(a.label, style: text.bodyLarge!.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
-                                      ),
-                                    ],
+        final grow = CurvedAnimation(parent: anim, curve: Interval(0, at(m.quickAdd.inMilliseconds), curve: Motion.settle));
+        return Stack(children: [
+          Positioned(
+            right: screen.width - button.right,
+            bottom: screen.height - button.top + Space.s,
+            child: FadeTransition(
+              opacity: grow,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.6, end: 1).animate(grow),
+                alignment: Alignment.bottomRight,
+                child: Material(
+                  color: c.canvas,
+                  elevation: 6,
+                  borderRadius: BorderRadius.circular(Radii.card),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 280, maxHeight: button.top - MediaQuery.paddingOf(ctx).top - Space.l),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(Space.s),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (i, (t, a)) in actions.indexed)
+                            _Arrive(
+                              animation: CurvedAnimation(parent: anim, curve: Interval(at(60 + i * 30), at(260 + i * 30), curve: Motion.settle)),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(Radii.tile),
+                                onTap: () => Navigator.of(ctx).pop(a),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minHeight: 52),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(color: t.tint.tileOf(context), borderRadius: BorderRadius.circular(12)),
+                                          child: Icon(a.icon, size: 20, color: t.tint.accentOf(context)),
+                                        ),
+                                        const SizedBox(width: Space.m),
+                                        Flexible(
+                                          child: Text(a.label, style: text.bodyLarge!.copyWith(fontSize: 15, fontWeight: FontWeight.w700)),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        );
+          // The add button above the dim, its + turning into × (tap to close).
+          Positioned.fromRect(
+            rect: button,
+            child: Semantics(
+              button: true,
+              label: 'Close quick add',
+              excludeSemantics: true,
+              child: Material(
+                color: c.ink,
+                borderRadius: BorderRadius.circular(Radii.addButton),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(Radii.addButton),
+                  onTap: () => Navigator.of(ctx).pop(),
+                  child: RotationTransition(
+                    turns: Tween<double>(begin: 0, end: 0.125).animate(grow),
+                    child: Icon(OzIcons.add, size: 28, color: c.canvas),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ]);
       },
     );
     if (picked != null && context.mounted) picked.run(context);
   }
+}
+
+/// A quick-add action arriving: fades in and rises 8 dp.
+class _Arrive extends StatelessWidget {
+  const _Arrive({required this.animation, required this.child});
+  final Animation<double> animation;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween(begin: const Offset(0, 0.15), end: Offset.zero).animate(animation),
+          child: child,
+        ),
+      );
 }
 
 WidgetBuilder? _toolWidget(String id) {
@@ -227,7 +280,7 @@ class _NeedsAttention extends ConsumerWidget {
               style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: c.attentionInk),
             ),
             for (final i in items)
-              InkWell(
+              PressScale(scale: PressScale.card, child: InkWell(
                 borderRadius: BorderRadius.circular(Radii.tile),
                 onTap: () => context.push(i.route),
                 child: ConstrainedBox(
@@ -244,7 +297,7 @@ class _NeedsAttention extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ),
+              )),
           ],
         ),
       ),

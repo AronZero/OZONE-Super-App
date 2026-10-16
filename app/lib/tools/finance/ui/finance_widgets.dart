@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/domain/money.dart';
 import '../../../core/domain/weight.dart';
 import '../../../core/state/today.dart';
-import '../../../core/ui/amounts.dart';
+import '../../../core/ui/rolling_amount.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/expenses.dart';
@@ -14,6 +14,7 @@ import 'expenses_overview.dart';
 import 'savings_parts.dart';
 import 'savings_widgets.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Home widget W4 · Gold holdings (W1 · Home). Opens Gold.
 class GoldHoldingsWidget extends ConsumerWidget {
@@ -37,7 +38,7 @@ class GoldHoldingsWidget extends ConsumerWidget {
               if (!has)
                 Text('Add your gold items to see an estimate here.', style: text.bodyLarge!.copyWith(color: c.inkMuted))
               else ...[
-                Text(t.hasValue ? money(context, t.value) : 'No prices yet', semanticsLabel: spokenAmounts(t.hasValue ? money(context, t.value) : 'No prices yet'), style: text.headlineSmall),
+                t.hasValue ? RollingAmount(t.value, rollOnOpen: true, style: text.headlineSmall!) : Text('No prices yet', style: text.headlineSmall),
                 const SizedBox(height: Space.xs),
                 Text(
                   '${Weight.format(t.weightMg)}${t.pricesAsOf == null ? '' : ' · prices ${t.pricesAsOf!.format(today)}'}',
@@ -75,7 +76,7 @@ class SpendingThisYearWidget extends ConsumerWidget {
       children: [
         Text('Spending this year', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Space.xs),
-        Text(money(context, y.thisYear), semanticsLabel: spokenAmounts(money(context, y.thisYear)), style: text.headlineSmall),
+        RollingAmount(y.thisYear, rollOnOpen: true, style: text.headlineSmall!),
         const SizedBox(height: Space.xs),
         Text(
           tenths == null ? 'Nothing to compare with last year yet' : '${percentTenths(tenths)} vs the same period in ${today.year - 1}',
@@ -100,7 +101,7 @@ class RecentExpensesWidget extends ConsumerWidget {
       decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        InkWell(
+        PressScale(scale: PressScale.card, child: InkWell(
           onTap: () => context.go('/finance?tab=expenses'),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, Space.l, 18, Space.s),
@@ -109,7 +110,7 @@ class RecentExpensesWidget extends ConsumerWidget {
               Icon(OzIcons.chevronRight, color: c.inkMuted),
             ]),
           ),
-        ),
+        )),
         if (rows.isEmpty)
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 0, 18, Space.l),

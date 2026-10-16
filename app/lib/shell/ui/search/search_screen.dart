@@ -11,6 +11,8 @@ import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
+import '../../../core/ui/components/components.dart';
 
 /// W2 · Global search (F2-02 §1, docs/04): scope chips, results grouped in bar
 /// order with counts and the top 3, "See all", recent searches, and the fixed
@@ -108,7 +110,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           button: true,
           label: spokenAmounts('Search in $label'),
           excludeSemantics: true,
-          child: Material(
+          child: PressScale(scale: PressScale.button, child: FadeMaterial(
             color: on ? c.ink : c.surfaceSunken,
             borderRadius: BorderRadius.circular(18),
             child: InkWell(
@@ -121,7 +123,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 child: Text(label, style: text.bodyMedium!.copyWith(fontSize: 13, fontWeight: FontWeight.w800, color: on ? c.canvas : c.ink)),
               ),
             ),
-          ),
+          )),
         ),
       );
     }
@@ -139,7 +141,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ]));
         body.add(_Card(children: [
           for (final r in recent)
-            InkWell(
+            PressScale(scale: PressScale.card, child: InkWell(
               onTap: () {
                 _q.text = r;
                 _q.selection = TextSelection.collapsed(offset: r.length);
@@ -155,7 +157,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ]),
                 ),
               ),
-            ),
+            )),
         ]));
       } else {
         body.add(Text('Type at least 2 letters or numbers. Amounts like 1,299 match exactly.', style: text.bodyLarge!.copyWith(color: c.inkMuted)));
@@ -334,7 +336,7 @@ class _HitRow extends ConsumerWidget {
       button: true,
       label: spokenAmounts([plainTitle.isEmpty ? 'Untitled' : plainTitle, ?info?.subtitle, ?info?.trailing].join(', ')),
       excludeSemantics: true,
-      child: InkWell(
+      child: PressScale(scale: PressScale.card, child: InkWell(
         onTap: onTap,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 60),
@@ -365,7 +367,7 @@ class _HitRow extends ConsumerWidget {
             ]),
           ),
         ),
-      ),
+      )),
     );
   }
 }

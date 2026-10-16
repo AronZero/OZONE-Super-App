@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/state/today.dart';
-import '../../../core/ui/amounts.dart';
+import '../../../core/ui/rolling_amount.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/motion.dart';
 
 /// Home widget W2 · Total savings (W1 · Home). Opens Savings.
 class TotalSavingsWidget extends ConsumerWidget {
@@ -32,7 +33,7 @@ class TotalSavingsWidget extends ConsumerWidget {
         if (t?.total == null)
           Text('Add a savings account to see your total here.', style: text.bodyLarge!.copyWith(color: c.inkMuted))
         else ...[
-          Text(money(context, t!.total!), semanticsLabel: spokenAmounts(money(context, t.total!)), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+          RollingAmount(t!.total!, rollOnOpen: true, style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           const SizedBox(height: 6),
           Text('As of ${today.format(today)}$carried', style: text.bodyMedium!.copyWith(color: c.inkMuted)),
         ],
@@ -83,7 +84,7 @@ class FinanceWidgetTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
-        child: Material(
+        child: PressScale(scale: PressScale.card, child: Material(
           color: financeCard(context),
           borderRadius: BorderRadius.circular(Radii.card),
           child: InkWell(
@@ -94,6 +95,6 @@ class FinanceWidgetTile extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
             ),
           ),
-        ),
+        )),
       );
 }

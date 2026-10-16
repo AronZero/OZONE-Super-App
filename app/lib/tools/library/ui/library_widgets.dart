@@ -10,6 +10,7 @@ import '../domain/library.dart';
 import '../state/library_providers.dart';
 import 'library_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Home widget W7 · Currently reading (W1 · Home): up to 3 books being read.
 class CurrentlyReadingWidget extends ConsumerWidget {
@@ -25,7 +26,7 @@ class CurrentlyReadingWidget extends ConsumerWidget {
       decoration: BoxDecoration(color: libraryCard(context), borderRadius: BorderRadius.circular(Radii.card)),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        InkWell(
+        PressScale(scale: PressScale.card, child: InkWell(
           onTap: () => context.go('/library?status=reading'),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, Space.l, Space.m, Space.s),
@@ -36,7 +37,7 @@ class CurrentlyReadingWidget extends ConsumerWidget {
               Icon(OzIcons.chevronRight, color: c.inkMuted),
             ]),
           ),
-        ),
+        )),
         if (reading.isEmpty)
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 0, 18, Space.l),
@@ -44,7 +45,7 @@ class CurrentlyReadingWidget extends ConsumerWidget {
           )
         else ...[
           for (final b in reading.take(3))
-            InkWell(
+            PressScale(scale: PressScale.card, child: InkWell(
               onTap: () {
                 context.go('/library');
                 context.push('/library/books/${b.id}');
@@ -62,7 +63,7 @@ class CurrentlyReadingWidget extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
+            )),
           const SizedBox(height: Space.s),
         ],
       ]),
@@ -93,7 +94,7 @@ class LibrarySnapshotWidget extends ConsumerWidget {
         );
     return Semantics(
       button: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: libraryCard(context),
         borderRadius: BorderRadius.circular(Radii.card),
         child: InkWell(
@@ -124,7 +125,7 @@ class LibrarySnapshotWidget extends ConsumerWidget {
             ]),
           ),
         ),
-      ),
+      )),
     );
   }
 }

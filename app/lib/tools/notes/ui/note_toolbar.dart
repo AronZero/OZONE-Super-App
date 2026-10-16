@@ -6,6 +6,7 @@ import '../domain/notes.dart';
 import 'notes_parts.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 Color _hex(String h) => Color(int.parse('FF${h.substring(1)}', radix: 16));
 
@@ -96,7 +97,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
             excludeSemantics: true,
             child: Tooltip(
               message: label,
-              child: Material(
+              child: PressScale(scale: PressScale.button, child: Material(
                 color: active ? notesTile(context) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
@@ -107,7 +108,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
                     child: Center(child: IconTheme(data: IconThemeData(color: active ? accent : c.ink, size: 20), child: icon)),
                   ),
                 ),
-              ),
+              )),
             ),
           ),
         );

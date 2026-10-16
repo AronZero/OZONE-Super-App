@@ -9,6 +9,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../tool_registry.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Settings menu (W3 · Settings). Rows for parts not built yet are shown
 /// disabled with the milestone they arrive in.
@@ -28,7 +29,7 @@ class SettingsScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Settings', overline: 'Home'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -110,7 +111,7 @@ class SettingsScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

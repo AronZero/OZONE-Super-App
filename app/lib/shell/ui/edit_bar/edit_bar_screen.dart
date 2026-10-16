@@ -10,6 +10,7 @@ import '../../tool_registry.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 import '../shell_bar.dart';
+import '../../../core/ui/motion.dart';
 
 /// Edit bar (W3 · Edit bar): choose and order up to 3 tools. Home and Tools
 /// are always in the bar (docs/03). Changes apply at once.
@@ -39,7 +40,7 @@ class EditBarScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             DetailTopBar(title: 'Edit bar', overline: 'Tools', trailing: [
               Padding(
                 padding: const EdgeInsets.only(right: Space.s),
@@ -136,7 +137,7 @@ class EditBarScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

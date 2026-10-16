@@ -19,6 +19,7 @@ import '../../../core/workbook/ozone_import.dart';
 import '../../../tools/notes/ui/vault/vault_parts.dart';
 import '../../../tools/notes/ui/vault/vault_unlock.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/motion.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// Picks a `.xlsx` (F2-03 §2: the system picker; the file is read once into memory).
@@ -194,6 +195,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             padding: const EdgeInsets.fromLTRB(18, 22, 18, 22),
             decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(Radii.card)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Center(child: DoneTick(background: c.ink, foreground: c.canvas)),
+              const SizedBox(height: Space.m),
               Semantics(liveRegion: true, child: Text('Imported $total ${total == 1 ? 'row' : 'rows'}', style: text.titleLarge)),
               const SizedBox(height: Space.s),
               for (final MapEntry(:key, :value) in _written.entries)

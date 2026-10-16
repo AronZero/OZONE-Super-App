@@ -11,6 +11,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// About OZONE: version, licences, privacy, and the setup check from M0.
 class AboutScreen extends StatelessWidget {
@@ -26,7 +27,7 @@ class AboutScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'About OZONE', overline: 'Settings'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -62,7 +63,7 @@ class AboutScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -97,6 +98,7 @@ class _ErrorLogRow extends ConsumerWidget {
   Future<void> _actions(BuildContext context, ErrorLog log) async {
     final choice = await showModalBottomSheet<String>(
       context: context,
+      sheetAnimationStyle: Motion.of(context).sheetStyle,
       useRootNavigator: true,
       builder: (context) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [

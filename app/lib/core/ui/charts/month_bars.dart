@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../components/forms.dart';
 import '../amounts.dart';
+import '../motion.dart';
 
 /// One bar: a month's value, or null for No data (drawn as a faint stub).
 class BarDatum {
@@ -19,7 +20,9 @@ class BarDatum {
 /// Simple month bar chart (docs/spec/F3-01 §4: CustomPaint, no chart package).
 /// Bars start at zero so heights compare honestly. The caller gives the
 /// spoken summary in [semanticLabel]; screens also offer the numbers as a table.
-class MonthBars extends StatelessWidget {
+/// Bars grow from the baseline, left to right, each time the screen opens
+/// (step 3, moment 4).
+class MonthBars extends StatefulWidget {
   const MonthBars({
     super.key,
     required this.data,
@@ -46,10 +49,42 @@ class MonthBars extends StatelessWidget {
   final List<String?>? valueLabels;
 
   @override
+  State<MonthBars> createState() => _MonthBarsState();
+}
+
+class _MonthBarsState extends State<MonthBars> with SingleTickerProviderStateMixin {
+  late final _grow = AnimationController(vsync: this, value: 1);
+  int? _opens;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final opens = EntranceScope.of(context);
+    if (opens == _opens) return;
+    _opens = opens;
+    final m = Motion.of(context);
+    if (m.off) return;
+    _grow.duration = m.chart + _BarsPainter.step * (widget.data.length - 1).clamp(0, 99);
+    _grow.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _grow.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.labelSmall!.copyWith(color: labelColor);
+    final data = widget.data;
+    final accent = widget.accent;
+    final height = widget.height;
+    final showLabels = widget.showLabels;
+    final labelEvery = widget.labelEvery;
+    final valueLabels = widget.valueLabels;
+    final style = Theme.of(context).textTheme.labelSmall!.copyWith(color: widget.labelColor);
     return Semantics(
-      label: spokenAmounts(semanticLabel),
+      label: spokenAmounts(widget.semanticLabel),
       image: true,
       excludeSemantics: true,
       child: SizedBox(
@@ -64,6 +99,7 @@ class MonthBars extends StatelessWidget {
             labelEvery: labelEvery,
             valueLabels: valueLabels,
             textScaler: MediaQuery.textScalerOf(context),
+            grow: _grow,
           ),
         ),
       ),
@@ -80,7 +116,8 @@ class _BarsPainter extends CustomPainter {
     required this.textScaler,
     this.labelEvery = 3,
     this.valueLabels,
-  });
+    required this.grow,
+  }) : super(repaint: grow);
 
   final List<BarDatum> data;
   final Color accent;
@@ -89,6 +126,21 @@ class _BarsPainter extends CustomPainter {
   final TextScaler textScaler;
   final int labelEvery;
   final List<String?>? valueLabels;
+
+  /// Runs 0 → 1 while the bars grow in.
+  final AnimationController grow;
+
+  /// Each bar starts this long after the one before it.
+  static const Duration step = Duration(milliseconds: 20);
+
+  /// How far bar [i] has grown, 0 → 1.
+  double _grown(int i) {
+    final total = grow.duration?.inMicroseconds ?? 0;
+    if (grow.value >= 1 || total == 0) return 1;
+    final start = step.inMicroseconds * i / total;
+    final run = 420000 / total;
+    return Motion.settle.transform(((grow.value - start) / run).clamp(0.0, 1.0));
+  }
 
   static const double _gap = 5;
 
@@ -114,7 +166,7 @@ class _BarsPainter extends CustomPainter {
         final stub = RRect.fromRectAndRadius(Rect.fromLTWH(x, barsHeight - 4, w, 4), const Radius.circular(2));
         canvas.drawRRect(stub, Paint()..color = accent.withValues(alpha: v == null ? 0.18 : 0.45));
       } else {
-        final h = (barsHeight * v / maxV).clamp(6.0, barsHeight);
+        final h = (barsHeight * v / maxV).clamp(6.0, barsHeight) * _grown(i);
         final rect = Rect.fromLTWH(x, barsHeight - h, w, h);
         final rr = RRect.fromRectAndCorners(rect,
             topLeft: const Radius.circular(6), topRight: const Radius.circular(6),
@@ -131,7 +183,7 @@ class _BarsPainter extends CustomPainter {
       }
       final style = labelStyle;
       final vl = valueLabels == null || i >= valueLabels!.length ? null : valueLabels![i];
-      if (style != null && vl != null) {
+      if (style != null && vl != null && _grown(i) >= 1) {
         final h = v == null || maxV <= 0 || v <= 0 ? 4.0 : (barsHeight * v / maxV).clamp(6.0, barsHeight);
         final tp = TextPainter(text: TextSpan(text: vl, style: style.copyWith(fontWeight: FontWeight.w800)), textDirection: TextDirection.ltr, textScaler: textScaler)..layout();
         tp.paint(canvas, Offset((x + w / 2 - tp.width / 2).clamp(0, size.width - tp.width), barsHeight - h - tp.height - 2));

@@ -7,6 +7,7 @@ import '../../../core/domain/money.dart';
 import '../../../core/domain/weight.dart';
 import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/rolling_amount.dart';
 import '../../../core/ui/components/states.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
@@ -15,6 +16,7 @@ import '../state/finance_providers.dart';
 import 'gold_item_sheet.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/shell_bar_scope.dart';
+import '../../../core/ui/motion.dart';
 
 /// Gold tab (W2 · Gold): estimated value card, held items by value, and the
 /// Add gold item button. Values are always estimates with their price date.
@@ -34,9 +36,7 @@ class GoldOverview extends ConsumerWidget {
           onRetry: () => ref.invalidate(goldDataProvider),
           builder: (d) {
             final held = [...d.held]..sort((a, b) => (d.valueOf(b) ?? -1).compareTo(d.valueOf(a) ?? -1));
-            return ListView(
-              padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
-              children: [
+            return AnimatedRows(children: [
                 if (held.isEmpty)
                   _EmptyCard(hasPrices: d.prices.isNotEmpty)
                 else
@@ -56,7 +56,7 @@ class GoldOverview extends ConsumerWidget {
                     ]),
                   ),
                   const SizedBox(height: Space.s),
-                  for (final i in held) ...[GoldItemRowTile(item: i, value: d.valueOf(i)), const SizedBox(height: Space.s)],
+                  for (final i in held) Padding(key: ValueKey(i.id), padding: const EdgeInsets.only(bottom: Space.s), child: GoldItemRowTile(item: i, value: d.valueOf(i))),
                 ],
                 if (d.disposed.isNotEmpty || d.prices.isNotEmpty) ...[
                   const SizedBox(height: Space.xs),
@@ -73,8 +73,10 @@ class GoldOverview extends ConsumerWidget {
                       ),
                   ]),
                 ],
-              ],
-            );
+              ], builder: (rows) => ListView(
+              padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
+              children: staggered(rows),
+            ));
           },
         ),
         ShellAddButtonSlot(child: FinanceAddButton(label: 'Add gold item', onPressed: () => showGoldItemSheet(context)),
@@ -121,7 +123,7 @@ class _ValueCard extends ConsumerWidget {
           Semantics(
             label: t.hasValue ? moneySpoken(context, t.value) : 'No estimated value yet', // the heading names it
             excludeSemantics: true,
-            child: Text(t.hasValue ? money(context, t.value) : '—', semanticsLabel: spokenAmounts(t.hasValue ? money(context, t.value) : '—'), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+            child: t.hasValue ? RollingAmount(t.value, style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)) : Text('—', style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
           ),
           if (t.unpricedNote != null) ...[
             const SizedBox(height: Space.xs),
@@ -140,7 +142,7 @@ class _ValueCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: Space.s),
-            Material(
+            PressScale(scale: PressScale.button, child: Material(
               color: financeAccent(context),
               shape: const StadiumBorder(),
               child: InkWell(
@@ -153,7 +155,7 @@ class _ValueCard extends ConsumerWidget {
                   child: Text('Karat prices', style: text.bodyLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w800, color: c.onAccent)),
                 ),
               ),
-            ),
+            )),
           ]),
         ],
       ),
@@ -170,12 +172,12 @@ class GainPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
-    return Container(
+    return PopOnChange(value: gain, pop: Pop.badge, child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.onCard, borderRadius: BorderRadius.circular(999)),
       child: Text('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}', semanticsLabel: spokenAmounts('${moneyChange(context, gain)} · ${Money.percent(gain.abs(), cost)}'),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
-    );
+    ));
   }
 }
 
@@ -200,7 +202,7 @@ class GoldItemRowTile extends ConsumerWidget {
       button: true,
       label: spokenAmounts('${item.name}, ${item.karat} karat, $sub${v == null ? '' : ', estimated ${moneySpoken(context, v)}'}'),
       excludeSemantics: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
@@ -237,7 +239,7 @@ class GoldItemRowTile extends ConsumerWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }

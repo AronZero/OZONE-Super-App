@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
@@ -9,6 +11,7 @@ import 'core/data/settings_repo.dart';
 import 'core/state/providers.dart';
 import 'core/state/today.dart';
 import 'core/ui/amounts.dart';
+import 'core/ui/motion.dart';
 import 'core/ui/theme/app_theme.dart';
 import 'core/ui/theme/tokens.dart';
 import 'shell/ui/lock_gate/lock_gate.dart';
@@ -94,9 +97,30 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
           child: Stack(
             children: [
               AmountsScope(visibility: ref.watch(amountsVisibilityProvider), child: child ?? const SizedBox.shrink()),
-              ListenableBuilder(
-                listenable: undo,
-                builder: (context, _) => undo.pending == null ? const SizedBox.shrink() : _UndoBar(message: undo.pending!.message, onUndo: undo.undo),
+              // The Undo message slides up, and back down when it closes (step 3, moment 8).
+              Positioned(
+                left: Space.l,
+                right: Space.l,
+                bottom: 92,
+                child: SafeArea(
+                  top: false,
+                  child: ListenableBuilder(
+                    listenable: undo,
+                    builder: (context, _) => AnimatedSwitcher(
+                      duration: Motion.of(context).off ? Duration.zero : AnimatedRows.arrive,
+                      reverseDuration: Motion.of(context).off ? Duration.zero : const Duration(milliseconds: 200),
+                      switchInCurve: Motion.settle,
+                      switchOutCurve: Curves.easeIn,
+                      transitionBuilder: (child, a) => FadeTransition(
+                        opacity: a,
+                        child: SlideTransition(position: Tween(begin: const Offset(0, 0.6), end: Offset.zero).animate(a), child: child),
+                      ),
+                      child: undo.pending == null
+                          ? const SizedBox.shrink()
+                          : _UndoBar(key: ObjectKey(undo.pending), message: undo.pending!.message, onUndo: undo.undo),
+                    ),
+                  ),
+                ),
               ),
               ValueListenableBuilder<bool>(
                 valueListenable: lock.locked,
@@ -111,23 +135,31 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
 }
 
 /// "Expense deleted · Undo" (W3 States board).
-class _UndoBar extends StatelessWidget {
-  const _UndoBar({required this.message, required this.onUndo});
+class _UndoBar extends StatefulWidget {
+  const _UndoBar({super.key, required this.message, required this.onUndo});
 
   final String message;
   final VoidCallback onUndo;
 
   @override
+  State<_UndoBar> createState() => _UndoBarState();
+}
+
+class _UndoBarState extends State<_UndoBar> {
+  @override
+  void initState() {
+    super.initState();
+    // One haptic as the delete (or other undoable change) happens (step 3, answer A3).
+    unawaited(HapticFeedback.mediumImpact());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final message = widget.message;
+    final onUndo = widget.onUndo;
     final c = OzoneThemeColors.of(context);
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return Positioned(
-      left: Space.l,
-      right: Space.l,
-      bottom: 92,
-      child: SafeArea(
-        top: false,
-        child: Semantics(
+    return Semantics(
           liveRegion: true,
           child: Material(
             color: c.ink,
@@ -148,8 +180,6 @@ class _UndoBar extends StatelessWidget {
               ]),
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 }

@@ -16,6 +16,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../state/savings_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/motion.dart';
 
 /// Archived accounts (W3 · Archived): view history or restore, with Undo.
 class ArchivedScreen extends ConsumerWidget {
@@ -50,12 +51,11 @@ class ArchivedScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Archived accounts'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: AnimatedRows(
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: Space.xs),
@@ -74,20 +74,23 @@ class ArchivedScreen extends ConsumerWidget {
                             textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(fontSize: 13.5, color: c.inkMuted)),
                       ]),
                     ),
-                  for (final a in archived) ...[
-                    _ArchivedCard(
+                  for (final a in archived)
+                    Padding(
+                      key: ValueKey(a.id),
+                      padding: const EdgeInsets.only(bottom: Space.m),
+                      child: _ArchivedCard(
                       account: a,
                       lastBalance: data!.updatesOf(a.id).lastOrNull?.balance ?? 0,
                       today: today,
                       onView: () => context.push('/finance/savings/accounts/${a.id}'),
                       onRestore: () => _restore(context, ref, a),
+                      ),
                     ),
-                    const SizedBox(height: Space.m),
-                  ],
                 ],
+                builder: (rows) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

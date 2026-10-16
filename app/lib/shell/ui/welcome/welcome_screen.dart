@@ -10,6 +10,7 @@ import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../ozone_mark.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// W2 · Welcome: Start fresh, or Restore from a workbook (F1-03 §3).
 class WelcomeScreen extends ConsumerWidget {
@@ -82,7 +83,7 @@ class WelcomeScreen extends ConsumerWidget {
                 },
               ),
               const SizedBox(height: 10),
-              Material(
+              PressScale(scale: PressScale.button, child: Material(
                 color: c.surface,
                 shape: const StadiumBorder(),
                 child: InkWell(
@@ -90,7 +91,7 @@ class WelcomeScreen extends ConsumerWidget {
                   onTap: () => context.push('/welcome/restore'),
                   child: SizedBox(height: 54, child: Center(child: Text('Restore from a workbook', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)))),
                 ),
-              ),
+              )),
               const SizedBox(height: 10),
               Text('Restoring shows a preview first. Locked notes will ask for the vault password they were saved with.',
                   textAlign: TextAlign.center, style: text.bodyMedium!.copyWith(fontSize: 12.5, height: 1.45, fontWeight: FontWeight.w600, color: c.inkMuted)),

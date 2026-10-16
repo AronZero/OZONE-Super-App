@@ -14,6 +14,7 @@ import 'library_parts.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 import '../../../core/ui/shell_bar_scope.dart';
+import '../../../core/ui/motion.dart';
 
 /// Library sorts (decision M4-1).
 enum BookSort {
@@ -90,9 +91,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
     return Stack(children: [
       SafeArea(
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.only(bottom: shellListBottom(context)),
-          children: [
+        child: AnimatedRows(scope: (_status, _sort), children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.screen, Space.xs),
               child: Row(children: [
@@ -104,7 +103,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                           style: text.bodyMedium!.copyWith(color: c.inkMuted)),
                   ]),
                 ),
-                Material(
+                PressScale(scale: PressScale.button, child: Material(
                   color: libraryTile(context),
                   shape: const StadiumBorder(),
                   child: InkWell(
@@ -117,7 +116,7 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                       child: Text('Stats', style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: libraryAccent(context))),
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(width: 6),
                 RoundIconButton(icon: OzIcons.search, label: 'Search', onPressed: () => context.push('/search?scope=book')),
               ]),
@@ -185,11 +184,13 @@ class _LibraryHomeState extends ConsumerState<LibraryHome> {
                       OzoneButton(label: 'Clear filter', primary: false, height: 48, onPressed: () => setState(() => _status = null)),
                     ]),
                   ),
-                for (final b in rows) Padding(padding: const EdgeInsets.only(bottom: 6), child: BookRowTile(book: b)),
+                for (final b in rows) Padding(key: ValueKey(b.id), padding: const EdgeInsets.only(bottom: 6), child: BookRowTile(book: b)),
               ])
-                Padding(padding: const EdgeInsets.symmetric(horizontal: Space.screen), child: w),
-          ],
-        ),
+                Padding(key: w.key, padding: const EdgeInsets.symmetric(horizontal: Space.screen), child: w),
+          ], builder: (rows) => ListView(
+          padding: EdgeInsets.only(bottom: shellListBottom(context)),
+          children: staggered(rows),
+        )),
       ),
       ShellAddButtonSlot(child: ToolAddButton(label: 'Add book', accent: libraryAccent(context), onPressed: () => context.push('/library/add')),
       ),
@@ -213,7 +214,7 @@ class BookRowTile extends StatelessWidget {
       button: true,
       label: spokenAmounts('${book.title}${book.author == null ? '' : ', by ${book.author}'}, ${status.label}, ${ratingSpoken(book.ratingHalf)}, $kindle, $acq'),
       excludeSemantics: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
@@ -251,7 +252,7 @@ class BookRowTile extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }

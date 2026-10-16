@@ -9,6 +9,7 @@ import '../data/lists_repo.dart';
 import '../domain/savings_rules.dart';
 import '../state/finance_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/motion.dart';
 
 final _listProvider = StreamProvider.family<List<ListValue>, ListField>((ref, f) => ref.watch(listsRepoProvider).watch(f));
 
@@ -33,7 +34,7 @@ class _ListsScreenState extends ConsumerState<ListsScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Lists', overline: 'Settings'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -68,7 +69,7 @@ class _ListsScreenState extends ConsumerState<ListsScreen> {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

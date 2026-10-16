@@ -5,6 +5,8 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/library.dart';
 import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
+import '../../../core/ui/components/components.dart';
 
 /// Library accent and tile for the current theme (docs/05 tool tints).
 Color libraryAccent(BuildContext context) => ToolTint.library.accentOf(context);
@@ -72,7 +74,7 @@ class LibraryChoice<T> extends StatelessWidget {
         button: true,
         label: spokenAmounts(o.$2),
         excludeSemantics: true,
-        child: Material(
+        child: PressScale(scale: PressScale.button, child: FadeMaterial(
           color: on ? libraryAccent(context) : c.surfaceSunken,
           shape: const StadiumBorder(),
           child: InkWell(
@@ -85,15 +87,28 @@ class LibraryChoice<T> extends StatelessWidget {
                 widthFactor: 1,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Text(on ? '✓ ${o.$2}' : o.$2,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: on ? c.onAccent : c.ink)),
+                  // The tick grows in when the chip is picked (step 3, moment 6).
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    AnimatedContainer(
+                      duration: Motion.of(context).tabs,
+                      curve: Motion.settle,
+                      width: on ? 19 : 0,
+                      child: ClipRect(
+                        child: OverflowBox(alignment: Alignment.centerLeft, minWidth: 0, maxWidth: 19, child: Icon(OzIcons.check, size: 15, color: c.onAccent)),
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(o.$2,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.bodyMedium!.copyWith(fontSize: 13.5, fontWeight: FontWeight.w800, color: on ? c.onAccent : c.ink)),
+                    ),
+                  ]),
                 ),
               ),
             ),
           ),
-        ),
+        )),
       );
     }
 
@@ -134,7 +149,12 @@ class RatingStepper extends StatelessWidget {
     IconData star(int i) => v == 2 * i + 1 ? OzIcons.starHalf : OzIcons.star;
     Widget step(String label, IconData icon, int? next) => IconButton(
           tooltip: label,
-          onPressed: next == null ? null : () => onChanged(next),
+          onPressed: next == null
+              ? null
+              : () {
+                  Haptics.toggle();
+                  onChanged(next);
+                },
           style: IconButton.styleFrom(backgroundColor: c.surfaceSunken, disabledBackgroundColor: c.surfaceSunken, fixedSize: const Size(48, 48)),
           icon: Icon(icon, color: next == null ? c.outline : c.ink),
         );
@@ -145,7 +165,14 @@ class RatingStepper extends StatelessWidget {
             label: spokenAmounts(ratingSpoken(half)),
             excludeSemantics: true,
             child: Row(children: [
-              for (var i = 0; i < 5; i++) Icon(star(i), fill: v > 2 * i ? 1 : 0, size: 24, color: half == null ? c.outline : libraryAccent(context)),
+              // Lit stars fill and pop, each 40 ms after the one before (step 3, moment 9).
+              for (var i = 0; i < 5; i++)
+                FillIcon(star(i),
+                    filled: v > 2 * i,
+                    popWhen: v > 2 * i ? half : null,
+                    delay: Duration(milliseconds: 40 * i),
+                    size: 24,
+                    color: half == null ? c.outline : libraryAccent(context)),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(half == null ? 'Not rated' : (half! / 2).toStringAsFixed(1),

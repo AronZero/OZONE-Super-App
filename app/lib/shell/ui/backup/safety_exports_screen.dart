@@ -11,6 +11,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Settings › Data & backup › Safety exports: the copies saved before each
 /// import (newest 3), to import back ("To go back…", F1-03 §2) or share.
@@ -32,7 +33,7 @@ class _SafetyExportsScreenState extends ConsumerState<SafetyExportsScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Safety exports', overline: 'Data & backup'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -85,7 +86,7 @@ class _SafetyExportsScreenState extends ConsumerState<SafetyExportsScreen> {
                 },
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

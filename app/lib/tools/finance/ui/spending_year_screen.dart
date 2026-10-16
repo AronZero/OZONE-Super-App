@@ -11,6 +11,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../domain/expenses.dart';
 import '../state/finance_providers.dart';
 import 'savings_parts.dart';
+import '../../../core/ui/motion.dart';
 
 /// Spending by year (W2 · Spending by year): the current year and the 4
 /// before it, as a chart or a table, then this year by month. Refunded
@@ -56,7 +57,7 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Spending by year', overline: 'Expenses'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -128,7 +129,7 @@ class _SpendingYearScreenState extends ConsumerState<SpendingYearScreen> {
                 ),
               ]),
             ),
-          ],
+          ]),
         ),
       ),
     );

@@ -22,6 +22,7 @@ import 'note_toolbar.dart';
 import 'notes_parts.dart';
 import 'vault/vault_unlock.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// W1 · Note editor: folder and tag chips, title, "Edited …", rich text and the
 /// formatting bar. Saves itself (F2-02 §3) and never asks "discard changes?".
@@ -307,7 +308,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
     final folderName = data?.folder(n?.folderId)?.name ?? 'Unfiled';
     final accent = notesAccent(context);
 
-    Widget pill(String label, {IconData? icon, required VoidCallback onTap, bool tinted = false, bool plain = false}) => Material(
+    Widget pill(String label, {IconData? icon, required VoidCallback onTap, bool tinted = false, bool plain = false}) => PressScale(scale: PressScale.button, child: Material(
           color: plain ? Colors.transparent : (tinted ? notesTile(context) : c.surfaceSunken),
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
@@ -322,7 +323,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
               ]),
             ),
           ),
-        );
+        ));
 
     return Scaffold(
       backgroundColor: c.surface,
@@ -351,8 +352,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> with Widget
                 IconButton(
                   tooltip: n.isPinned ? 'Unpin' : 'Pin to top',
                   isSelected: n.isPinned,
-                  onPressed: () => _repo.setPinned(n.id, !n.isPinned),
-                  icon: Icon(OzIcons.pushPin, fill: n.isPinned ? 1 : 0, color: n.isPinned ? accent : c.ink, size: 21),
+                  onPressed: () {
+                    Haptics.toggle();
+                    _repo.setPinned(n.id, !n.isPinned);
+                  },
+                  icon: FillIcon(OzIcons.pushPin, filled: n.isPinned, color: n.isPinned ? accent : c.ink, size: 21),
                   constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 ),
               IconButton(

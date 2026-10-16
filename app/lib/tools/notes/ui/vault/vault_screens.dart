@@ -10,6 +10,7 @@ import '../../../../core/ui/theme/app_theme.dart';
 import '../../../../core/ui/theme/tokens.dart';
 import '../notes_parts.dart';
 import 'vault_parts.dart';
+import '../../../../core/ui/motion.dart';
 import '../../../../core/ui/theme/oz_icons.dart';
 
 /// Shared frame: back + step label, scrolling body, button pinned at the bottom.
@@ -139,6 +140,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
   Future<void> _finish() async {
     setState(() => _busy = true);
     await _vault.create(password: _pw.text, recoveryCode: _code, biometric: _bio && _bioAvailable);
+    Haptics.done();
     if (mounted) Navigator.of(context).pop(true);
   }
 
@@ -427,12 +429,7 @@ class _VaultResetScreenState extends ConsumerState<VaultResetScreen> {
         children: [
           const SizedBox(height: Space.xxl),
           Center(
-            child: Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(color: c.surfaceSunken, shape: BoxShape.circle),
-              child: Icon(OzIcons.check, size: 28, color: c.ink),
-            ),
+            child: DoneTick(background: c.surfaceSunken, foreground: c.ink),
           ),
           Semantics(liveRegion: true, child: Text('Vault reset', textAlign: TextAlign.center, style: text.titleLarge!.copyWith(fontSize: 22))),
           Text(

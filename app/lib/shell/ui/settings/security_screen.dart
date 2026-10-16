@@ -10,6 +10,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../tools/notes/ui/vault/vault_unlock.dart';
+import '../../../core/ui/motion.dart';
 
 /// Security (W3 · Security & app lock): app lock, "Hide amounts" and the
 /// notes vault (password, fingerprint, recovery code, forgot, reset).
@@ -83,7 +84,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             const DetailTopBar(title: 'Security', overline: 'Settings'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.screen),
@@ -179,7 +180,7 @@ class _SecurityScreenState extends ConsumerState<SecurityScreen> {
                 ],
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );

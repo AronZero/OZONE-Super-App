@@ -5,6 +5,7 @@ import '../../domain/dates.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import '../amounts.dart';
+import '../motion.dart';
 import '../theme/oz_icons.dart';
 
 /// Opens a form sheet (docs/04: forms with 6 fields or fewer are sheets).
@@ -13,6 +14,7 @@ Future<T?> showOzoneSheet<T>(BuildContext context, {required WidgetBuilder build
   final c = OzoneThemeColors.of(context);
   return showModalBottomSheet<T>(
     context: context,
+    sheetAnimationStyle: Motion.of(context).sheetStyle,
     useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,

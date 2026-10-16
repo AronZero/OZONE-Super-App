@@ -12,8 +12,8 @@ import '../domain/notes.dart';
 import '../state/notes_providers.dart';
 import 'note_sheets.dart';
 import 'notes_parts.dart';
-import '../../../core/ui/amounts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 String _count(int n) => '$n ${n == 1 ? 'note' : 'notes'}';
 
@@ -121,27 +121,6 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
     final data = ref.watch(notesDataProvider).value;
     final trashCount = data?.trashed.length ?? 0;
 
-    Widget tab(String label, bool selected, VoidCallback onTap) => Expanded(
-          child: Semantics(
-            selected: selected,
-            button: true,
-            label: spokenAmounts(label),
-            excludeSemantics: true,
-            child: Material(
-              color: selected ? c.surface : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: onTap,
-                child: SizedBox(
-                  height: 48,
-                  child: Center(child: Text(label, style: text.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w800, color: selected ? c.ink : c.inkMuted))),
-                ),
-              ),
-            ),
-          ),
-        );
-
     Widget hint(String s) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: Space.xs),
           child: Text(s, style: text.bodyMedium!.copyWith(fontSize: 13, height: 1.5, fontWeight: FontWeight.w600, color: c.inkMuted)),
@@ -170,7 +149,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             DetailTopBar(title: 'Folders & tags', overline: 'Notes', trailing: [
               Padding(
                 padding: const EdgeInsets.only(right: Space.s),
@@ -192,14 +171,10 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(Space.screen, Space.xs, Space.screen, 0),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Container(
-                    padding: const EdgeInsets.all(Space.xs),
-                    decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
-                    child: Row(children: [
-                      tab('Folders · ${data.folders.length}', !_tags, () => setState(() => _tags = false)),
-                      const SizedBox(width: Space.xs),
-                      tab('Tags · ${data.tags.length}', _tags, () => setState(() => _tags = true)),
-                    ]),
+                  SegmentTabs(
+                    labels: ['Folders · ${data.folders.length}', 'Tags · ${data.tags.length}'],
+                    selected: _tags ? 1 : 0,
+                    onSelected: (i) => setState(() => _tags = i == 1),
                   ),
                   const SizedBox(height: Space.m),
                   if (!_tags) ...[
@@ -256,7 +231,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
                   ],
                 ]),
               ),
-          ],
+          ]),
         ),
       ),
     );

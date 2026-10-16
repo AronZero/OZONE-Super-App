@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/state/today.dart';
 import '../../../core/ui/amounts.dart';
+import '../../../core/ui/rolling_amount.dart';
 import '../../../core/ui/components/states.dart';
 import '../../../core/ui/charts/month_bars.dart';
 import '../../../core/ui/components/forms.dart';
@@ -14,6 +15,7 @@ import '../state/savings_providers.dart';
 import 'account_sheet.dart';
 import 'savings_parts.dart';
 import '../../../core/ui/shell_bar_scope.dart';
+import '../../../core/ui/motion.dart';
 
 /// Savings tab (W1 · Savings): total card with the 12-month chart, then
 /// open accounts sorted by balance (decision M2-4), and the Add account button.
@@ -38,9 +40,7 @@ class SavingsOverview extends ConsumerWidget {
             if (open.isEmpty) return _Empty(hasArchived: d.archived.isNotEmpty);
             final month = monthTotal(d.histories, today, today);
             final months = lastTwelveMonths(d.histories, today);
-            return ListView(
-              padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
-              children: [
+            return AnimatedRows(children: [
                 _TotalCard(month: month, months: months),
                 const SizedBox(height: Space.l),
                 Padding(
@@ -51,12 +51,16 @@ class SavingsOverview extends ConsumerWidget {
                   ]),
                 ),
                 const SizedBox(height: Space.s),
-                for (final a in open) ...[
-                  _AccountRow(history: a, platform: d.account(a.id)?.platform),
-                  const SizedBox(height: Space.s),
-                ],
-              ],
-            );
+                for (final a in open)
+                  Padding(
+                    key: ValueKey(a.id),
+                    padding: const EdgeInsets.only(bottom: Space.s),
+                    child: _AccountRow(history: a, platform: d.account(a.id)?.platform),
+                  ),
+              ], builder: (rows) => ListView(
+              padding: EdgeInsets.fromLTRB(Space.screen, 0, Space.screen, shellListBottom(context)),
+              children: staggered(rows),
+            ));
           },
         ),
         ShellAddButtonSlot(child: FinanceAddButton(label: 'Add account', onPressed: () => showAccountSheet(context)),
@@ -93,7 +97,7 @@ class _TotalCard extends StatelessWidget {
             Semantics(
               label: moneySpoken(context, month.total ?? 0), // the heading above already says "Total savings"
               excludeSemantics: true,
-              child: Text(money(context, month.total ?? 0), semanticsLabel: spokenAmounts(money(context, month.total ?? 0)), style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
+              child: RollingAmount(month.total ?? 0, style: text.displaySmall!.copyWith(fontSize: 32, letterSpacing: -0.6)),
             ),
             const SizedBox(height: Space.s),
             Wrap(
@@ -144,7 +148,7 @@ class _PillButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
+  Widget build(BuildContext context) => PressScale(scale: PressScale.button, child: Material(
         color: bg,
         shape: const StadiumBorder(),
         child: InkWell(
@@ -157,7 +161,7 @@ class _PillButton extends StatelessWidget {
             child: Text(label, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: fg)),
           ),
         ),
-      );
+      ));
 }
 
 class _AccountRow extends ConsumerWidget {
@@ -179,7 +183,7 @@ class _AccountRow extends ConsumerWidget {
       button: true,
       label: '${history.name}, ${moneySpoken(context, last.balance)}, ${carried ? 'carried from $date' : 'updated $date'}',
       excludeSemantics: true,
-      child: Material(
+      child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
@@ -205,7 +209,7 @@ class _AccountRow extends ConsumerWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }
@@ -220,7 +224,7 @@ class _Empty extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: Space.screen),
-      children: [
+      children: staggered([
         Container(
           padding: const EdgeInsets.all(Space.xl),
           decoration: BoxDecoration(color: financeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
@@ -239,7 +243,7 @@ class _Empty extends StatelessWidget {
               child: Text('See archived accounts', style: text.bodyLarge!.copyWith(fontWeight: FontWeight.w800, color: c.ink)),
             ),
           ),
-      ],
+      ]),
     );
   }
 }

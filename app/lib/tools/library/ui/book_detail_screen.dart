@@ -15,6 +15,7 @@ import '../state/library_providers.dart';
 import 'library_home.dart';
 import 'library_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
+import '../../../core/ui/motion.dart';
 
 /// Book detail (W3 · Book detail): status and rating change in place; Edit
 /// opens the form; the menu deletes with Undo.
@@ -67,7 +68,7 @@ class BookDetailScreen extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(bottom: Space.xxxl),
-          children: [
+          children: staggered([
             DetailTopBar(title: 'Book', overline: 'Library', trailing: [
               FilledButton(
                 onPressed: () => context.push('/library/books/${b.id}/edit'),
@@ -148,7 +149,7 @@ class BookDetailScreen extends ConsumerWidget {
                 ]),
               ]),
             ),
-          ],
+          ]),
         ),
       ),
     );
