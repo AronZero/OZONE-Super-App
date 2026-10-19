@@ -26,4 +26,5 @@ const Map<String, WidgetInfo> widgetCatalog = {
   'library_snapshot': WidgetInfo('Library snapshot', 'Library', ToolTint.library, 'M4'),
   'pinned_notes': WidgetInfo('Pinned notes', 'Notes · locked ones show "Locked note"', ToolTint.notes, 'M5'),
   'recent_notes': WidgetInfo('Recent notes', 'Notes', ToolTint.notes, 'M5'),
+  'recipe_cook': WidgetInfo('What can I cook?', 'Recipes · from your kitchen', ToolTint.recipe, 'M13'),
 };

@@ -86,7 +86,7 @@ void main() {
           key: 'dashboard.widgets', value: '[{"id":"pinned_notes","on":true},{"id":"retired","on":true}]', updatedAt: 0));
       final d = await SettingsRepo(db).get(SettingKeys.dashboardWidgets);
       expect(d.first.id, 'pinned_notes');
-      expect(d.length, 10);
+      expect(d.length, 11);
       expect(d.skip(1).every((w) => !w.on), isTrue);
     });
   });

@@ -15,7 +15,7 @@ States board; sample data in the boards is never shipped.
 | quick add | "Add recipe" (form) · "Scan a recipe" (camera) |
 | search | Recipe entity (F4-01 §7) |
 | workbook | the 4 sheets in F4-01 §4 |
-| settings | Settings › Tools › Recipe: Always-there ingredients (staples) · Clear my kitchen. Settings › Lists gains "Recipe categories". |
+| settings | Settings › Tools › Recipes (`/settings/recipe`): Always-there ingredients (staples) as chips with × and an "Add ingredient" field stored as key names, at most 30 · Clear my kitchen (Undo) (R-14). Settings › Lists gains "Recipe categories". |
 
 Not in the bar by default (`bar.tools` unchanged). The first time Recipes opens, the one-time tip offers "Add it to your bar?" (E4 rule).
 
@@ -133,7 +133,7 @@ Below, the groups, computed from saved recipes that use at least one ticked or s
 | Needs more | 3 or more missing; folded behind "Show N more that need 3+ items" | the same |
 
 Within a group: more ticked key names used first, then title. Staples always count as present. Recomputed in memory (no
-index needed): budget under 50 ms for 1,000 recipes. Empty kitchen: "Tap the ingredients you have to see which recipes fit."
+index needed): budget under 50 ms for 1,000 recipes. Empty kitchen: "Tap the ingredients you have to see which recipes fit." and no groups (R-14).
 
 ## 6. Servings scaling (R-8)
 

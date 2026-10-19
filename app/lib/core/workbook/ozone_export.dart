@@ -46,6 +46,7 @@ abstract final class Layout {
     'lists.hidden': 'Vendors, platforms, types and recipe categories hidden from suggestions',
     'notes.view': 'Notes home layout',
     'recipe.list_sort': 'Recipes list order',
+    'recipe.staples': 'Ingredients that always count as in the kitchen',
   };
 
   static const readMe = [

@@ -90,6 +90,7 @@ const List<WidgetSetting> defaultDashboard = [
   WidgetSetting('library_snapshot', false),
   WidgetSetting('pinned_notes', true),
   WidgetSetting('recent_notes', false),
+  WidgetSetting('recipe_cook', false),
 ];
 
 abstract final class SettingKeys {
@@ -140,6 +141,13 @@ abstract final class SettingKeys {
     'recipe.list_sort',
     'recent',
     (j) => const ['recent', 'title', 'favourites'].contains(j) ? j! as String : 'recent',
+  );
+
+  /// Key names that always count as in the kitchen (F4-01 §2, R-7).
+  static final recipeStaples = SettingKey<List<String>>(
+    'recipe.staples',
+    const ['salt', 'pepper', 'water', 'oil'],
+    (j) => [for (final e in j! as List<Object?>) e! as String],
   );
 
   static final notesView = SettingKey<NotesView>('notes.view', NotesView.grid, (j) => NotesView.values.byName(j! as String));

@@ -6,6 +6,7 @@ import '../../../core/data/photo_store.dart';
 import '../../../core/data/watch.dart';
 import '../../../core/domain/ids.dart';
 import '../domain/amounts.dart';
+import '../domain/cook.dart';
 import '../domain/recipe.dart';
 
 const String recipeEntity = 'recipe';
@@ -58,6 +59,11 @@ class RecipesData {
     }
     return n.keys.toList()..sort((a, b) => n[b]!.compareTo(n[a]!) != 0 ? n[b]!.compareTo(n[a]!) : a.toLowerCase().compareTo(b.toLowerCase()));
   }();
+
+  /// Each recipe's key names, for What can I cook? (F4-02 §5).
+  late final List<CookRecipe> cookRecipes = [
+    for (final r in recipes) CookRecipe(r.id, r.row.title, [for (final i in r.ingredients) i.keyName]),
+  ];
 
   /// Photo file names in use (for the orphan sweep).
   Set<String> get photos => {for (final r in recipes) ?r.row.photoFile};
@@ -202,6 +208,29 @@ class RecipesRepo {
     await _deletions.record(recipeEntity, r.id);
     if (r.row.photoFile != null) await _photos.delete(r.row.photoFile!);
   }
+
+  // Kitchen (F4-01 §1): a row means "I have it".
+
+  Stream<Set<String>> watchKitchen() =>
+      watchTables(_db, [_db.kitchen], () async => {for (final k in await _db.select(_db.kitchen).get()) k.keyName});
+
+  /// Ticking writes at once (F4-02 §5).
+  Future<void> setHave(String key, bool have) async {
+    if (have) {
+      await _db.into(_db.kitchen).insertOnConflictUpdate(KitchenCompanion.insert(keyName: key, updatedAt: _now()));
+    } else {
+      await (_db.delete(_db.kitchen)..where((k) => k.keyName.equals(key))).go();
+    }
+  }
+
+  /// Empties the kitchen and returns what was there, for Undo.
+  Future<List<KitchenRow>> clearKitchen() async {
+    final rows = await _db.select(_db.kitchen).get();
+    await _db.delete(_db.kitchen).go();
+    return rows;
+  }
+
+  Future<void> restoreKitchen(List<KitchenRow> rows) => _db.batch((b) => b.insertAllOnConflictUpdate(_db.kitchen, rows));
 
   /// Orphan sweep on start and resume (F4-01 §3).
   Future<void> sweepPhotos() async => _photos.sweep((await load()).photos);

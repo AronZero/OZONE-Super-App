@@ -179,6 +179,7 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | UI-1 | Field labels (owner, 19 Oct 2026) | No floating labels in OZONE; placeholders instead (see docs/05). Recipe form fixed in M11 |
 | UI-2 | Check what was read and recipe steps (owner, M12 Q5 a, 19 Oct 2026) | On Check what was read, a move icon button opens a menu headed "Move to" with Ingredients · Steps · Notes · Not used; a line moves only when one is picked, with "Moved to …". Tap-to-cycle labels are gone (they made lines seem to vanish). In New / Edit recipe, steps get the same drag handle as ingredients |
 | R-13 | Release APK (owner, M12 Q4 a, 19 Oct 2026) | GitHub Releases get the arm64 APK (35 MB) instead of the universal one (95 MB: ML Kit's library for every CPU type). The release check copies both to `dist/`: `…-arm64.apk` for phones, `…-universal.apk` for the x86_64 emulator |
+| R-14 | What can I cook? details (owner, M13 Q1–Q3 a, 19 Oct 2026) | Settings › Tools › Recipes (`/settings/recipe`, olive tile under Finance) holds Always-there ingredients and Clear my kitchen. Staples show as chips with × plus an "Add ingredient" field; what's typed is stored as its key name ("Black pepper" → `pepper`), at most 30. An empty kitchen shows only "Tap the ingredients you have…", no groups, even for recipes made only of staples |
 
 ## Open
 

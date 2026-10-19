@@ -20,6 +20,7 @@ import 'shell/ui/settings/settings_screen.dart';
 import 'shell/ui/shell_scaffold.dart';
 import 'shell/ui/tools_launcher/tools_screen.dart';
 import 'shell/ui/welcome/welcome_screen.dart';
+import 'tools/recipe/ui/recipe_settings_screen.dart';
 
 /// Branch order: Home, then every registered tool, then Tools. Every tool has
 /// its own branch (and back stack) whether or not it sits in the bar; the bar
@@ -60,6 +61,7 @@ GoRouter buildRouter({String initialLocation = '/home'}) => GoRouter(
         _full('/settings/about', const AboutScreen()),
         _full('/edit-bar', const EditBarScreen()),
         _full('/settings/finance', const FinanceSettingsScreen()),
+        _full('/settings/recipe', const RecipeSettingsScreen()),
         // Data & backup (M8, F1-03).
         _full('/settings/data', const DataBackupScreen()),
         _full('/settings/data/export', const ExportScreen()),

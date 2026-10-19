@@ -77,6 +77,14 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () => context.push('/settings/finance'),
                     ),
                     SettingsRow(
+                      icon: OzIcons.cooking,
+                      iconBg: ToolTint.recipe.tileOf(context),
+                      iconFg: ToolTint.recipe.accentOf(context),
+                      title: 'Recipes',
+                      subtitle: 'Always-there ingredients · kitchen',
+                      onTap: () => context.push('/settings/recipe'),
+                    ),
+                    SettingsRow(
                       icon: OzIcons.list,
                       title: 'Lists',
                       subtitle: 'Vendors, savings platforms, account types',

@@ -5,6 +5,8 @@ import '../../core/ui/theme/oz_icons.dart';
 import '../../core/ui/theme/tokens.dart';
 import '../../shell/tool_registry.dart';
 import 'recipe_search.dart';
+import 'ui/cook_screen.dart';
+import 'ui/cook_widget.dart';
 import 'ui/recipe_detail_screen.dart';
 import 'ui/recipe_form_screen.dart';
 import 'ui/recipes_home.dart';
@@ -19,11 +21,13 @@ const ToolDefinition recipeTool = ToolDefinition(
   routeBase: '/recipe',
   home: _home,
   routes: _routes,
+  widgets: {'recipe_cook': _cook},
   searchSources: recipeSearch,
   quickAdd: recipeQuickAdd,
 );
 
 Widget _home(BuildContext context) => const RecipesHome();
+Widget _cook(BuildContext context) => const CookWidget();
 
 /// Detail and form open above the bar, like the other tools' records.
 List<RouteBase> _routes(GlobalKey<NavigatorState> root) {
@@ -32,6 +36,7 @@ List<RouteBase> _routes(GlobalKey<NavigatorState> root) {
   return [
     full('new', (s) => RecipeFormScreen(scan: s.extra is ScanFill ? s.extra! as ScanFill : null)),
     full('scan', (s) => ScanScreen(fromGallery: s.uri.queryParameters['from'] == 'gallery')),
+    full('cook', (_) => const CookScreen()),
     full(':id', (s) => RecipeDetailScreen(recipeId: s.pathParameters['id']!)),
     full(':id/edit', (s) => RecipeFormScreen(recipeId: s.pathParameters['id']!)),
   ];

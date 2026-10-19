@@ -1,7 +1,7 @@
 # OZONE: project guide for Claude
 
 Personal, offline, local-only super app (Finance, Library, Notes), built in Flutter in `app/`.
-**Current phase: M0–M9 approved (OZONE 1.0.0, branches `build/m0`–`build/m9`). UI refresh in progress on `build/m10-ui`: step 1 (bar and icons) approved and committed; step 2 (Monochrome, build 13) approved and committed; step 3 (micro-animations, build 14) approved and committed. Recipe tool: M11 approved and committed on `build/m11` (1.2.0 build 15); M12 (scanning, build 16) approved and committed on `build/m12`; M13 next, see `docs/06-design-progress.md`.**
+**Current phase: M0–M9 approved (OZONE 1.0.0, branches `build/m0`–`build/m9`). UI refresh in progress on `build/m10-ui`: step 1 (bar and icons) approved and committed; step 2 (Monochrome, build 13) approved and committed; step 3 (micro-animations, build 14) approved and committed. Recipe tool: M11 approved and committed on `build/m11` (1.2.0 build 15); M12 (scanning, build 16) approved and committed on `build/m12`; M13 (What can I cook?, build 17) approved and committed on `build/m13`; M14 next, see `docs/06-design-progress.md`.**
 
 ## Read first
 

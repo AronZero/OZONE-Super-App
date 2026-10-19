@@ -17,6 +17,7 @@ import '../../../core/ui/theme/tokens.dart';
 import '../data/recipes_repo.dart';
 import '../domain/recipe.dart';
 import '../state/recipe_providers.dart';
+import 'cook_widget.dart';
 import 'recipe_parts.dart';
 
 /// Recipes list order (F4-02 §2, setting `recipe.list_sort`).
@@ -173,6 +174,7 @@ class _RecipesHomeState extends ConsumerState<RecipesHome> {
                     ]),
                   ]),
                 ),
+              if (total > 0) const Padding(key: ValueKey('cook-card'), padding: EdgeInsets.only(bottom: 10), child: CookCard()),
               if (data == null)
                 async.hasError
                     ? LoadError(what: 'Recipes', error: async.error!, stack: async.stackTrace, onRetry: () => ref.invalidate(recipesDataProvider))
