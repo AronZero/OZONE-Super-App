@@ -56,6 +56,7 @@ Open it, find **W1 · Home** or **W2 · Welcome**, and press Play. Sample data o
 | 7 | Wave 2 screens (13, including 2 dark) | Approved |
 | 8–10 | Wave 3 screens (20 phone boards, including "Reminder ask (first run)") and the States board (light and dark) | Approved |
 | 11 | Task F boards: F1 Data model, F2 Behaviour, F3 Build plan | Approved |
+| Last | Recipe tool proposal (19 Oct 2026): overview with OCR feasibility and decisions R-1..R-12 (incl. .zip photo backup, nutrition as "Recipe 2"), 8 clickable screens incl. the What can I cook? Home widget and Nutrition | Decisions confirmed 19 Oct 2026 (R-5: one photo); build plan next |
 
 ### Screens designed
 

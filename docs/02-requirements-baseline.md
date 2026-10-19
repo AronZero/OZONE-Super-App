@@ -8,6 +8,7 @@ Approved 13 Oct 2026. This file supersedes the earlier analysis boards on the de
 - Offline and on-device only, with no backend. The user starts fresh (no migration of existing data).
 - PHP only. Money is stored as whole centavos and shown as `₱1,234.56`.
 - **The `.xlsx` workbook is the only import, export and backup format.** It covers every tool, notes, gold price history and settings.
+  Once the Recipe tool ships, a backup is a **.zip** holding that workbook plus recipe photos; a plain .xlsx still imports (R-4, 19 Oct 2026).
 - No encryption of the database or the backup file. **Locked notes stay encrypted inside the workbook.**
 - Automatic Android and iCloud backup is **off** (local-only). A reminder appears when the last export is older than 30 days (adjustable).
 - Import shows a preview first and never deletes or silently overwrites. A safety export is saved before every import.
@@ -71,6 +72,15 @@ Approved 13 Oct 2026. This file supersedes the earlier analysis boards on the de
 - Biometric unlock appears **only** if the phone has an enrolled sensor. Its label follows the platform.
 - Autosave (about 1 s after typing stops, and when the app goes to the background), draft recovery after a crash, and a 30-day trash.
 - In the workbook: a readable **Notes** sheet plus a **Notes_Content** sheet holding the formatted JSON, split into rows over 30,000 characters.
+
+## Recipe (agreed 19 Oct 2026, not built yet; decisions R-1..R-12)
+
+- Olive tint. Opens from Tools (or the bar if pinned). Works offline; no new permissions.
+- Recipe: title, one optional photo, servings, prep and cook time, category, ingredients (amount, unit, name, key name, optional section), numbered steps, source, notes, favourite.
+- Add by typing, scanning a page (phone camera app) or picking a photo. Text is read on the phone (ML Kit, bundled model) and checked on "Check what was read" before the form. Scanned pages aren't kept.
+- Servings scaling; tick ingredients off while cooking; search over titles, ingredients, steps and source.
+- **What can I cook?**: tap ingredients on hand; saved recipes sort into Ready to cook · Missing 1–2 · Needs more. Also a Home dashboard widget (starts hidden).
+- Later ("Recipe 2"): nutrition estimates per serving from USDA FoodData Central with UK traffic-light ratings.
 
 ## Deletion rules
 

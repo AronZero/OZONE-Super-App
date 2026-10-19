@@ -162,6 +162,19 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | UR3-3 | Version | Step 3 ships as 1.1.0 build 14 |
 | UR3-4 | Review answers (owner, 16 Oct 2026) | R1: switches keep the standard Android slide (no overshoot). R2: Import done keeps the tick circle. R3: vault set up gets the haptic only (no done screen). R4: restores with Undo give the same haptic as deletes |
 
+| R-1 | Recipe tool tint (owner, 19 Oct 2026; Recipe board R0 on the canvas) | Olive, tint 7 from board E4: light accent #565F14 / tile #ECEEDC, dark #C7CF85 / #2B2E1A. Monochrome turns it grey like every tool (rec.) |
+| R-2 | Recipe OCR | Google ML Kit text recognition with the bundled Latin model (works offline), via the google_mlkit_text_recognition plugin, only after the package safety check (F3-02 §4). The INTERNET permission its libraries add is removed in the manifest and checked by tool/release_check.ps1. Text is sorted into title, ingredients, steps and notes by rules (no AI) and always ends on the "Check what was read" screen before the form (rec.) |
+| R-3 | APK size budget | Raised from 25 MB to 30 MB (arm64) for the OCR model (rec.) |
+| R-4 | Backup with photos | The backup file becomes a .zip: the same workbook plus photos/<photo id>.jpg. Import accepts the .zip or a plain .xlsx (without photos), unpacks it by itself into private temp storage, shows photos in the preview (new / same / missing), copies them in the same step as the data, then deletes the temp files. Safety exports are .zip too. Only the workbook and photos/*.jpg are read; paths leaving the folder are refused; size limits apply. Uses archive, already in the lockfile through excel (rec.) |
+| R-5 | Photos per recipe (owner) | One photo per recipe, optional. Scanned pages are used only to read the text and are not kept. "From a photo" asks whether the picture also becomes the recipe's photo. Stored privately, shrunk to 1600 px JPEG |
+| R-6 | Camera | The phone's camera app and the system photo picker; crop and straighten happen in OZONE. No camera or storage permission (rec.) |
+| R-7 | What can I cook? source | Only the owner's saved recipes; no bundled starter set. Each ingredient has a key name; salt, pepper, water and oil count as always there (editable). Groups: Ready to cook · Missing 1–2 · Needs more (rec.) |
+| R-8 | Servings scaling | In the first version. Amounts without a number ("to taste") stay as written (rec.) |
+| R-9 | Handwritten notes | Best effort through the check screen; cursive won't read reliably (rec.) |
+| R-10 | Recipe deletion | Same as the other tools: delete + Undo, tombstones for import (rec.) |
+| R-11 | Nutrition ("Recipe 2") | After the core Recipe tool ships: per-serving estimates from a trimmed, bundled USDA FoodData Central copy (CC0), one-time food match per key name, UK front-of-pack Low / Medium / High for fat, saturates, sugars and salt. Always says how many ingredients were counted; not medical advice (rec.) |
+| R-12 | Recipe widgets (owner) | "What can I cook?" widget on OZONE's Home dashboard only (canvas board R7): ready count, top 3 matches, Update; empty state with Pick ingredients; starts hidden. No Android home-screen widget |
+
 ## Open
 
 - Trademark search for "OZONE", needed only before any public app-store release.
