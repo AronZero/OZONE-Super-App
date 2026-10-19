@@ -175,6 +175,8 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 | R-11 | Nutrition ("Recipe 2") | After the core Recipe tool ships: per-serving estimates from a trimmed, bundled USDA FoodData Central copy (CC0), one-time food match per key name, UK front-of-pack Low / Medium / High for fat, saturates, sugars and salt. Always says how many ingredients were counted; not medical advice (rec.) |
 | R-12 | Recipe widgets (owner) | "What can I cook?" widget on OZONE's Home dashboard only (canvas board R7): ready count, top 3 matches, Update; empty state with Pick ingredients; starts hidden. No Android home-screen widget |
 
+| F4-1 | Recipe build spec (owner, 19 Oct 2026) | docs/spec F4-01..03 approved with F4-Q1..Q5 all as recommended: every export is a .zip (also without photos); only the What can I cook? widget; manual page corners, no edge detection; ships as 1.2.0 (builds 15–18); build/m11 from build/m10-ui |
+
 ## Open
 
 - Trademark search for "OZONE", needed only before any public app-store release.

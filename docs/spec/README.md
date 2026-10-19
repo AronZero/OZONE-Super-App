@@ -23,6 +23,9 @@ stop and ask the owner. Don't guess.
 | | [F3-02-packages.md](F3-02-packages.md): exact versions and the safety procedure | Approved 14 Oct 2026 |
 | | [F3-03-tests.md](F3-03-tests.md): tests, release checks, acceptance criteria | Approved 14 Oct 2026 |
 | | [F3-04-build-order.md](F3-04-build-order.md): milestones M0–M9 | Approved 14 Oct 2026 |
+| F4 · Recipe tool | [F4-01-recipe-data.md](F4-01-recipe-data.md): tables, photos, workbook sheets, .zip backup, import, search | Approved 19 Oct 2026 |
+| | [F4-02-recipe-behaviour.md](F4-02-recipe-behaviour.md): screens, scanning, text sorting, What can I cook?, scaling, Home widget | Approved 19 Oct 2026 |
+| | [F4-03-recipe-build.md](F4-03-recipe-build.md): packages, tests, release check, milestones M11–M14 | Approved 19 Oct 2026 |
 
 ## Conventions used in every part
 
