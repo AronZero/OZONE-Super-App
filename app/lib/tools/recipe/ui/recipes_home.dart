@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -185,7 +187,7 @@ class _RecipesHomeState extends ConsumerState<RecipesHome> {
                     Text('Write down a dish’s ingredients and how to cook it, with a photo of how it looks.',
                         style: text.bodyLarge!.copyWith(color: c.inkMuted)),
                     const SizedBox(height: Space.m),
-                    OzoneButton(label: 'Add recipe', color: recipeAccent(context), foreground: c.onAccent, onPressed: () => context.push('/recipe/new')),
+                    OzoneButton(label: 'Add recipe', color: recipeAccent(context), foreground: c.onAccent, onPressed: () => showAddRecipeSheet(context)),
                   ]),
                 )
               else if (rows.isEmpty)
@@ -208,7 +210,7 @@ class _RecipesHomeState extends ConsumerState<RecipesHome> {
         ),
       ),
       ShellAddButtonSlot(
-        child: ToolAddButton(label: 'Add recipe', accent: recipeAccent(context), onPressed: () => context.push('/recipe/new')),
+        child: ToolAddButton(label: 'Add recipe', accent: recipeAccent(context), onPressed: () => showAddRecipeSheet(context)),
       ),
     ]);
   }
@@ -269,4 +271,32 @@ class RecipeCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The add button's sheet (board R1): Type it in · Scan a page · From a photo.
+Future<void> showAddRecipeSheet(BuildContext context) async {
+  final c = OzoneThemeColors.of(context);
+  Widget option(BuildContext context, IconData icon, String title, String subtitle, String route) => ListTile(
+        minTileHeight: 64,
+        leading: Icon(icon, color: recipeAccent(context)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        subtitle: Text(subtitle, style: TextStyle(color: c.inkMuted)),
+        onTap: () => Navigator.of(context).pop(route),
+      );
+  final route = await showModalBottomSheet<String>(
+    context: context,
+    useRootNavigator: true,
+    backgroundColor: c.surface,
+    showDragHandle: true,
+    sheetAnimationStyle: Motion.of(context).sheetStyle,
+    builder: (context) => SafeArea(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        option(context, OzIcons.editNote, 'Type it in', 'Write the recipe yourself', '/recipe/new'),
+        option(context, OzIcons.documentScanner, 'Scan a page', 'From a cookbook or a printed page', '/recipe/scan'),
+        option(context, OzIcons.image, 'From a photo', 'A picture of a recipe in your gallery', '/recipe/scan?from=gallery'),
+        const SizedBox(height: Space.s),
+      ]),
+    ),
+  );
+  if (route != null && context.mounted) unawaited(context.push(route));
 }

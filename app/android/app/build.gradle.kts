@@ -57,6 +57,8 @@ android {
                 throw GradleException("Release signing key not found in ~/.ozone-keys/key.properties")
             }
             signingConfig = signingConfigs.getByName("release")
+            // ML Kit plugin references the CJK and Devanagari scripts, which are left out (F4-03 §1).
+            proguardFiles("proguard-rules.pro")
         }
     }
 }

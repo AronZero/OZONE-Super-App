@@ -24,7 +24,7 @@
    check (F3-03 §3) must still find only the permissions in F2-03 §5. Then run a scan in airplane mode on the emulator.
 2. **Bundled model.** The plugin must use `com.google.mlkit:text-recognition` (the model inside the APK), not the Play-services
    variant that downloads it. Check the merged dependencies (`gradlew app:dependencies`).
-3. **Size.** Measure the arm64 APK. Budget is now **30 MB** (R-3); expected about 22.5 + 4–5 MB. Other scripts (Chinese,
+3. **Size.** Measure the arm64 APK. Budget is now **36 MB** (R-3, changed in M12): measured 35.0 MB, ML Kit adds about 12 MB (the spec first expected 4–5 MB). Native libraries stay uncompressed. R8 needs `-dontwarn` for the scripts left out (`android/app/proguard-rules.pro`). Other scripts (Chinese,
    Japanese, Korean, Devanagari) are **not** included.
 4. **iOS** (later, on a Mac): ML Kit needs iOS 15.5 or newer, so the deployment target rises from 15.0 to 15.5.
    `NSCameraUsageDescription`: "OZONE uses the camera to scan recipe pages and take recipe photos."
@@ -49,9 +49,11 @@ The perf test gains 1,000 recipes (8 ingredients and 6 steps each, 300 with phot
 
 ## 3. Release check changes (app/tool/release_check.ps1)
 
-- Size budget 25 → **30 MB** arm64 (R-3).
+- Size budget 25 → **36 MB** arm64 (R-3, changed in M12 from 30 MB).
 - Permission list unchanged (F2-03 §5): `INTERNET`, `ACCESS_NETWORK_STATE`, `CAMERA` and storage permissions fail the check.
 - New: fail if the merged manifest contains the ML Kit transport services listed in §1.
+- `dist/` gets two APKs: `…-arm64.apk` for phones and the GitHub Release (35 MB), `…-universal.apk` for the x86_64 emulator
+  (95 MB, ML Kit's library for every CPU) (owner M12 Q4 a).
 
 ## 4. Build order (version 1.2.0, branches `build/m11`… from `build/m10-ui`)
 
@@ -60,7 +62,7 @@ Each milestone ends with a signed APK, a "what to try" list, the emulator check,
 | # | Milestone | Builds | Done when |
 |---|---|---|---|
 | **M11** | Recipe core and backup | Schema v3 and migration; tool definition (olive, icon, routes, Tools launcher, bar tip); Recipes list, Recipe detail with scaling and ticks, New/Edit form with drag reorder and key names; photo via camera app or gallery (image_picker), orphan sweep; favourites, categories, Settings › Lists › Recipe categories; delete + Undo + tombstones; search entity; quick add "Add recipe"; workbook sheets; `.zip` export and import with photos (archive), safety `.zip`, first-run restore from `.zip` | A recipe with a photo survives export → wipe → import on the emulator; 1.1.0 workbooks still import |
-| **M12** | Scanning | ML Kit (with the §1 checks); Scan a page board (corners, rotate, up to 4 pages); straightening; Read text with progress; scan parser and fixtures; Check what was read; From a photo with "Use as the recipe's photo"; quick add "Scan a recipe"; cache clean-up; release check at 30 MB | A printed page scanned in airplane mode fills the form; no `INTERNET` in the merged manifest; APK ≤ 30 MB |
+| **M12** | Scanning | ML Kit (with the §1 checks); Scan a page board (corners, rotate, up to 4 pages); straightening; Read text with progress; scan parser and fixtures; Check what was read; From a photo with "Use as the recipe's photo"; quick add "Scan a recipe"; cache clean-up; release check at 36 MB | A printed page scanned in airplane mode fills the form; no `INTERNET` in the merged manifest; APK ≤ 36 MB |
 | **M13** | What can I cook? and widget | Kitchen table and screen; staples setting and Settings › Tools › Recipe; grouping; list card count; Home widget `recipe_cook` with empty state; Settings › Dashboard entry | Ticking ingredients updates the groups and the Home widget at once |
 | **M14** | Finish | States, accessibility pass (TalkBack, 200%, contrast with olive), performance with the 1,000-recipe sample on the A03-sized emulator, motion (UR3-1 moments on the new screens), About › Licences entry, docs/07 acceptance items for Recipe | Release check passes; owner ticks the Recipe acceptance items |
 | *Later* | Recipe 2 · Nutrition (R-11) | Specified separately after 1.2.0 ships | — |

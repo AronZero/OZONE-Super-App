@@ -35,7 +35,7 @@ never be shipped by mistake. Losing the key means future versions can't install 
 
 ## Installing on the phone
 
-Copy `dist\OZONE-<version>-<date>.apk` to the phone (USB cable, Google Drive, …), open it in the file manager, and allow
+Copy `dist\OZONE-<version>-<date>-arm64.apk` to the phone (the `-universal` APK is for the x86_64 emulator) (USB cable, Google Drive, …), open it in the file manager, and allow
 "install unknown apps" for that file manager when Android asks. Updates install over the old version and keep the data,
 as long as they're signed with the same key.
 

@@ -87,7 +87,7 @@ Anything else is a build failure (F3 check). `VIBRATE`, which flutter_local_noti
 | Search query | under 100 ms |
 | Vault unlock (Argon2id) | about 1 s, never over 2 s |
 | Export / import of 10,000 rows | under 10 s / 8 s (F1-03) |
-| App download size (Android, arm64) | under 25 MB |
+| App download size (Android, arm64) | under 25 MB; 36 MB from 1.2.0 with the OCR model (R-3) |
 
 Heavy work (export, import, Argon2id, index rebuild) runs in background isolates. The UI thread never waits on it.
 

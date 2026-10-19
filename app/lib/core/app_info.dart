@@ -3,4 +3,4 @@
 const String appVersion = '1.2.0';
 
 /// The milestone this build delivers (About shows "1.0.0 (M9)").
-const String appMilestone = 'M11';
+const String appMilestone = 'M12';

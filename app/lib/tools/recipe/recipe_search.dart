@@ -20,9 +20,12 @@ SearchRowInfo? _recipe(BuildContext context, WidgetRef ref, String id) {
   return SearchRowInfo([?r.category, ?durationText(r.prepMin, r.cookMin)].join(' · '));
 }
 
-/// Recipe's entry in Home's quick-add menu ("Scan a recipe" arrives with M12).
+/// Recipe's entries in Home's quick-add menu.
 const List<QuickAddAction> recipeQuickAdd = [
   QuickAddAction(label: 'Add recipe', icon: OzIcons.cooking, run: _addRecipe),
+  QuickAddAction(label: 'Scan a recipe', icon: OzIcons.documentScanner, run: _scanRecipe),
 ];
 
 void _addRecipe(BuildContext context) => context.push('/recipe/new');
+
+void _scanRecipe(BuildContext context) => context.push('/recipe/scan');

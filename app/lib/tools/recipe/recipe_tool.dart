@@ -8,6 +8,7 @@ import 'recipe_search.dart';
 import 'ui/recipe_detail_screen.dart';
 import 'ui/recipe_form_screen.dart';
 import 'ui/recipes_home.dart';
+import 'ui/scan_screen.dart';
 
 /// Recipe tool definition (M11, docs/spec/F4-02 §1). Not in the bar by default.
 const ToolDefinition recipeTool = ToolDefinition(
@@ -29,7 +30,8 @@ List<RouteBase> _routes(GlobalKey<NavigatorState> root) {
   GoRoute full(String path, Widget Function(GoRouterState s) build) =>
       GoRoute(path: path, parentNavigatorKey: root, builder: (context, state) => build(state));
   return [
-    full('new', (_) => const RecipeFormScreen()),
+    full('new', (s) => RecipeFormScreen(scan: s.extra is ScanFill ? s.extra! as ScanFill : null)),
+    full('scan', (s) => ScanScreen(fromGallery: s.uri.queryParameters['from'] == 'gallery')),
     full(':id', (s) => RecipeDetailScreen(recipeId: s.pathParameters['id']!)),
     full(':id/edit', (s) => RecipeFormScreen(recipeId: s.pathParameters['id']!)),
   ];

@@ -33,6 +33,8 @@ void main() {
     expect(find.text('Add Recipes to your bar?'), findsNothing);
     await tester.tap(find.byTooltip('Add recipe'));
     await settle(tester);
+    await tester.tap(find.text('Type it in'));
+    await settle(tester);
     expect(find.text('New recipe'), findsOneWidget);
 
     // Save without a title or ingredient: reasons in words.
@@ -107,6 +109,8 @@ void main() {
     expect(tester.getSemantics(find.bySemanticsLabel(RegExp('^Chicken adobo'))), isSemantics(isButton: true, hasTapAction: true));
     expect(tester.getSemantics(find.bySemanticsLabel('Favourites')), isSemantics(hasTapAction: true));
     await tester.tap(find.byTooltip('Add recipe'));
+    await settle(tester);
+    await tester.tap(find.text('Type it in'));
     await settle(tester);
     expect(tester.getSemantics(find.bySemanticsLabel('Add photo')), isSemantics(isButton: true, hasTapAction: true));
     expect(tester.getSemantics(find.bySemanticsLabel('New category')), isSemantics(hasTapAction: true));

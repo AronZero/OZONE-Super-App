@@ -164,7 +164,7 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 
 | R-1 | Recipe tool tint (owner, 19 Oct 2026; Recipe board R0 on the canvas) | Olive, tint 7 from board E4: light accent #565F14 / tile #ECEEDC, dark #C7CF85 / #2B2E1A. Monochrome turns it grey like every tool (rec.) |
 | R-2 | Recipe OCR | Google ML Kit text recognition with the bundled Latin model (works offline), via the google_mlkit_text_recognition plugin, only after the package safety check (F3-02 §4). The INTERNET permission its libraries add is removed in the manifest and checked by tool/release_check.ps1. Text is sorted into title, ingredients, steps and notes by rules (no AI) and always ends on the "Check what was read" screen before the form (rec.) |
-| R-3 | APK size budget | Raised from 25 MB to 30 MB (arm64) for the OCR model (rec.) |
+| R-3 | APK size budget | Raised from 25 MB to 30 MB (arm64) for the OCR model (rec.). **Changed 19 Oct 2026 (owner, M12 Q2 a): 36 MB.** ML Kit measured +12 MB, not 4–5 MB (its OCR library is 11 MB); the arm64 APK is 35.0 MB. Native libraries stay uncompressed so the app takes about the APK size on the phone (compressing them would cut the download to about 17 MB but use about 52 MB after install) |
 | R-4 | Backup with photos | The backup file becomes a .zip: the same workbook plus photos/<photo id>.jpg. Import accepts the .zip or a plain .xlsx (without photos), unpacks it by itself into private temp storage, shows photos in the preview (new / same / missing), copies them in the same step as the data, then deletes the temp files. Safety exports are .zip too. Only the workbook and photos/*.jpg are read; paths leaving the folder are refused; size limits apply. Uses archive, already in the lockfile through excel (rec.) |
 | R-5 | Photos per recipe (owner) | One photo per recipe, optional. Scanned pages are used only to read the text and are not kept. "From a photo" asks whether the picture also becomes the recipe's photo. Stored privately, shrunk to 1600 px JPEG |
 | R-6 | Camera | The phone's camera app and the system photo picker; crop and straighten happen in OZONE. No camera or storage permission (rec.) |
@@ -177,6 +177,8 @@ All decisions were made by the product owner on 13 Oct 2026 unless noted.
 
 | F4-1 | Recipe build spec (owner, 19 Oct 2026) | docs/spec F4-01..03 approved with F4-Q1..Q5 all as recommended: every export is a .zip (also without photos); only the What can I cook? widget; manual page corners, no edge detection; ships as 1.2.0 (builds 15–18); build/m11 from build/m10-ui |
 | UI-1 | Field labels (owner, 19 Oct 2026) | No floating labels in OZONE; placeholders instead (see docs/05). Recipe form fixed in M11 |
+| UI-2 | Check what was read and recipe steps (owner, M12 Q5 a, 19 Oct 2026) | On Check what was read, a move icon button opens a menu headed "Move to" with Ingredients · Steps · Notes · Not used; a line moves only when one is picked, with "Moved to …". Tap-to-cycle labels are gone (they made lines seem to vanish). In New / Edit recipe, steps get the same drag handle as ingredients |
+| R-13 | Release APK (owner, M12 Q4 a, 19 Oct 2026) | GitHub Releases get the arm64 APK (35 MB) instead of the universal one (95 MB: ML Kit's library for every CPU type). The release check copies both to `dist/`: `…-arm64.apk` for phones, `…-universal.apk` for the x86_64 emulator |
 
 ## Open
 

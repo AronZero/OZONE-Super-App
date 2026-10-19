@@ -5,6 +5,9 @@
          There is deliberately no INTERNET permission: OZONE never uses the network. -->
     <!-- Added by flutter_local_notifications but not needed: the reminder uses the channel default. -->
     <uses-permission android:name="android.permission.VIBRATE" tools:node="remove"/>
+    <!-- Added by ML Kit (Google data transport, usage logging). OZONE never uses the network (F4-03 §1). -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove"/>
     <!-- The month-end reminder is scheduled again after the phone restarts (F2-03 §4). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
@@ -47,6 +50,10 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
+        <!-- ML Kit's usage-logging transport: removed so nothing is queued for upload (F4-03 §1). -->
+        <service android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery" tools:node="remove"/>
+        <service android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" tools:node="remove"/>
+        <receiver android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver" tools:node="remove"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

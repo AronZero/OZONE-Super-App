@@ -63,3 +63,70 @@ String keyNameFor(String name) {
   if (key.length > 80) key = key.substring(0, 80).trim();
   return key;
 }
+
+/// About 400 common ingredient words in English and Filipino (F4-02 §4 rule 9).
+/// A scanned ingredient whose key name isn't made of these (or the synonyms
+/// above, or a key name already on the phone) is flagged for a check.
+const Set<String> ingredientWords = {
+  // Meat, fish and eggs
+  'chicken', 'pork', 'beef', 'lamb', 'mutton', 'goat', 'duck', 'turkey', 'veal', 'bacon', 'ham', 'sausage',
+  'sausages', 'chorizo', 'longganisa', 'tocino', 'hotdog', 'hotdogs', 'liver', 'oxtail', 'tripe', 'tuwalya',
+  'ribs', 'belly', 'shoulder', 'thigh', 'thighs', 'breast', 'breasts', 'wings', 'drumsticks', 'legs', 'mince',
+  'meat', 'meatballs', 'corned', 'spam', 'luncheon', 'egg', 'yolk', 'yolks', 'whites', 'fish', 'tilapia',
+  'bangus', 'milkfish', 'galunggong', 'tuna', 'salmon', 'cod', 'mackerel', 'sardines', 'sardinas', 'anchovies',
+  'dilis', 'tuyo', 'daing', 'shrimp', 'crab', 'crabs', 'alimango', 'alimasag', 'squid', 'pusit', 'mussels',
+  'tahong', 'clams', 'halaan', 'oysters', 'talaba', 'scallops', 'lobster', 'bagoong', 'alamang', 'tinapa',
+  // Vegetables and herbs
+  'onion', 'garlic', 'ginger', 'tomato', 'potato', 'carrot', 'cabbage', 'repolyo', 'pechay', 'bok', 'choy',
+  'lettuce', 'spinach', 'kangkong', 'malunggay', 'moringa', 'ampalaya', 'bitter', 'gourd', 'okra', 'eggplant',
+  'squash', 'kalabasa', 'pumpkin', 'sayote', 'chayote', 'upo', 'patola', 'radish', 'labanos', 'string',
+  'beans', 'sitaw', 'baguio', 'green', 'peas', 'corn', 'mais', 'celery', 'leek', 'leeks', 'shallot', 'scallion',
+  'bell', 'pepper', 'peppers', 'capsicum', 'chili', 'siling', 'labuyo', 'jalapeno', 'cucumber', 'pipino',
+  'zucchini', 'broccoli', 'cauliflower', 'asparagus', 'mushroom', 'shiitake', 'button', 'sprouts', 'togue',
+  'monggo', 'mung', 'gabi', 'taro', 'kamote', 'sweet', 'cassava', 'kamoteng', 'kahoy', 'ube', 'yam', 'jicama',
+  'singkamas', 'banana', 'heart', 'puso', 'saging', 'langka', 'jackfruit', 'bamboo', 'shoots', 'labong',
+  'lemongrass', 'tanglad', 'tamarind', 'kamias', 'bilimbi', 'calamansi', 'lemon', 'lime', 'dayap', 'avocado',
+  'olives', 'beet', 'beets', 'kale', 'arugula', 'basil', 'parsley', 'cilantro', 'coriander', 'kinchay', 'dill',
+  'mint', 'rosemary', 'thyme', 'oregano', 'sage', 'chives', 'bay', 'leaves', 'leaf', 'laurel', 'pandan',
+  'tarragon', 'herbs',
+  // Fruit
+  'apple', 'orange', 'mango', 'mangga', 'pineapple', 'pinya', 'papaya', 'coconut', 'niyog', 'buko', 'grapes',
+  'strawberries', 'strawberry', 'blueberries', 'raisins', 'pasas', 'dates', 'melon', 'watermelon', 'pear',
+  'peach', 'peaches', 'cherries', 'kiwi', 'guava', 'bayabas', 'saba', 'plantain', 'fruit', 'cocktail', 'nata',
+  'kaong', 'macapuno', 'zest', 'juice',
+  // Grains, flour and noodles
+  'rice', 'malagkit', 'glutinous', 'flour', 'cornstarch', 'starch', 'cornflour', 'bread', 'breadcrumbs',
+  'panko', 'crumbs', 'oats', 'oatmeal', 'pasta', 'spaghetti', 'macaroni', 'noodles', 'bihon', 'canton',
+  'sotanghon', 'misua', 'miki', 'vermicelli', 'udon', 'ramen', 'tortilla', 'tortillas', 'wrapper', 'wrappers',
+  'lumpia', 'pandesal', 'buns', 'crackers', 'biscuits', 'graham', 'yeast', 'baking', 'powder', 'soda',
+  'semolina', 'quinoa', 'barley', 'couscous', 'sago', 'tapioca', 'pearls', 'gulaman', 'gelatin', 'agar',
+  // Dairy
+  'milk', 'evaporated', 'condensed', 'cream', 'butter', 'margarine', 'cheese', 'cheddar', 'mozzarella',
+  'parmesan', 'kesong', 'puti', 'quezo', 'yogurt', 'yoghurt', 'buttermilk', 'whipping', 'heavy', 'sour', 'ghee',
+  // Pantry, sauces and seasoning
+  'salt', 'sugar', 'brown', 'white', 'muscovado', 'honey', 'syrup', 'molasses', 'vinegar', 'soy', 'sauce',
+  'patis', 'oyster', 'ketchup', 'catsup', 'mayonnaise', 'mustard', 'hoisin', 'sriracha', 'worcestershire',
+  'liquid', 'seasoning', 'oil', 'olive', 'sesame', 'vegetable', 'canola', 'lard', 'shortening', 'stock',
+  'broth', 'cube', 'cubes', 'bouillon', 'granules', 'paste', 'puree', 'atsuete', 'annatto', 'achuete',
+  'paprika', 'cumin', 'turmeric', 'luyang', 'dilaw', 'cinnamon', 'nutmeg', 'cloves', 'star', 'anise',
+  'cardamom', 'curry', 'flakes', 'cayenne', 'msg', 'vetsin', 'vanilla', 'extract', 'cocoa', 'chocolate',
+  'chips', 'coffee', 'tea', 'peanut', 'peanuts', 'mani', 'cashew', 'cashews', 'almonds', 'walnuts', 'pecans',
+  'nuts', 'seeds', 'linga', 'tofu', 'tokwa', 'miso', 'tausi', 'black', 'garbanzos', 'chickpeas', 'lentils',
+  'kidney', 'red', 'mix', 'sinigang', 'gravy', 'water', 'ice', 'wine', 'rum', 'beer', 'cooking', 'spray',
+  'food', 'coloring', 'colouring', 'sprinkles', 'jam', 'jelly', 'preserves', 'pickles', 'atchara', 'relish',
+  'capers', 'gata', 'kakang', 'chicharon', 'chicharron', 'pinipig', 'halaya', 'leche', 'flan', 'dulce',
+  // Describing words that stay in key names
+  'smoked', 'salted', 'unsalted', 'spring', 'light', 'dark', 'roasted', 'toasted', 'instant', 'powdered',
+  'canned', 'all-purpose', 'self-raising', 'self-rising', 'plain', 'native', 'young', 'mature',
+};
+
+/// Whether [key] is made only of words OZONE knows, or is a key name the
+/// phone already uses ([known]).
+bool isKnownKey(String key, {Set<String> known = const {}}) {
+  if (key.isEmpty) return false;
+  if (known.contains(key) || synonyms.containsKey(key) || synonyms.containsValue(key)) return true;
+  return key
+      .split(RegExp(r'[\s-]+'))
+      .where((w) => w.isNotEmpty)
+      .every((w) => ingredientWords.contains(w) || descriptorWords.contains(w));
+}

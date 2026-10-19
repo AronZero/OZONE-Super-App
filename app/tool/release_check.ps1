@@ -69,6 +69,11 @@ Write-Host ("Permissions: " + ($perms -join ', '))
 if ($perms -contains 'android.permission.INTERNET') { Fail 'INTERNET permission found (F2-03 §1)' }
 $extra = $perms | Where-Object { $_ -notin $allowed }
 if ($extra) { Fail ("permissions not in the F2-03 list: " + ($extra -join ', ')) }
+# ML Kit's usage-logging transport must stay removed from the merged manifest (F4-03 §3).
+$manifest = & (Join-Path $buildTools 'aapt2.exe') dump xmltree --file AndroidManifest.xml $apk
+$transport = $manifest | Select-String -Pattern 'TransportBackendDiscovery|JobInfoSchedulerService|AlarmManagerSchedulerBroadcastReceiver'
+if ($transport) { Fail 'ML Kit transport services found in the manifest (F4-03 §1)' }
+Write-Host 'No ML Kit transport services.'
 
 $cert = & (Join-Path $buildTools 'apksigner.bat') verify --print-certs $apk
 if ($LASTEXITCODE -ne 0) { Fail 'APK signature does not verify' }
@@ -77,14 +82,16 @@ if ($cert -match 'CN=Android Debug') { Fail 'APK is signed with the debug key' }
 
 $arm64 = Get-Item (Join-Path $out 'app-arm64-v8a-release.apk')
 $mb = [math]::Round($arm64.Length / 1MB, 1)
-Write-Host "arm64 APK: $mb MB (budget 25 MB); universal: $([math]::Round((Get-Item $apk).Length / 1MB, 1)) MB"
-if ($mb -gt 25) { Fail 'arm64 APK is over the 25 MB budget (F2-03 §8)' }
+Write-Host "arm64 APK: $mb MB (budget 36 MB); universal: $([math]::Round((Get-Item $apk).Length / 1MB, 1)) MB"
+if ($mb -gt 36) { Fail 'arm64 APK is over the 36 MB budget (F2-03 §8, R-3)' }
 
 Step '8/8 Copy for the owner'
 $version = (Select-String -Path (Join-Path $app 'pubspec.yaml') -Pattern '^version:\s*(\S+)').Matches[0].Groups[1].Value
 $dist = Join-Path $repo 'dist'
 New-Item -ItemType Directory -Force $dist | Out-Null
-$name = "OZONE-$($version.Replace('+', '-build'))-$(Get-Date -Format 'yyyy-MM-dd').apk"
-Copy-Item $apk (Join-Path $dist $name) -Force
-Write-Host "`nALL CHECKS PASSED. Install file: dist\$name" -ForegroundColor Green
+# Phones get the arm64 APK (GitHub Release); the universal one is for the x86_64 emulator (owner M12 Q4 a).
+$base = "OZONE-$($version.Replace('+', '-build'))-$(Get-Date -Format 'yyyy-MM-dd')"
+Copy-Item $arm64.FullName (Join-Path $dist "$base-arm64.apk") -Force
+Copy-Item $apk (Join-Path $dist "$base-universal.apk") -Force
+Write-Host "`nALL CHECKS PASSED. For phones: dist\$base-arm64.apk, emulator: dist\$base-universal.apk" -ForegroundColor Green
 Write-Host 'Performance budgets (F2-03 §8) are measured on the phone from M1 onward.'

@@ -22,6 +22,7 @@ import '../domain/ingredient_words.dart';
 import '../domain/recipe.dart';
 import '../state/recipe_providers.dart';
 import 'recipe_parts.dart';
+import 'scan_screen.dart';
 
 /// Opens the phone's camera app or the system photo picker (decision R-6: no
 /// camera or storage permission) and returns the picture's path, or null.
@@ -78,8 +79,11 @@ class _StepLine {
 
 /// New / Edit recipe (board R5): full screen, since it has more than 6 fields.
 class RecipeFormScreen extends ConsumerStatefulWidget {
-  const RecipeFormScreen({super.key, this.recipeId});
+  const RecipeFormScreen({super.key, this.recipeId, this.scan});
   final String? recipeId;
+
+  /// Filled in from a scan (board R4 → R5).
+  final ScanFill? scan;
 
   @override
   ConsumerState<RecipeFormScreen> createState() => _RecipeFormScreenState();
@@ -138,9 +142,31 @@ class _RecipeFormScreenState extends ConsumerState<RecipeFormScreen> {
         _steps.add(_StepLine(s.body));
       }
     }
+    final scan = widget.scan;
+    if (scan != null) {
+      final d = scan.draft;
+      _title.text = d.title;
+      _servings.text = d.servings?.toString() ?? '';
+      _prep.text = d.prepMin?.toString() ?? '';
+      _cook.text = d.cookMin?.toString() ?? '';
+      _notes.text = d.notes ?? '';
+      _photo = scan.photo;
+      String? section;
+      for (final i in d.ingredients) {
+        if (i.section != section) {
+          section = i.section;
+          if (section != null) _addLine(_Line.heading(section));
+        }
+        _addLine(_Line.ingredient(amount: amountFieldText(i.amount, i.unit), name: i.name));
+      }
+      for (final s in d.steps) {
+        _steps.add(_StepLine(s));
+      }
+    }
     if (_lines.isEmpty) _addLine(_Line.ingredient());
     if (_steps.isEmpty) _steps.add(_StepLine());
-    _initial = _snapshot();
+    // A scanned recipe counts as unsaved from the start.
+    _initial = scan == null ? _snapshot() : '';
   }
 
   void _addLine(_Line l) {
@@ -415,6 +441,24 @@ class _RecipeFormScreenState extends ConsumerState<RecipeFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(Space.screen, Space.xs, Space.screen, Space.xl),
                 children: [
+                  if (widget.scan != null) ...[
+                    Semantics(
+                      liveRegion: true,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(color: recipeTile(context), borderRadius: BorderRadius.circular(14)),
+                        child: Row(children: [
+                          Icon(OzIcons.documentScanner, size: 18, color: recipeAccent(context)),
+                          const SizedBox(width: Space.s),
+                          Expanded(
+                            child: Text('Filled in from your scan. Give it a look.',
+                                style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w700, color: recipeAccent(context))),
+                          ),
+                        ]),
+                      ),
+                    ),
+                    gap(),
+                  ],
                   Text.rich(TextSpan(text: 'Photo', children: [TextSpan(text: ' · optional', style: TextStyle(fontWeight: FontWeight.w600, color: c.inkMuted))]), style: label),
                   const SizedBox(height: Space.s),
                   Semantics(
@@ -451,7 +495,7 @@ class _RecipeFormScreenState extends ConsumerState<RecipeFormScreen> {
                     ),
                   ),
                   gap(),
-                  OzoneTextField(label: 'Title *', controller: _title, error: _err['title'], autofocus: !_editing, onChanged: (_) => edited('title'), fieldKey: const ValueKey('recipe-title')),
+                  OzoneTextField(label: 'Title *', controller: _title, error: _err['title'], autofocus: !_editing && widget.scan == null, onChanged: (_) => edited('title'), fieldKey: const ValueKey('recipe-title')),
                   gap(),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Expanded(child: OzoneTextField(label: 'Servings', controller: _servings, error: _err['servings'], keyboardType: TextInputType.number, onChanged: (_) => edited('servings'), fieldKey: const ValueKey('recipe-servings'))),
@@ -673,18 +717,16 @@ class _RecipeFormScreenState extends ConsumerState<RecipeFormScreen> {
           index: i,
           child: Semantics(
             label: 'Step ${i + 1}. Drag to reorder',
-            child: Container(
-              width: 32,
-              height: 48,
-              alignment: Alignment.center,
-              child: Container(
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              SizedBox(width: 32, height: 48, child: Icon(OzIcons.dragIndicator, color: c.inkMuted)),
+              Container(
                 width: 28,
                 height: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(color: recipeTile(context), shape: BoxShape.circle),
                 child: Text('${i + 1}', style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: recipeAccent(context))),
               ),
-            ),
+            ]),
           ),
         ),
         const SizedBox(width: Space.s),

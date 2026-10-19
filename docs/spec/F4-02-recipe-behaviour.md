@@ -25,7 +25,7 @@ Not in the bar by default (`bar.tools` unchanged). The first time Recipes opens,
 |---|---|
 | **Recipes list** (R1) | Header count; What can I cook? card with "N ready with what you have" (or "Pick what's in your kitchen" when the kitchen is empty); category chips: All · Favourites · categories in use (most used first); 2-column grid, sort per `recipe.list_sort`; card = photo (or plate icon on the tint), title (1 line), "1 h 10 min · 4 servings" (parts left out when empty). The add button opens the sheet: Type it in · Scan a page · From a photo. Empty: "No recipes yet." + Add recipe. |
 | **Recipe detail** (R2) | Photo (280 dp) or tinted plate; favourite toggle; Edit; title; chips for category, prep, cook; Source line. Servings stepper (only when servings is set; 1–100) scales amounts (§6) with "As written" / "Amounts scaled from 4". Tabs Ingredients · Steps (`SegmentTabs`). Ingredient rows tick off while cooking; ticks live in memory only and reset when the screen closes. Sections show as small headings. Menu: Delete (Undo). |
-| **New / Edit recipe** (R5) | Full screen (more than 6 fields, docs/04). Photo area: Add photo → sheet Take a photo · Choose from gallery; Change; Remove. Title (required), Servings, Prep, Cook, Category chips + New, Ingredients (drag to reorder, amount field with fraction keyboard row ½ ⅓ ¼ ¾, unit, name, "Matches as: garlic" tappable to edit the key name), "+ Ingredient", "+ Section heading", Steps (numbered, reorder, "+ Step"), Source, Notes. Unsaved changes ask before discarding. When opened from a scan, the banner "Filled in from your scan. Give it a look." shows. |
+| **New / Edit recipe** (R5) | Full screen (more than 6 fields, docs/04). Photo area: Add photo → sheet Take a photo · Choose from gallery; Change; Remove. Title (required), Servings, Prep, Cook, Category chips + New, Ingredients (drag to reorder, amount field with fraction keyboard row ½ ⅓ ¼ ¾, unit, name, "Matches as: garlic" tappable to edit the key name), "+ Ingredient", "+ Section heading", Steps (numbered, drag handle like the ingredients' (owner, M12), reorder, "+ Step"), Source, Notes. Unsaved changes ask before discarding. When opened from a scan, the banner "Filled in from your scan. Give it a look." shows. |
 | **Scan a page** (R3) | See §3. |
 | **Check what was read** (R4) | See §3. |
 | **What can I cook?** (R6) | See §5. |
@@ -59,8 +59,9 @@ Errors: no text found → "No text found on this page. Try more light, or hold t
 Retake. Recognizer failure → "Couldn't read the text." with Try again (States board).
 
 **Check what was read** (R4): page count and line count; Title field (prefilled); found Servings and Time chips; then groups
-Ingredients · Steps · Notes · Not used. Each line's label button cycles Ingredient → Step → Note → Not used, and the line moves
-(with the row animation from UR3-1). Long-press a line to edit its text, or split it at the cursor. Lines flagged **Check** show the
+Ingredients · Steps · Notes · Not used. Each line has a move button (Material Symbols `move_item`, tinted with its group's colour) that opens a menu headed "Move to" with the
+four groups and a tick on the current one; the line moves only when another is picked, with the row animation from UR3-1
+and the message "Moved to Steps" (floating above Continue) (owner M12 Q5 a; this replaces the tap-to-cycle label on board R4). Long-press a line to edit its text, or split it at the cursor. Lines flagged **Check** show the
 amber chip with an icon and the reason (for example "Check: vinegar?"). A banner counts flagged lines. "Continue to recipe"
 opens the form filled from the groups; Notes lines join into Notes; Not used lines are dropped.
 
@@ -69,7 +70,9 @@ opens the form filled from the groups; Notes lines join into Notes; Not used lin
 Input: ML Kit blocks → lines with bounding boxes. Output: title, servings, times, and labelled lines.
 
 1. **Reading order.** Cluster line left edges. If there are two clusters more than 30% of the page width apart, each with at
-   least 4 lines, read the left column top to bottom, then the right. Otherwise top to bottom.
+   least 4 lines, read the left column top to bottom, then the right. Otherwise top to bottom. Lines whose middles are within
+   half a line height are one row, read left to right; pieces of one printed line that the recognizer split (`1` + `pack sinigang
+   mix`) are joined when the gap is under 2.5 line heights (M12, seen on the emulator).
 2. **Title:** the line in the top 25% of the first page whose height is at least 1.3 × the median line height; if none, the first
    line. It isn't added to any group.
 3. **Headings** (case-insensitive, optional trailing colon, the whole line) switch the current section and aren't kept:
@@ -77,7 +80,8 @@ Input: ML Kit blocks → lines with bounding boxes. Output: title, servings, tim
    steps: `method`, `directions`, `procedure`, `instructions`, `steps`, `preparation`, `how to cook`, `paraan ng pagluluto`,
    `paraan`, `pamamaraan` · notes: `notes`, `note`, `tips`, `tip`.
    Inside ingredients, a line of at most 5 words ending in `:` becomes a **section** ("For the sauce:").
-4. **Details:** `serves|servings|makes|yield` + a number → servings (line goes to Not used). `prep|preparation` / `cook|cooking`
+4. **Details** (only on a line that starts with one of these words or has "N servings", outside Steps, at most 14 words, so
+   "…and cook 5 minutes." stays a step): `serves|servings|makes|yield` + a number → servings (line goes to Not used). `prep|preparation` / `cook|cooking`
    / `total` + a duration (`1 h 10 min`, `1 hr`, `45 mins`, `1½ hours`) → prep / cook minutes (total only when neither is found,
    counted as cook).
 5. **Labels.** In a known section, lines take its label. Before any heading: starts with an amount or a unit → Ingredient;

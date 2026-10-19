@@ -47,6 +47,8 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(const ['Manrope (font)'], ofl);
     final symbols = await rootBundle.loadString('assets/fonts/MaterialSymbolsRounded/LICENSE.txt');
     yield LicenseEntryWithLineBreaks(const ['Material Symbols Rounded (icons)'], symbols);
+    // ML Kit's Android libraries aren't collected automatically (F4-03 §1).
+    yield const LicenseEntryWithLineBreaks(['Google ML Kit'], 'Text recognition by Google ML Kit, used under Google’s ML Kit terms.');
   });
 
   final db = AppDatabase.open();

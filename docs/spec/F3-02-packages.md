@@ -24,6 +24,8 @@ Versions are pinned **exactly** (no `^`) in `pubspec.yaml`, and `pubspec.lock` i
 | intl | 0.20.3 | ~3 mo | dart.dev | BSD-3 | Date and number formatting (en_PH) |
 | image_picker | 1.2.3 | 110 d (19 Oct) | flutter.dev | BSD-3 | Recipe photos: camera app and system photo picker (added 19 Oct 2026, M11; sub-packages image_picker_ios 0.8.13+9 and image_picker_platform_interface 2.11.1 pinned for the 14-day rule, F4-03 §1) |
 | archive | 3.6.1 | ~2 yr | loki3d.com | MIT | Backup `.zip` (made direct 19 Oct 2026, M11; same version excel already used) |
+| google_mlkit_text_recognition | 0.17.1 | 63 d (19 Oct) | flutter-ml.dev | MIT | Reading scanned recipe pages on the phone (added 19 Oct 2026, M12). Android: bundled `com.google.mlkit:text-recognition:16.0.1` (Latin only; other scripts compileOnly). Changelog 0.15–0.17: build and language migrations only. Transport services and network permissions removed in the manifest (F4-03 §1) |
+| google_mlkit_commons | 0.13.0 | 63 d (19 Oct) | flutter-ml.dev | MIT | Pulled in by the above (`com.google.mlkit:vision-common:17.3.0`) |
 
 ## 2. Development-only packages (never shipped)
 

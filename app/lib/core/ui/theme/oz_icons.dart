@@ -51,6 +51,7 @@ abstract final class OzIcons {
   static const lockOpen = IconData(0xe898, fontFamily: _family);
   static const menuBook = IconData(0xea19, fontFamily: _family);
   static const moreVert = IconData(0xe5d4, fontFamily: _family);
+  static const moveItem = IconData(0xf1ff, fontFamily: _family);
   static const notifications = IconData(0xe7f5, fontFamily: _family);
   static const photoCamera = IconData(0xe412, fontFamily: _family);
   static const pushPin = IconData(0xf10d, fontFamily: _family);
