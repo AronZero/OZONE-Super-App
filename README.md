@@ -8,7 +8,7 @@
 <h1 align="center">OZONE</h1>
 
 <p align="center">
-  <b>Money, books and notes, bonded in one app.</b><br>
+  <b>Money, books, notes and recipes, bonded in one app.</b><br>
   A personal, private, offline-only Android app. No account, no cloud, no internet permission.
 </p>
 
@@ -20,24 +20,27 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/home-light.png" alt="Home dashboard" width="24%">
-  <img src="docs/screenshots/finance-savings.png" alt="Finance: savings" width="24%">
-  <img src="docs/screenshots/library.png" alt="Library" width="24%">
-  <img src="docs/screenshots/notes.png" alt="Notes" width="24%">
+  <img src="docs/screenshots/home-light.png" alt="Home dashboard" width="19%">
+  <img src="docs/screenshots/finance-savings.png" alt="Finance: savings" width="19%">
+  <img src="docs/screenshots/library.png" alt="Library" width="19%">
+  <img src="docs/screenshots/notes.png" alt="Notes" width="19%">
+  <img src="docs/screenshots/recipes.png" alt="Recipes" width="19%">
 </p>
 
 <p align="center"><sub>All screenshots use made-up sample data.</sub></p>
 
 ## What it is
 
-Ozone (O₃) is three oxygen atoms bonded into one molecule. OZONE bonds three everyday tools into one calm app:
+Ozone (O₃) is three oxygen atoms bonded into one molecule. OZONE started the same way, three everyday tools bonded
+into one calm app, and gained a fourth in 1.2:
 
 - **Finance** tracks savings, gold and expenses.
 - **Library** keeps your books and your reading.
 - **Notes** holds checklists and notes, with a locked vault for the private ones.
+- **Recipes** keeps your recipes, reads printed ones from a photo, and tells you what you can cook.
 
-Everything stays on your phone. Backups are ordinary `.xlsx` workbooks that you export yourself and can open in any
-spreadsheet app.
+Everything stays on your phone. You export backups yourself: a `.zip` holding an ordinary `.xlsx` workbook, which opens
+in any spreadsheet app, and your recipe photos.
 
 ## Features
 
@@ -81,6 +84,26 @@ spreadsheet app.
 
 <br clear="right">
 
+### Recipes
+
+<p>
+  <img src="docs/screenshots/recipe-detail.png" alt="A recipe with servings and ingredients" width="200" align="right">
+</p>
+
+- Ingredients in sections, steps, servings, prep and cook times, categories, favourites and one photo per recipe.
+- **Scaling:** change the servings and every amount follows (`½ cup` for 4 becomes `¾ cup` for 6).
+- **Scan a page:** take a photo of a printed recipe, set its corners, and OZONE reads the text on the phone. You check
+  what was read before it becomes a recipe. Works in airplane mode.
+- **What can I cook?** Tick what's in your kitchen and your recipes sort into Ready to cook, Missing 1–2 and Needs
+  more. Salt, pepper, water and oil count as always there. An optional Home widget shows the top matches.
+
+<br clear="right">
+
+<p>
+  <img src="docs/screenshots/recipes-cook.png" alt="What can I cook?" width="200">
+  <img src="docs/screenshots/recipes.png" alt="Recipes list" width="200">
+</p>
+
 ### Across the app
 
 <p>
@@ -101,6 +124,8 @@ spreadsheet app.
 ## Privacy
 
 - **No internet permission.** OZONE cannot send anything anywhere.
+- **No camera or storage permission.** Photos come through the phone's own camera app and photo picker. Scanned
+  pages are read on the phone and never kept.
 - **No account, no analytics, no ads.**
 - **Your data lives in the app's private storage** and is excluded from cloud backups.
 - **You own the backups:** export a workbook whenever you like. Importing shows a preview of every change first, and a
@@ -108,7 +133,8 @@ spreadsheet app.
 
 ## Download
 
-Get the latest signed APK from [Releases](../../releases/latest) and install it on Android 8.0 or newer. You may
+Get the latest signed APK (`…-arm64.apk`) from
+[Releases](../../releases/latest) and install it on Android 8.0 or newer. You may
 need to allow installs from your browser or file manager. The app is built and tested for Android first; iOS is kept
 ready in the code but not released.
 
@@ -129,13 +155,14 @@ Release builds are signed with a key that is not in this repository. Use your ow
 
 ## Built with
 
-Flutter · Riverpod · go_router · drift (SQLite with FTS5 search) · flutter_quill · cryptography · excel. Every
+Flutter · Riverpod · go_router · drift (SQLite with FTS5 search) · flutter_quill · cryptography · excel · archive ·
+image_picker · Google ML Kit text recognition (bundled Latin model, works offline). Every
 package is pinned to an exact version and checked with osv-scanner before each release.
 
 ## How it was made
 
-OZONE was designed and specified before any code was written, then built in ten reviewed milestones. The documents are
-all here:
+OZONE was designed and specified before any code was written, then built in reviewed milestones: ten for 1.0, a
+UI refresh for 1.1, and four for the Recipe tool in 1.2. The documents are all here:
 
 | Where | What |
 |---|---|
@@ -150,4 +177,4 @@ all here:
 
 The code is released under the [MIT Licence](LICENSE). The OZONE name and logo are not covered by it; please don't
 use them for your own apps. Bundled fonts keep their own licences: Manrope (SIL Open Font Licence 1.1) and Material
-Symbols Rounded (Apache-2.0).
+Symbols Rounded (Apache-2.0). Text recognition uses Google ML Kit under Google's ML Kit terms.
