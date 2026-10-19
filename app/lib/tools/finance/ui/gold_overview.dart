@@ -201,6 +201,7 @@ class GoldItemRowTile extends ConsumerWidget {
     return Semantics(
       button: true,
       label: spokenAmounts('${item.name}, ${item.karat} karat, $sub${v == null ? '' : ', estimated ${moneySpoken(context, v)}'}'),
+      onTap: () => showGoldItemSheet(context, existing: item),
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,
@@ -231,6 +232,7 @@ class GoldItemRowTile extends ConsumerWidget {
                             : text.bodyLarge!.copyWith(fontWeight: FontWeight.w800)),
                     if (gain != null && item.cost > 0)
                       Text('${gain >= 0 ? '▲' : '▼'} ${Money.percent(gain.abs(), item.cost)}',
+                          semanticsLabel: '${gain >= 0 ? 'up' : 'down'} ${Money.percent(gain.abs(), item.cost)}',
                           style: text.labelLarge!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, gain))),
                   ])
                 else

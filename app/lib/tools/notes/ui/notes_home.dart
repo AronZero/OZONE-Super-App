@@ -141,6 +141,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
             checked: selected,
             button: true,
             label: spokenAmounts(label),
+            onTap: onTap,
             excludeSemantics: true,
             child: PressScale(scale: PressScale.button, child: FadeMaterial(
               color: selected ? notesAccent(context) : c.surfaceSunken,
@@ -207,6 +208,7 @@ class _NotesHomeState extends ConsumerState<NotesHome> {
                           button: true,
                           toggled: _tag == t.id,
                           label: spokenAmounts('Tag ${t.name}'),
+                          onTap: () => setState(() => _tag = _tag == t.id ? null : t.id),
                           excludeSemantics: true,
                           child: PressScale(scale: PressScale.button, child: FadeMaterial(
                             color: _tag == t.id ? notesAccent(context) : notesTile(context),

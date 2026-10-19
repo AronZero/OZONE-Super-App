@@ -109,6 +109,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           checked: on,
           button: true,
           label: spokenAmounts('Search in $label'),
+          onTap: () => _pickScope(value),
           excludeSemantics: true,
           child: PressScale(scale: PressScale.button, child: FadeMaterial(
             color: on ? c.ink : c.surfaceSunken,
@@ -335,6 +336,7 @@ class _HitRow extends ConsumerWidget {
     return Semantics(
       button: true,
       label: spokenAmounts([plainTitle.isEmpty ? 'Untitled' : plainTitle, ?info?.subtitle, ?info?.trailing].join(', ')),
+      onTap: onTap,
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: InkWell(
         onTap: onTap,

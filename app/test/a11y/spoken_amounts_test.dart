@@ -17,6 +17,11 @@ void main() {
     expect(spokenAmounts('₱1.25M'), '1.25 million pesos');
   });
 
+  test('arrows before a percentage are read as up and down (M14)', () {
+    expect(spokenAmounts('▲ 17.9% vs same period in 2025 (₱3,899.00)'), 'up 17.9% vs same period in 2025 (3,899 pesos)');
+    expect(spokenAmounts('▼ 2.0%'), 'down 2.0%');
+  });
+
   test('hidden amounts and sentences', () {
     expect(spokenAmounts('₱ ••••'), 'amount hidden');
     expect(spokenAmounts('₱'), 'pesos');

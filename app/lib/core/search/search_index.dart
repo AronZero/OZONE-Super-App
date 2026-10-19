@@ -119,6 +119,30 @@ abstract final class SearchIndex {
     return out;
   }
 
+  /// The child triggers that re-index a whole recipe on every ingredient and step.
+  /// A restore pauses them inside its transaction and calls [reindexRecipe] once
+  /// per recipe instead (M14: 15 re-indexes per recipe made 1,000 recipes slow).
+  static const recipeChildTriggers = ['si_recipe_ingredient_ai', 'si_recipe_step_ai'];
+
+  static Future<void> pauseRecipeChildTriggers(DatabaseConnectionUser db) async {
+    for (final t in recipeChildTriggers) {
+      await db.customStatement('DROP TRIGGER IF EXISTS $t');
+    }
+  }
+
+  static Future<void> resumeRecipeChildTriggers(DatabaseConnectionUser db) async {
+    for (final t in triggers.where((t) => recipeChildTriggers.any((n) => t.contains(' $n ')))) {
+      await db.customStatement(t);
+    }
+  }
+
+  /// Writes one recipe's search row again.
+  static Future<void> reindexRecipe(DatabaseConnectionUser db, String id) async {
+    for (final s in _reindex('recipe', '?1').split('; ').where((s) => s.trim().isNotEmpty)) {
+      await db.customStatement(s, [id]);
+    }
+  }
+
   /// Creates the index, the key table and the triggers.
   static Future<void> install(DatabaseConnectionUser db) async {
     await db.customStatement(createIndex);

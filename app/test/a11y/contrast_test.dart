@@ -35,7 +35,7 @@ void main() {
       test('onAccent on ink (Monochrome selected states)', () => expect(ratio(c.onAccent, c.ink), greaterThanOrEqualTo(4.5)));
       // In Monochrome tool colours resolve to ink and greys, covered above.
       if (c.mono) return;
-      for (final (tool, tint) in [('finance', ToolTint.finance), ('library', ToolTint.library), ('notes', ToolTint.notes)]) {
+      for (final (tool, tint) in [('finance', ToolTint.finance), ('library', ToolTint.library), ('notes', ToolTint.notes), ('recipe', ToolTint.recipe)]) {
         test('$tool accent on its tile, surface and canvas', () {
           for (final bg in [tint.tile(b), c.surface, c.canvas, c.bar]) {
             expect(ratio(tint.accent(b), bg), greaterThanOrEqualTo(4.5));

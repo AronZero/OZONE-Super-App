@@ -73,6 +73,7 @@ class LibraryChoice<T> extends StatelessWidget {
         checked: on,
         button: true,
         label: spokenAmounts(o.$2),
+        onTap: () => onSelected(o.$1),
         excludeSemantics: true,
         child: PressScale(scale: PressScale.button, child: FadeMaterial(
           color: on ? libraryAccent(context) : c.surfaceSunken,

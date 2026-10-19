@@ -243,26 +243,30 @@ class DateButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final fg = accent ?? c.ink;
+    Future<void> pick() async {
+      final first = firstDate ?? LocalDate(2000, 1, 1);
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime(date.year, date.month, date.day),
+        firstDate: DateTime(first.year, first.month, first.day),
+        lastDate: DateTime(today.year, today.month, today.day),
+      );
+      if (picked != null) onChanged(LocalDate.fromDateTime(picked));
+    }
+
     return Semantics(
       button: true,
       label: spokenAmounts('Change date, currently ${date.formatLong()}'),
+      onTap: pick,
       excludeSemantics: true,
       child: Material(
         color: tile ?? c.surfaceSunken,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () async {
-            final first = firstDate ?? LocalDate(2000, 1, 1);
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: DateTime(date.year, date.month, date.day),
-              firstDate: DateTime(first.year, first.month, first.day),
-              lastDate: DateTime(today.year, today.month, today.day),
-            );
-            if (picked != null) onChanged(LocalDate.fromDateTime(picked));
-          },
-          child: Padding(
+          onTap: pick,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
               mainAxisSize: MainAxisSize.min,

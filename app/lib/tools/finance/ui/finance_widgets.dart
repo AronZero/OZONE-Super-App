@@ -49,6 +49,7 @@ class GoldHoldingsWidget extends ConsumerWidget {
           ),
           if (has && t.hasValue && t.valuedCost > 0)
             Text('${t.gain >= 0 ? '▲' : '▼'} ${Money.percent(t.gain.abs(), t.valuedCost)}',
+                semanticsLabel: '${t.gain >= 0 ? 'up' : 'down'} ${Money.percent(t.gain.abs(), t.valuedCost)}',
                 style: text.bodyMedium!.copyWith(fontWeight: FontWeight.w800, color: changeColor(c, t.gain))),
         ]),
       ],

@@ -193,6 +193,7 @@ class _QuickAddButton extends ConsumerWidget {
             child: Semantics(
               button: true,
               label: 'Close quick add',
+              onTap: () => Navigator.of(ctx).pop(),
               excludeSemantics: true,
               child: Material(
                 color: c.ink,

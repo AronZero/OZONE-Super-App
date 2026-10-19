@@ -7,6 +7,7 @@ import '../domain/dates.dart';
 import '../domain/delta.dart';
 import '../domain/ids.dart';
 import '../domain/validation.dart';
+import '../search/search_index.dart';
 import '../../tools/recipe/domain/amounts.dart';
 import '../../tools/recipe/domain/ingredient_words.dart';
 import '../../tools/recipe/domain/units.dart';
@@ -842,6 +843,8 @@ Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Funct
           ));
     }
     // File folder IDs that became new folders keep their IDs; notes already point at them.
+    final recipes = plan.rows.any((r) => r.table == 'recipes' && r.apply);
+    if (recipes) await SearchIndex.pauseRecipeChildTriggers(db);
     for (final table in order) {
       final info = tables[table]!;
       for (final r in plan.rows.where((r) => r.table == table && r.apply)) {
@@ -889,7 +892,10 @@ Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Funct
             updates: {info},
           );
         }
-        if (table == 'recipes') await _writeRecipeChildren(db, id, children!);
+        if (table == 'recipes') {
+          await _writeRecipeChildren(db, id, children!);
+          await SearchIndex.reindexRecipe(db, id);
+        }
         if (table == 'notes' && f['is_locked'] != true) {
           await db.customUpdate('DELETE FROM note_tags WHERE note_id = ?', variables: [Variable.withString(id)], updates: {db.noteTags});
           for (final name in r.tags) {
@@ -902,33 +908,36 @@ Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Funct
         written[r.sheet] = (written[r.sheet] ?? 0) + 1;
       }
     }
+    if (recipes) await SearchIndex.resumeRecipeChildTriggers(db);
   });
   return written;
 }
 
-/// Steps first, then ingredients, so the search triggers see the whole recipe (F4-01 §7).
+/// Replaces a recipe's ingredients and steps; the caller re-indexes it.
 Future<void> _writeRecipeChildren(AppDatabase db, String id, String children) async {
   final m = jsonDecode(children) as Map<String, Object?>;
-  await db.customUpdate('DELETE FROM recipe_ingredients WHERE recipe_id = ?', variables: [Variable.withString(id)], updates: {db.recipeIngredients});
-  await db.customUpdate('DELETE FROM recipe_steps WHERE recipe_id = ?', variables: [Variable.withString(id)], updates: {db.recipeSteps});
   final steps = (m['s']! as List).cast<String>();
-  for (var p = 0; p < steps.length; p++) {
-    await db.into(db.recipeSteps).insert(RecipeStepsCompanion.insert(recipeId: id, position: p, body: steps[p]));
-  }
   final ings = (m['i']! as List).cast<List<Object?>>();
-  for (var p = 0; p < ings.length; p++) {
-    final i = ings[p];
-    await db.into(db.recipeIngredients).insert(RecipeIngredientsCompanion.insert(
-          recipeId: id,
-          position: p,
-          section: Value(i[0] as String?),
-          amountMilli: Value(i[1] as int?),
-          amountMaxMilli: Value(i[2] as int?),
-          unit: Value(i[3] as String?),
-          name: i[4]! as String,
-          keyName: i[5]! as String,
-        ));
-  }
+  // One batch per recipe: a full restore writes thousands of these rows (M14).
+  await db.batch((b) {
+    b
+      ..deleteWhere(db.recipeIngredients, (x) => x.recipeId.equals(id))
+      ..deleteWhere(db.recipeSteps, (x) => x.recipeId.equals(id))
+      ..insertAll(db.recipeSteps, [for (var p = 0; p < steps.length; p++) RecipeStepsCompanion.insert(recipeId: id, position: p, body: steps[p])])
+      ..insertAll(db.recipeIngredients, [
+        for (var p = 0; p < ings.length; p++)
+          RecipeIngredientsCompanion.insert(
+            recipeId: id,
+            position: p,
+            section: Value(ings[p][0] as String?),
+            amountMilli: Value(ings[p][1] as int?),
+            amountMaxMilli: Value(ings[p][2] as int?),
+            unit: Value(ings[p][3] as String?),
+            name: ings[p][4]! as String,
+            keyName: ings[p][5]! as String,
+          ),
+      ]);
+  });
 }
 
 Variable<Object> _v(Object? v) => switch (v) {

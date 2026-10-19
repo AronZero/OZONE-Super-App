@@ -353,6 +353,7 @@ class _AllUpdates extends ConsumerWidget {
         Semantics(
           button: true,
           label: '${LocalDate.parseIso(u.date).valueOrNull!.formatLong()}, ${moneySpoken(context, u.balance)}${u.isUnchanged ? ', unchanged' : ''}. Edit',
+          onTap: () => showUpdateSheet(context, accountId: accountId, existing: u),
           excludeSemantics: true,
           child: PressScale(scale: PressScale.card, child: InkWell(
             onTap: () => showUpdateSheet(context, accountId: accountId, existing: u),

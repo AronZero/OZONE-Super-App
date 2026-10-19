@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
@@ -89,11 +91,15 @@ class _NoteToolbarState extends State<NoteToolbar> {
     final colour = s[Attribute.color.key]?.value as String?;
     final highlight = s[Attribute.background.key]?.value as String?;
 
-    Widget button(String label, Widget icon, {bool active = false, VoidCallback? onTap, bool toggle = true}) => Expanded(
+    // Each button gets at least 48 dp; on a narrow phone the bar scrolls sideways.
+    var slot = 48.0;
+    Widget button(String label, Widget icon, {bool active = false, VoidCallback? onTap, bool toggle = true}) => SizedBox(
+          width: slot,
           child: Semantics(
             button: true,
             toggled: toggle ? active : null,
             label: spokenAmounts(label),
+            onTap: onTap,
             excludeSemantics: true,
             child: Tooltip(
               message: label,
@@ -129,6 +135,7 @@ class _NoteToolbarState extends State<NoteToolbar> {
             button: true,
             selected: selected,
             label: spokenAmounts(label),
+            onTap: onTap,
             excludeSemantics: true,
             child: InkResponse(
               onTap: onTap,
@@ -190,7 +197,9 @@ class _NoteToolbarState extends State<NoteToolbar> {
           height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(20)),
-          child: Row(children: [
+          child: LayoutBuilder(builder: (context, box) {
+            slot = math.max(48, box.maxWidth / 10);
+            return SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
             button('Bold', Text('B', style: letter(s.containsKey('bold'))), active: s.containsKey('bold'), onTap: () => _toggle(Attribute.bold)),
             button('Italic', Text('I', style: letter(s.containsKey('italic'), style: FontStyle.italic)), active: s.containsKey('italic'), onTap: () => _toggle(Attribute.italic)),
             button('Underline', Text('U', style: letter(s.containsKey('underline'), deco: TextDecoration.underline)),
@@ -221,7 +230,8 @@ class _NoteToolbarState extends State<NoteToolbar> {
               onTap: () => setState(() => _open = _open == _Palette.colour ? _Palette.none : _Palette.colour),
             ),
             button('Undo', Icon(OzIcons.undo, color: _q.hasUndo ? c.ink : c.outline), toggle: false, onTap: _q.hasUndo ? _q.undo : null),
-          ]),
+          ]));
+          }),
         ),
       ),
     ]);

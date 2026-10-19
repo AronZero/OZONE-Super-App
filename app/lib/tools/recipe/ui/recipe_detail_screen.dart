@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/state/providers.dart';
 import '../../../core/ui/components/components.dart';
+import '../../../core/ui/components/states.dart';
 import '../../../core/ui/motion.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/oz_icons.dart';
@@ -35,14 +36,22 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
-    final data = ref.watch(recipesDataProvider).value;
+    final async = ref.watch(recipesDataProvider);
+    final data = async.value;
     final full = data?.byId(widget.recipeId);
     if (full == null) {
       return Scaffold(
         body: SafeArea(
           child: Column(children: [
             const DetailTopBar(title: 'Recipe', overline: 'Recipes'),
-            if (data != null) Padding(padding: const EdgeInsets.all(Space.xl), child: Text('This recipe no longer exists.', style: text.bodyLarge)),
+            if (data != null)
+              Padding(padding: const EdgeInsets.all(Space.xl), child: Text('This recipe no longer exists.', style: text.bodyLarge))
+            else
+              Expanded(
+                child: async.hasError
+                    ? LoadError(what: 'Recipe', error: async.error!, stack: async.stackTrace, onRetry: () => ref.invalidate(recipesDataProvider))
+                    : const DelayedSkeleton(),
+              ),
           ]),
         ),
       );
@@ -242,7 +251,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
       final a = RecipeFull.amountOf(ing)?.scaled(factor);
       final amt = formatAmount(a, ing.unit);
       final done = _ticked.contains(i);
-      void tick() => setState(() => done ? _ticked.remove(i) : _ticked.add(i));
+      void tick() {
+        Haptics.toggle();
+        setState(() => done ? _ticked.remove(i) : _ticked.add(i));
+      }
       rows.add(Semantics(
         checked: done,
         label: '${spokenAmount(a, ing.unit)} ${ing.name}'.trim(),

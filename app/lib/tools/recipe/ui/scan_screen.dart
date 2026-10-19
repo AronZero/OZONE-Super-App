@@ -591,7 +591,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
               hint: 'Long press to edit or split',
               child: InkWell(
                 onLongPress: () => _editLine(row),
-                child: Padding(
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  alignment: AlignmentDirectional.centerStart,
                   padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(row.line.text, style: text.bodyMedium!.copyWith(height: 1.4, fontWeight: FontWeight.w500)),

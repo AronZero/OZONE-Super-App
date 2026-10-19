@@ -119,6 +119,7 @@ class _ThemeCard extends StatelessWidget {
       checked: selected,
       button: true,
       label: spokenAmounts('$name theme'),
+      onTap: onTap,
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,

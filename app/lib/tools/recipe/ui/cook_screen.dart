@@ -216,11 +216,16 @@ class KitchenChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
     final text = Theme.of(context).textTheme;
+    void toggle() {
+      Haptics.toggle();
+      onTap();
+    }
+
     return Semantics(
       button: true,
       checked: on,
       label: label,
-      onTap: onTap,
+      onTap: toggle,
       excludeSemantics: true,
       child: PressScale(
         scale: PressScale.button,
@@ -229,13 +234,22 @@ class KitchenChip extends StatelessWidget {
           shape: const StadiumBorder(),
           child: InkWell(
             customBorder: const StadiumBorder(),
-            onTap: onTap,
+            onTap: toggle,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  if (on) ...[Icon(OzIcons.check, size: 15, color: c.onAccent), const SizedBox(width: 4)],
+                  // The tick grows in, as on Library's chips (UR3-1 moment 6).
+                  AnimatedContainer(
+                    duration: Motion.of(context).tabs,
+                    curve: Motion.settle,
+                    width: on ? 19 : 0,
+                    height: 16,
+                    child: ClipRect(
+                      child: OverflowBox(alignment: Alignment.centerLeft, minWidth: 0, maxWidth: 19, child: Icon(OzIcons.check, size: 15, color: c.onAccent)),
+                    ),
+                  ),
                   Flexible(
                     child: Text(label,
                         maxLines: 1,

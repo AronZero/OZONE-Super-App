@@ -6,7 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/data/deletions_repo.dart';
 import 'package:ozone/core/data/photo_store.dart';
+import 'package:ozone/core/data/settings_repo.dart';
 import 'package:ozone/core/domain/dates.dart';
+import 'package:ozone/core/search/search_repo.dart';
 import 'package:ozone/core/workbook/backup_service.dart';
 import 'package:ozone/core/workbook/backup_zip.dart';
 import 'package:ozone/core/workbook/ozone_import.dart';
@@ -103,6 +105,12 @@ void main() {
     expect([for (final k in await b.db.select(b.db.kitchen).get()) k.keyName], ['garlic']);
     expect(Directory(plan.photoDir!).existsSync(), isFalse, reason: 'unpacked files are removed');
 
+    // Search finds the restored recipes by an ingredient and a step (each indexed once, M14),
+    // and the paused child triggers are back: an edit after the import is indexed too.
+    final search = SearchRepo(b.db, SettingsRepo(b.db));
+    expect((await search.search('bay leaves')).single.count, 2);
+    expect((await search.search('marinate')).single.count, 2);
+
     // The same file again: nothing new, nothing changed.
     final again = await b.backup.readFile(e.file, fileName: e.name, today: today);
     expect(again.counts['Recipes']!.newRows, 0);
@@ -110,6 +118,10 @@ void main() {
     expect(again.counts['Recipes']!.same, 2);
     expect(again.photos, (newPhotos: 0, same: 0, missing: 0), reason: 'Same rows aren’t written');
     b.backup.discard(again);
+
+    final talong = theirs.firstWhere((r) => r.row.title == 'Tortang talong').id;
+    await b.recipes.edit(talong, adobo(title: 'Tortang talong', steps: const ['Grill the eggplant.']));
+    expect([for (final h in (await search.search('grill eggplant')).single.hits) h.recordId], [talong]);
   });
 
   test('a plain .xlsx imports without touching the phone’s photos', () async {

@@ -182,6 +182,7 @@ class _AccountRow extends ConsumerWidget {
     return Semantics(
       button: true,
       label: '${history.name}, ${moneySpoken(context, last.balance)}, ${carried ? 'carried from $date' : 'updated $date'}',
+      onTap: () => context.push('/finance/savings/accounts/${history.id}'),
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,

@@ -75,6 +75,7 @@ class NoteCard extends StatelessWidget {
       return Semantics(
         button: true,
         label: spokenAmounts('Locked note in ${folderName ?? 'Unfiled'}, edited $date'),
+        onTap: onTap,
         excludeSemantics: true,
         child: PressScale(scale: PressScale.card, child: Material(
           color: notesTile(context),
@@ -128,6 +129,7 @@ class NoteCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: spokenAmounts('$title${note.isPinned ? ', pinned' : ''}, edited $date${tags.isEmpty ? '' : ', tags ${tags.map((t) => '#${t.name}').join(' ')}'}'),
+      onTap: onTap,
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,

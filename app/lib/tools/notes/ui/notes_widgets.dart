@@ -65,6 +65,7 @@ class _MiniNote extends ConsumerWidget {
     return Semantics(
       button: true,
       label: spokenAmounts(locked ? 'Locked note' : (note.title ?? 'Untitled')),
+      onTap: locked ? () => _openLocked(context, ref, note.id) : () => openNote(context, note.id, fromOtherTab: true),
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: Material(
         color: c.onCard,

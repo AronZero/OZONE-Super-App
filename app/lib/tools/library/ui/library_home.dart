@@ -213,6 +213,7 @@ class BookRowTile extends StatelessWidget {
     return Semantics(
       button: true,
       label: spokenAmounts('${book.title}${book.author == null ? '' : ', by ${book.author}'}, ${status.label}, ${ratingSpoken(book.ratingHalf)}, $kindle, $acq'),
+      onTap: () => context.push('/library/books/${book.id}'),
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: Material(
         color: c.surface,

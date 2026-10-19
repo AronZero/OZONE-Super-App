@@ -41,7 +41,7 @@ as long as they're signed with the same key.
 
 ## Performance check (large sample)
 
-Measures the F2-03 §8 budgets with 10,000 rows and 500 notes (`integration_test/large_sample.dart`).
+Measures the F2-03 §8 budgets with 10,000 rows, 500 notes and 1,000 recipes (300 with photos) (`integration_test/large_sample.dart`).
 It writes the sample into the app's real database, so run it **only on a spare emulator or phone without
 your data**, never on the phone you use:
 

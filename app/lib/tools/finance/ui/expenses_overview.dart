@@ -283,6 +283,7 @@ class _FilterRow extends StatelessWidget {
           button: true,
           selected: on,
           label: spokenAmounts(label),
+          onTap: onTap,
           excludeSemantics: true,
           child: PressScale(scale: PressScale.button, child: FadeMaterial(
             color: on ? financeAccent(context) : c.surfaceSunken,
@@ -422,6 +423,7 @@ class ExpenseRowTile extends StatelessWidget {
     return Semantics(
       button: true,
       label: '${row.item}, ${row.vendor}, $date, ${moneySpoken(context, row.amount)}${row.isRefunded ? ', refunded, not counted' : ''}',
+      onTap: () => context.push('/finance/expenses/${row.id}'),
       excludeSemantics: true,
       child: PressScale(scale: PressScale.card, child: InkWell(
         onTap: () => context.push('/finance/expenses/${row.id}'),

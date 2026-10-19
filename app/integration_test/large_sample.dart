@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/painting.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/domain/ids.dart';
 
@@ -10,7 +13,11 @@ import 'package:ozone/core/domain/ids.dart';
 ///
 /// 20 accounts × 36 months = 720 balance updates · 4 karats × 36 months = 144
 /// gold prices · 136 gold items · 8,000 expenses · 1,000 books = 10,000 rows.
-Future<void> seedLargeSample(AppDatabase db) async {
+/// Plus 1,000 recipes (8 ingredients and 6 steps each, 300 with photos) and 14
+/// ingredients in the kitchen (F4-03 §2). Returns the recipe photo file names,
+/// for [writeSamplePhotos].
+Future<List<String>> seedLargeSample(AppDatabase db) async {
+  final photos = <String>[];
   final now = DateTime.utc(2026, 10, 1).millisecondsSinceEpoch;
   String iso(int y, int m, int d) => '$y-${m.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
   // Month i (0–35) runs from Oct 2023 to Sep 2026 (nothing after "today" in the tests).
@@ -20,6 +27,11 @@ Future<void> seedLargeSample(AppDatabase db) async {
   const vendors = ['SM Supermarket', 'Puregold', 'Mercury Drug', 'Shopee', 'Lazada', 'Jollibee', 'Meralco', 'Globe', 'Shell', 'National Book Store'];
   const items = ['Groceries', 'Medicine', 'Phone load', 'Fuel', 'Lunch', 'Electric bill', 'Internet', 'School supplies', 'Household', 'Snacks'];
   const words = ['plan', 'trip', 'budget', 'recipe', 'meeting', 'ideas', 'list', 'journal', 'project', 'notes'];
+  const dishes = ['Chicken adobo', 'Pork sinigang', 'Beef caldereta', 'Garlic fried rice', 'Tortang talong', 'Pancit canton', 'Banana bread', 'Lumpia', 'Kare-kare', 'Tinola'];
+  const pantry = ['chicken', 'pork', 'beef', 'rice', 'garlic', 'onion', 'tomato', 'egg', 'eggplant', 'soy sauce', 'vinegar', 'bay leaves', 'sugar',
+    'flour', 'butter', 'banana', 'potato', 'carrot', 'ginger', 'fish sauce', 'noodles', 'cabbage', 'peanut butter', 'tamarind', 'chili', 'milk',
+    'coconut milk', 'calamansi', 'spinach', 'shrimp', 'salt', 'pepper', 'water', 'oil', 'cheese', 'bell pepper', 'green beans', 'squash', 'tofu', 'mushroom'];
+  const units = ['cup', 'tbsp', 'tsp', 'g', 'kg', 'clove', null];
 
   await db.batch((b) {
     final accounts = [for (var a = 0; a < 20; a++) newId()];
@@ -81,5 +93,49 @@ Future<void> seedLargeSample(AppDatabase db) async {
         editedAt: now + n, createdAt: now, updatedAt: now + n,
       ));
     }
+    for (var r = 0; r < 1000; r++) {
+      final id = newId();
+      final photo = r % 10 < 3 ? '${newId()}.jpg' : null;
+      if (photo != null) photos.add(photo);
+      b.insert(db.recipes, RecipesCompanion.insert(
+        id: id, title: '${dishes[r % dishes.length]} ${r + 1}', category: Value(const ['Mains', 'Soups', 'Sides', 'Desserts', 'Snacks'][r % 5]),
+        servings: Value(2 + r % 5), prepMin: Value(5 + r % 30), cookMin: Value(10 + r % 90), isFavourite: Value(r % 13 == 0), photoFile: Value(photo),
+        createdAt: now + r, updatedAt: now + r,
+      ));
+      for (var i = 0; i < 8; i++) {
+        final key = pantry[(r * 7 + i * 5) % pantry.length];
+        b.insert(db.recipeIngredients, RecipeIngredientsCompanion.insert(
+          recipeId: id, position: i, section: Value(i >= 6 && r % 4 == 0 ? 'For the sauce' : null), amountMilli: Value(units[(r + i) % units.length] == null ? null : 500 * (1 + (r + i) % 6)),
+          unit: Value(units[(r + i) % units.length]), name: key, keyName: key,
+        ));
+      }
+      for (var p = 0; p < 6; p++) {
+        b.insert(db.recipeSteps, RecipeStepsCompanion.insert(recipeId: id, position: p, body: 'Step ${p + 1} for ${dishes[r % dishes.length]}: cook it gently, stir now and then, and taste before moving on.'));
+      }
+    }
+    // Enough that every group of What can I cook? has recipes.
+    for (final k in const ['chicken', 'onion', 'vinegar', 'banana', 'noodles', 'milk', 'bell pepper', 'rice', 'eggplant', 'flour', 'ginger', 'tamarind', 'garlic', 'egg']) {
+      b.insert(db.kitchen, KitchenCompanion.insert(keyName: k, updatedAt: now));
+    }
   });
+  return photos;
+}
+
+/// Writes one 1,600 × 1,200 sample picture (photos are 1,600 px JPEGs, R-5) under
+/// each of [names] in [dir]. PNG bytes: the decoder reads them whatever the name.
+Future<void> writeSamplePhotos(Directory dir, List<String> names) async {
+  final recorder = ui.PictureRecorder();
+  const size = Size(1600, 1200);
+  final canvas = Canvas(recorder)
+    ..drawRect(Offset.zero & size, Paint()..shader = const LinearGradient(colors: [Color(0xFF565F14), Color(0xFFECEEDC), Color(0xFFC0392B)]).createShader(Offset.zero & size));
+  for (var i = 0; i < 60; i++) {
+    canvas.drawCircle(Offset((i * 137) % 1600, (i * 89) % 1200), 20.0 + i % 70, Paint()..color = Color(0x40000000 + i * 0x030507));
+  }
+  final image = await recorder.endRecording().toImage(1600, 1200);
+  final bytes = (await image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+  image.dispose();
+  dir.createSync(recursive: true);
+  for (final n in names) {
+    File('${dir.path}/$n').writeAsBytesSync(bytes);
+  }
 }

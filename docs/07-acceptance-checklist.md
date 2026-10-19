@@ -77,3 +77,39 @@ steps. When every box is ticked, OZONE 1.0 is accepted.
 - [ ] Screens appear without a visible wait; long lists scroll smoothly.
 - [ ] Settings › About shows **1.0.0**, the licences, privacy and the error log.
 - [ ] Import of a full backup finishes in a few seconds on your phone (M9-7).
+
+## Recipes (1.2.0 · M14)
+
+Tick these with build 19 or later. Add Recipes to the bar first (Tools › Edit bar) or open it from Tools.
+Recipes you make for these checks are *(test data)*: delete them afterwards.
+
+**Recipe**
+- [ ] *(test data)* Type a recipe with 4 servings, an ingredient `½ cup` in a section "For the sauce", and two steps. Save,
+      leave and reopen it: the same ingredients, section and steps are there.
+- [ ] On that recipe, change servings 4 → 6: the `½ cup` line shows **¾ cup**; "to taste" lines stay as written.
+- [ ] Delete it, tap **Undo**: it's back with its photo, ingredients and steps.
+- [ ] Search (Home › search) for one of its ingredients: the recipe is found under Recipes.
+
+**Scanning** (print a recipe page, or use a cookbook)
+- [ ] Turn on airplane mode, then Add recipe › Scan a page: the text is read and **Check what was read** opens.
+- [ ] A clean printed page gives the right title and every ingredient and step after at most 3 corrections on the
+      check screen (long-press a line to fix it; the move button sends it to another group).
+- [ ] After saving (or cancelling), no scanned page is left in your gallery or in OZONE's files; only a photo you chose
+      to keep as the recipe's photo stays.
+
+**What can I cook?**
+- [ ] Tick a few ingredients: recipes move into **Ready to cook**, **Missing 1–2** and **Needs more**; salt, pepper,
+      water and oil count as always there (Settings › Tools › Recipes lets you change them).
+- [ ] Turn on the **What can I cook?** widget (Settings › Dashboard): it shows the same ready count and top recipes
+      as the screen, and changes at once when you tick an ingredient.
+
+**Backup**
+- [ ] Export (Settings › Data & backup): the file is a `.zip`. Import it back: every recipe is **Same** and every photo
+      is still there.
+- [ ] *(test data)* Import a damaged backup (on your PC, cut a copy of the export `.zip` in half, or zip up any
+      other files): the import refuses it, says why, and nothing changes.
+
+**Accessibility and finish**
+- [ ] TalkBack reads an ingredient line with its amount in words ("a half cup …") and every recipe button by name.
+- [ ] At the largest font size, Recipes, a recipe, New recipe and What can I cook? still fit (nothing cut off).
+- [ ] Settings › About shows **1.2.0** and, under licences, **Google ML Kit**.

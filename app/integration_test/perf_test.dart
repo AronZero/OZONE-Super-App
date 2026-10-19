@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -10,15 +12,17 @@ import 'package:ozone/core/domain/dates.dart';
 import 'package:ozone/core/search/search_repo.dart';
 import 'package:ozone/core/security/biometric_key_store.dart';
 import 'package:ozone/core/security/vault_service.dart';
+import 'package:ozone/core/ui/components/components.dart';
 import 'package:ozone/core/workbook/ozone_export.dart';
 import 'package:ozone/core/workbook/ozone_import.dart';
 import 'package:ozone/core/workbook/workbook.dart';
 import 'package:ozone/main.dart' as app;
+import 'package:path_provider/path_provider.dart';
 
 import 'large_sample.dart';
 
 /// Performance budgets (F2-03 §8) with the large sample (10,000 rows, 500
-/// notes), run on a phone or emulator in profile mode:
+/// notes, 1,000 recipes with 300 photos), run on a phone or emulator in profile mode:
 ///   flutter drive --profile --driver=test_driver/perf_driver.dart --target=integration_test/perf_test.dart
 /// Only for the temporary performance emulator: it writes the sample into the
 /// app's real database.
@@ -37,14 +41,15 @@ void main() {
           .read<int>('n');
       if (rows < 10000) {
         final sw = Stopwatch()..start();
-        await seedLargeSample(db);
+        final photos = await seedLargeSample(db);
         results['seed_ms'] = ms(sw);
+        await writeSamplePhotos(Directory('${(await getApplicationSupportDirectory()).path}/recipe_photos'), photos);
       }
 
       // Search: under 100 ms per query.
       final search = SearchRepo(db, SettingsRepo(db));
       final times = <String, int>{};
-      for (final q in ['gro', 'groceries 12', 'mercury', 'book title 5', 'author 7', 'trip', 'paragraph 3 budget', '4,500', 'ring']) {
+      for (final q in ['gro', 'groceries 12', 'mercury', 'book title 5', 'author 7', 'trip', 'paragraph 3 budget', '4,500', 'ring', 'adobo 5', 'tamarind', 'kare']) {
         await search.search(q); // warm the statement cache once per query shape
         final sw = Stopwatch()..start();
         await search.search(q);
@@ -101,14 +106,26 @@ void main() {
     }
 
     await open(() async {}, find.byKey(const ValueKey('bar-Finance')));
+    await tester.pumpAndSettle(); // the splash (UR4-1) plays over Home first
     final opens = <String, int>{
-      'savings': await open(() => tester.tap(find.byKey(const ValueKey('bar-Finance'))), find.text('Total savings')),
+      // Finance's tab pill: Home has a "Total savings" widget of its own.
+      'savings': await open(() => tester.tap(find.byKey(const ValueKey('bar-Finance'))), find.byKey(SegmentTabs.pillKey)),
       'gold': await open(() => tester.tap(find.text('Gold').first), find.text('Estimated value')),
       'expenses': await open(() => tester.tap(find.text('Expenses').first), find.text('Spent so far this year')),
       'library': await open(() => tester.tap(find.byKey(const ValueKey('bar-Library'))), find.textContaining('All books')),
       'notes': await open(() => tester.tap(find.byKey(const ValueKey('bar-Notes'))), find.text('Pinned')),
       'home': await open(() => tester.tap(find.byKey(const ValueKey('bar-Home'))), find.byKey(const ValueKey('bar-Home'))),
     };
+    // Recipes isn't in the bar by default: open it from Tools.
+    await tester.tap(find.byKey(const ValueKey('bar-Tools')));
+    await tester.pumpAndSettle();
+    opens['recipes'] = await open(() => tester.tap(find.text('Recipes').last), find.textContaining('ready with what you have'));
+    opens['recipe'] = await open(() => tester.tap(find.text('Tinola 1000')), find.text('Ingredients · 8'));
+    tester.state<NavigatorState>(find.byType(Navigator).first).pop(); // detail screens open on the root navigator
+    await tester.pumpAndSettle();
+    opens['cook'] = await open(() => tester.tap(find.textContaining('ready with what you have')), find.text('bell pepper'));
+    tester.state<NavigatorState>(find.byType(Navigator).first).pop(); // detail screens open on the root navigator
+    await tester.pumpAndSettle();
     results['open_ms'] = opens;
     results['open_worst_ms'] = opens.values.reduce((a, b) => a > b ? a : b);
 
@@ -125,6 +142,9 @@ void main() {
       }
       await tester.pump(const Duration(milliseconds: 200));
       SchedulerBinding.instance.removeTimingsCallback(collect);
+      // Scrolling down hid the bar; scrolling up brings it back for the next list.
+      await tester.fling(find.byType(Scrollable).first, const Offset(0, 600), 2000);
+      await tester.pumpAndSettle();
       int worst(Duration Function(FrameTiming) f) => frames.map((t) => f(t).inMicroseconds).fold(0, (a, b) => a > b ? a : b);
       results['scroll_$key'] = {
         'frames': frames.length,
@@ -142,6 +162,11 @@ void main() {
     });
     await scroll('library', () => tester.tap(find.byKey(const ValueKey('bar-Library'))));
     await scroll('notes', () => tester.tap(find.byKey(const ValueKey('bar-Notes'))));
+    await scroll('recipes', () async {
+      await tester.tap(find.byKey(const ValueKey('bar-Tools')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Recipes').last);
+    });
     binding.reportData = {...?binding.reportData, ...results};
   }, timeout: const Timeout(Duration(minutes: 10)));
 }

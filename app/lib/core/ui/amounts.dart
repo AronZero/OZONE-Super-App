@@ -48,7 +48,8 @@ final _amount = RegExp(r'(▲ \+|▼ −|−|\+)?₱ ?(••••|[\d,]+(?:\.\
 /// The same text with every amount in words, for TalkBack (docs/04: amounts are
 /// read as "1,234 pesos and 50 centavos"): `▲ +₱3,600.00` → "up 3,600 pesos",
 /// `₱125k` → "125 thousand pesos", `₱ ••••` → "amount hidden".
-String spokenAmounts(String text) => text.replaceAllMapped(_amount, (m) {
+String spokenAmounts(String text) => text
+    .replaceAllMapped(_amount, (m) {
       final digits = m[2];
       if (digits == null) return 'pesos'; // the ₱ before an amount field
       if (digits == '••••') return 'amount hidden';
@@ -58,4 +59,7 @@ String spokenAmounts(String text) => text.replaceAllMapped(_amount, (m) {
       final parts = plain.split('.');
       final cents = parts.length == 1 ? 0 : int.parse(parts[1].padRight(2, '0'));
       return '$sign${Money.spoken(int.parse(parts[0]) * 100 + cents)}';
-    });
+    })
+    // Arrows before a percentage: "▲ 17.9%" → "up 17.9%".
+    .replaceAll('▲ ', 'up ')
+    .replaceAll('▼ ', 'down ');

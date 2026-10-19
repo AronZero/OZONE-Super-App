@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ozone/core/ui/theme/tokens.dart';
 import 'package:ozone/shell/ui/ozone_mark.dart';
+import 'package:ozone/shell/ui/shell_bar.dart';
 
 import '../helpers/harness.dart';
 
@@ -111,6 +113,18 @@ void main() {
     expect((barBox.decoration! as BoxDecoration).border, isNull);
     final add = tester.widget<Material>(find.descendant(of: find.byTooltip('Quick add'), matching: find.byType(Material)).first);
     expect(add.elevation, 0);
+    await closeApp(tester, db);
+  });
+
+  testWidgets('a tool opened from Tools lights the Tools slot in its colour (M14)', (tester) async {
+    Color pill() => (tester.widget<AnimatedContainer>(find.descendant(of: find.byType(OzoneBar), matching: find.byType(AnimatedContainer)).first).decoration!
+            as BoxDecoration)
+        .color!;
+    final (db, _) = await pumpApp(tester, initialLocation: '/recipe');
+    expect(pill(), ToolTint.recipe.accent(Brightness.light));
+    await tester.tap(bar('Tools'));
+    await settle(tester);
+    expect(pill(), OzoneColors.light.ink);
     await closeApp(tester, db);
   });
 }

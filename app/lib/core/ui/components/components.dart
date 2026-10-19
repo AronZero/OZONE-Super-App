@@ -223,7 +223,7 @@ class SettingsRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: Space.s),
-            trailing ?? (onTap != null ? Icon(OzIcons.chevronRight, color: c.inkMuted) : const SizedBox.shrink()),
+            if (trailing != null) _InRow(child: trailing!) else if (onTap != null) Icon(OzIcons.chevronRight, color: c.inkMuted),
           ],
         ),
       ),
@@ -239,6 +239,15 @@ class SettingsRow extends StatelessWidget {
   }
 }
 
+/// Marks a [SettingsRow]'s trailing control: the row already reads its title,
+/// so a switch there doesn't repeat it as its own label.
+class _InRow extends InheritedWidget {
+  const _InRow({required super.child});
+
+  @override
+  bool updateShouldNotify(_InRow old) => false;
+}
+
 /// Ink-coloured switch for shell screens (tool screens pass their accent).
 class OzoneSwitch extends StatelessWidget {
   const OzoneSwitch({super.key, required this.value, required this.onChanged, required this.label, this.accent});
@@ -251,8 +260,9 @@ class OzoneSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = OzoneThemeColors.of(context);
+    final inRow = context.getInheritedWidgetOfExactType<_InRow>() != null;
     return Semantics(
-      label: spokenAmounts(label),
+      label: inRow ? null : spokenAmounts(label),
       child: Switch(
         value: value,
         onChanged: onChanged == null
@@ -298,6 +308,7 @@ class ChoiceChips<T> extends StatelessWidget {
                   checked: v == selected,
                   button: true,
                   label: spokenAmounts(name),
+                  onTap: () => onSelected(v),
                   excludeSemantics: true,
                   child: FadeMaterial(
                     color: v == selected ? c.ink : c.surfaceSunken,
@@ -468,6 +479,11 @@ class SegmentTabs extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final m = Motion.of(context);
     final n = labels.length;
+    void pick(int i) {
+      if (i != selected) Haptics.tab();
+      onSelected(i);
+    }
+
     return Container(
       padding: const EdgeInsets.all(Space.xs),
       decoration: BoxDecoration(color: c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
@@ -491,16 +507,14 @@ class SegmentTabs extends StatelessWidget {
                 selected: i == selected,
                 button: true,
                 label: spokenAmounts('${labels[i]}$spokenSuffix'),
+                onTap: () => pick(i),
                 excludeSemantics: true,
                 child: Material(
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
-                    onTap: () {
-                      if (i != selected) Haptics.tab();
-                      onSelected(i);
-                    },
+                    onTap: () => pick(i),
                     child: SizedBox(
                       height: 48,
                       child: Center(

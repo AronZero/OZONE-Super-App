@@ -218,6 +218,7 @@ class _UpdateBalancesScreenState extends ConsumerState<UpdateBalancesScreen> {
         Semantics(
           button: true,
           label: spokenAmounts('Edit ${k.account.name}'),
+          onTap: () => setState(() => _editing.add(k.account.id)),
           excludeSemantics: true,
           child: FilledButton(
             onPressed: () => setState(() => _editing.add(k.account.id)),

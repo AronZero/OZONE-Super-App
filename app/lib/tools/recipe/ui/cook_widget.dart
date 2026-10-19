@@ -84,10 +84,14 @@ class CookWidget extends ConsumerWidget {
                     const SizedBox(width: 10),
                     Expanded(child: title),
                     if (result.ready.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(color: recipeAccent(context), borderRadius: BorderRadius.circular(999)),
-                        child: Text('${result.ready.length} ready', style: text.labelMedium!.copyWith(fontWeight: FontWeight.w800, color: c.onAccent)),
+                      PopOnChange(
+                        value: result.ready.length,
+                        pop: Pop.badge,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(color: recipeAccent(context), borderRadius: BorderRadius.circular(999)),
+                          child: Text('${result.ready.length} ready', style: text.labelMedium!.copyWith(fontWeight: FontWeight.w800, color: c.onAccent)),
+                        ),
                       ),
                   ]),
                 ),

@@ -91,10 +91,13 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> with SingleTicker
       for (final id in barIds)
         for (final t in toolRegistry.where((t) => t.id == id))
           BarItem(label: t.name, icon: t.icon, tint: t.tint, branch: branchOfTool(t.id)),
-      BarItem(label: 'Tools', icon: OzIcons.gridView, branch: toolsBranch),
     ];
-    // A tool opened from the launcher but not in the bar keeps "Tools" active.
+    // A tool opened from the launcher but not in the bar keeps "Tools" active,
+    // in that tool's colour.
     var current = items.indexWhere((i) => i.branch == shell.currentIndex);
+    final open = shell.currentIndex - 1;
+    final openTint = current < 0 && open >= 0 && open < toolRegistry.length ? toolRegistry[open].tint : null;
+    items.add(BarItem(label: 'Tools', icon: OzIcons.gridView, tint: openTint, branch: toolsBranch));
     if (current < 0) current = items.length - 1;
     final m = Motion.of(context);
 
