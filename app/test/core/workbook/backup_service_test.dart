@@ -34,7 +34,7 @@ void main() {
     final real = BackupService(db, workDir: () async => Directory('${root.path}/exports'), safetyDir: () async => Directory('${root.path}/safety'));
     final e = await real.build();
     expect(e.counts['Expenses'], 1);
-    final plan = await real.read(await e.file.readAsBytes(), fileName: e.name, today: today);
+    final plan = await real.readFile(e.file, fileName: e.name, today: today);
     expect(plan.rows.where((r) => r.table == 'expenses').single.cls, RowClass.same);
   });
 
@@ -68,7 +68,7 @@ void main() {
 
   test('an import makes a safety export first; a restore onto an empty phone does not', () async {
     final e = await backup.build();
-    final plan = await backup.read(await e.file.readAsBytes(), fileName: e.name, today: today);
+    final plan = await backup.readFile(e.file, fileName: e.name, today: today);
     final (safety, _) = await backup.apply(plan);
     expect(safety, isNotNull);
     expect(safety!.existsSync(), isTrue);

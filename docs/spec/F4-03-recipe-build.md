@@ -6,12 +6,14 @@
 |---|---|---|---|---|---|---|
 | google_mlkit_text_recognition | 0.17.1 | 63 d | flutter-ml.dev | MIT | Reading text (R-2) | Community plugin over Google's ML Kit SDK (free, closed source, Google's ML Kit terms). Needs Dart ≥ 3.12 and Flutter ≥ 3.44 (we have 3.13.4 / 3.47.5). |
 | google_mlkit_commons | 0.13.0 | 63 d | flutter-ml.dev | MIT | Pulled in by the above | Flutter SDK only |
-| image_picker | 1.2.3 | ~3 mo | flutter.dev | BSD-3 | Camera app and system photo picker (R-6), resizing to 1,600 px | 1.2.4 is 13 days old today, so not yet allowed |
+| image_picker | 1.2.3 | ~3 mo | flutter.dev | BSD-3 | Camera app and system photo picker (R-6) | 1.2.4 is 13 days old today, so not yet allowed. Added in M11 with two sub-packages pinned (below) |
+| image_picker_ios | 0.8.13+9 | 19 d | flutter.dev | BSD-3 | Pulled in by image_picker | Pinned in M11: the resolver chose 0.8.13+12, 5 days old |
+| image_picker_platform_interface | 2.11.1 | ~1 yr | flutter.dev | BSD-3 | Pulled in by image_picker | Pinned in M11: the resolver chose 2.11.2, 13 days old. Depends on `http`, already in the lockfile |
 | archive | 3.6.1 (already in the lockfile through excel) | ~2 yr | loki3d.com | MIT | Writing and reading the backup `.zip` | Becomes a direct dependency at the same version, so nothing new is downloaded. excel 4.0.6 needs archive ^3.6.1, so archive 4.x isn't possible without replacing excel. |
 
 **Not added:** a crop or edge-detection package (corners and the perspective transform use `dart:ui`, F4-02 §3); `image`
-(re-encoding a scanned photo to 1,600 px JPEG is done by the existing files channel with the phone's own encoder:
-`Bitmap.compress` on Android, `UIImage.jpegData` on iOS, about 20 lines each). Fallback if that channel is refused in review:
+(every photo is turned into a 1,600 px JPEG by the existing files channel with the phone's own encoder:
+`Bitmap.compress` on Android in `JpegConverter.kt` (M11), `UIImage.jpegData` on iOS when a Mac build happens). Fallback if that channel is refused in review:
 `image` 4.3.0 (loki3d.com, MIT, the last version that works with archive 3.6.1).
 
 **Things to verify when adding ML Kit (stop and report if any fails):**

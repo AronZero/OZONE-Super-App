@@ -205,3 +205,54 @@ class Vault extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+// ── Recipe (schema v3, docs/spec/F4-01 §1) ───────────────────────────────
+
+@DataClassName('RecipeRow')
+@TableIndex(name: 'idx_recipes_title', columns: {#title})
+@TableIndex(name: 'idx_recipes_category', columns: {#category})
+class Recipes extends Table with Record {
+  TextColumn get title => text()();
+  TextColumn get category => text().nullable()();
+  IntColumn get servings => integer().nullable()(); // 1–100
+  IntColumn get prepMin => integer().nullable()(); // 0–6000
+  IntColumn get cookMin => integer().nullable()(); // 0–6000
+  TextColumn get source => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  BoolColumn get isFavourite => boolean().withDefault(const Constant(false))();
+  TextColumn get photoFile => text().nullable()(); // `<uuid>.jpg` in recipe_photos/
+}
+
+/// Part of a recipe: written together with it, never on its own.
+@DataClassName('RecipeIngredientRow')
+@TableIndex(name: 'idx_recipe_ingredients_key', columns: {#keyName})
+class RecipeIngredients extends Table {
+  TextColumn get recipeId => text().references(Recipes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get position => integer()();
+  TextColumn get section => text().nullable()();
+  IntColumn get amountMilli => integer().nullable()(); // thousandths: ½ = 500
+  IntColumn get amountMaxMilli => integer().nullable()(); // ranges only
+  TextColumn get unit => text().nullable()();
+  TextColumn get name => text()();
+  TextColumn get keyName => text()(); // lower case, for What can I cook?
+  @override
+  Set<Column> get primaryKey => {recipeId, position};
+}
+
+@DataClassName('RecipeStepRow')
+class RecipeSteps extends Table {
+  TextColumn get recipeId => text().references(Recipes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get position => integer()();
+  TextColumn get body => text().named('text')();
+  @override
+  Set<Column> get primaryKey => {recipeId, position};
+}
+
+/// Ingredients ticked on What can I cook? A row means "I have it".
+@DataClassName('KitchenRow')
+class Kitchen extends Table {
+  TextColumn get keyName => text()();
+  IntColumn get updatedAt => integer()();
+  @override
+  Set<Column> get primaryKey => {keyName};
+}

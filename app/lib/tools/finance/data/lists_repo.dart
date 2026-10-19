@@ -9,7 +9,8 @@ import '../../../core/data/watch.dart';
 enum ListField {
   vendor('vendor', 'Vendors'),
   platform('platform', 'Savings platforms'),
-  type('type', 'Account types');
+  type('type', 'Account types'),
+  category('category', 'Recipe categories');
 
   const ListField(this.key, this.title);
 
@@ -39,9 +40,10 @@ class ListsRepo {
     ListField.vendor: [('expenses', 'vendor'), ('gold_items', 'vendor')],
     ListField.platform: [('savings_accounts', 'platform')],
     ListField.type: [('savings_accounts', 'type')],
+    ListField.category: [('recipes', 'category')],
   };
 
-  Set<ResultSetImplementation<dynamic, dynamic>> get _tables => {_db.expenses, _db.goldItems, _db.savingsAccounts};
+  Set<ResultSetImplementation<dynamic, dynamic>> get _tables => {_db.expenses, _db.goldItems, _db.savingsAccounts, _db.recipes};
 
   /// Values in use, most used first, then most recently changed.
   Future<List<ListValue>> values(ListField f) async {
@@ -63,7 +65,7 @@ class ListsRepo {
   Future<List<String>> suggestions(ListField f) async => [for (final v in await values(f)) if (!v.hidden) v.value];
 
   Stream<List<ListValue>> watch(ListField f) =>
-      watchTables(_db, [_db.expenses, _db.goldItems, _db.savingsAccounts, _db.settings], () => values(f));
+      watchTables(_db, [_db.expenses, _db.goldItems, _db.savingsAccounts, _db.recipes, _db.settings], () => values(f));
 
   Future<Set<String>> _hidden(ListField f) async =>
       {for (final v in (await _settings.get(SettingKeys.listsHidden))[f.key] ?? const <String>[]) v.toLowerCase()};

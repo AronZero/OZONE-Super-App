@@ -6,8 +6,10 @@ import 'package:drift/drift.dart';
 
 import '../app_info.dart';
 import '../data/database.dart';
+import '../data/photo_store.dart';
 import '../domain/dates.dart';
 import '../domain/ids.dart';
+import 'backup_zip.dart';
 import 'ozone_export.dart';
 import 'ozone_import.dart';
 import 'workbook.dart';
@@ -27,13 +29,17 @@ class BuiltExport {
   int get total => counts.values.fold(0, (a, b) => a + b);
 }
 
-/// Export, safety exports and import (docs/spec/F1-03).
+/// Export, safety exports and import (docs/spec/F1-03), as a `.zip` with the
+/// workbook and the recipe photos since 1.2.0 (F4-01 §5–6).
 class BackupService {
-  BackupService(this._db, {required this.workDir, required this.safetyDir, HeavyRunner? heavy, int Function()? clock})
+  BackupService(this._db, {required this.workDir, required this.safetyDir, this.photos, HeavyRunner? heavy, int Function()? clock})
       : _heavy = heavy ?? _isolate,
         _clock = clock ?? (() => DateTime.now().toUtc().millisecondsSinceEpoch);
 
   final AppDatabase _db;
+
+  /// Recipe photos; null in tests that don't need them.
+  final PhotoStore? photos;
 
   /// Temporary exports (app cache).
   final Future<Directory> Function() workDir;
@@ -48,18 +54,38 @@ class BackupService {
 
   static String _two(int n) => n.toString().padLeft(2, '0');
 
-  /// `OZONE-YYYY-MM-DD.xlsx` (local date, F1-02 §1).
-  static String exportName(DateTime local) => 'OZONE-${local.year}-${_two(local.month)}-${_two(local.day)}.xlsx';
+  /// `OZONE-YYYY-MM-DD.zip` (local date, F1-02 §1 and F4-01 §5).
+  static String exportName(DateTime local) => 'OZONE-${local.year}-${_two(local.month)}-${_two(local.day)}.zip';
 
-  /// `OZONE-safety-YYYY-MM-DD-HHmm.xlsx`.
+  /// `OZONE-safety-YYYY-MM-DD-HHmm.zip`.
   static String safetyName(DateTime local) =>
-      'OZONE-safety-${local.year}-${_two(local.month)}-${_two(local.day)}-${_two(local.hour)}${_two(local.minute)}.xlsx';
+      'OZONE-safety-${local.year}-${_two(local.month)}-${_two(local.day)}-${_two(local.hour)}${_two(local.minute)}.zip';
+
+  /// MIME type of the backup file, for "Save to" and Share.
+  static const mime = 'application/zip';
 
   /// Steps 1–3 of F1-03 §1: a consistent snapshot, built off the UI thread,
   /// written to a temporary name and then moved into place.
   Future<BuiltExport> build({void Function(ExportStep)? onStep, bool Function()? cancelled, String? name}) async {
     final book = await buildWorkbook(_db, appVersion: appVersion, onStep: onStep, cancelled: cancelled);
     if (cancelled?.call() ?? false) throw const ExportCancelled();
+    // The photos of this snapshot. One whose file is gone is left out, and its
+    // Photo cell is cleared, so the backup never names a photo it doesn't hold.
+    final photoFiles = <(String, String)>[];
+    final sheet = book.sheet('Recipes');
+    final col = sheet?.column('Photo');
+    if (sheet != null && col != null) {
+      for (final row in sheet.rows) {
+        final name = row[col] as String?;
+        if (name == null) continue;
+        final file = await photos?.file(name);
+        if (file != null && file.existsSync()) {
+          photoFiles.add((name, file.path));
+        } else {
+          row[col] = null;
+        }
+      }
+    }
     final bytes = await _heavy(() => XlsxCodec.encode(book));
     if (cancelled?.call() ?? false) throw const ExportCancelled();
     final dir = await workDir();
@@ -74,7 +100,14 @@ class BackupService {
     }
     final fileName = name ?? exportName(DateTime.now());
     final tmp = File('${dir.path}/.$fileName.part');
-    await tmp.writeAsBytes(bytes, flush: true);
+    final workbookName = fileName.replaceFirst(RegExp(r'\.zip$'), '.xlsx');
+    final wb = Uint8List.fromList(bytes);
+    try {
+      await _heavy(() => BackupZip.write(tmp.path, workbookName, wb, photoFiles));
+    } on Object {
+      if (tmp.existsSync()) await tmp.delete();
+      rethrow;
+    }
     final file = await tmp.rename('${dir.path}/$fileName');
     return BuiltExport(file, fileName, rowCounts(book));
   }
@@ -103,7 +136,7 @@ class BackupService {
     final e = await build(name: safetyName(DateTime.now()));
     var target = File('${dir.path}/${e.name}');
     for (var i = 2; target.existsSync(); i++) {
-      target = File('${dir.path}/${e.name.replaceFirst('.xlsx', '-$i.xlsx')}');
+      target = File('${dir.path}/${e.name.replaceFirst('.zip', '-$i.zip')}');
     }
     final saved = await e.file.copy(target.path);
     await recordExport(e, kind: 'safety', savedAs: saved.uri.pathSegments.last);
@@ -121,7 +154,7 @@ class BackupService {
   Future<List<File>> safetyExports() async {
     final dir = await safetyDir();
     if (!dir.existsSync()) return const [];
-    return [for (final f in dir.listSync().whereType<File>()) if (f.path.endsWith('.xlsx')) f]
+    return [for (final f in dir.listSync().whereType<File>()) if (f.path.endsWith('.zip') || f.path.endsWith('.xlsx')) f]
       ..sort((a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()));
   }
 
@@ -137,13 +170,92 @@ class BackupService {
     return planImport(_db, book, fileName: fileName, today: today, restore: restore);
   }
 
+  /// Steps 1–3 for a picked file: a backup `.zip` is unpacked off the UI
+  /// thread into a private folder (F4-01 §6); a plain `.xlsx` reads as before.
+  Future<ImportPlan> readFile(File file, {required String fileName, required LocalDate today, bool restore = false}) async {
+    final path = file.path;
+    final kind = await _heavy(() => BackupZip.kind(path));
+    // Decided by content, so a renamed file still opens; anything unreadable gets
+    // the message for the type its name claims.
+    if (kind == FileKind.backup || (kind == FileKind.other && fileName.toLowerCase().endsWith('.zip'))) {
+      final out = '${(await workDir()).path}/import-${newId()}';
+      final UnpackedZip z;
+      try {
+        z = await _heavy(() => BackupZip.unpack(path, out));
+      } on BackupZipRefused catch (e) {
+        _deleteDir(out);
+        throw ImportRefused(e.message);
+      }
+      try {
+        final book = await _heavy(() => XlsxCodec.decode(z.workbook));
+        return await planImport(_db, book,
+            fileName: fileName, today: today, restore: restore, filePhotos: z.photos, photoDir: z.photoDir, phonePhotos: await _phonePhotos());
+      } on FormatException catch (e) {
+        _deleteDir(out);
+        throw ImportRefused(e.message);
+      } on Object {
+        _deleteDir(out);
+        rethrow;
+      }
+    }
+    if (file.lengthSync() > maxBytes) throw const ImportRefused('This file is over 25 MB, so it can’t be an OZONE workbook.');
+    return read(await file.readAsBytes(), fileName: fileName, today: today, restore: restore);
+  }
+
+  Future<Set<String>> _phonePhotos() async {
+    final p = photos;
+    if (p == null) return const {};
+    final dir = await p.folder();
+    return {for (final f in dir.listSync().whereType<File>()) f.uri.pathSegments.last};
+  }
+
+  static void _deleteDir(String path) {
+    final d = Directory(path);
+    if (d.existsSync()) d.deleteSync(recursive: true);
+  }
+
+  /// On start: removes unpacked imports left behind when OZONE was stopped mid-import.
+  Future<void> cleanUp() async {
+    final dir = await workDir();
+    if (!dir.existsSync()) return;
+    for (final d in dir.listSync().whereType<Directory>()) {
+      if (d.uri.pathSegments.where((s) => s.isNotEmpty).last.startsWith('import-')) d.deleteSync(recursive: true);
+    }
+  }
+
+  /// The unpacked photos of a plan that won't be applied (Cancel, Back).
+  void discard(ImportPlan plan) {
+    final dir = plan.photoDir;
+    if (dir != null) _deleteDir(Directory(dir).parent.path);
+  }
+
   /// Steps 5–6: the safety export first (an import never starts without it),
-  /// then everything in one transaction. Returns the safety file and rows written.
+  /// then the photos, then everything in one transaction. Returns the safety
+  /// file and rows written. Photos copied for a failed import are removed.
   Future<(File?, Map<String, int>)> apply(ImportPlan plan, {bool restore = false}) async {
-    // A restore onto an empty phone has nothing to protect.
-    final safety = restore ? null : await safetyExport();
-    final written = await applyImport(_db, plan);
-    return (safety, written);
+    try {
+      // A restore onto an empty phone has nothing to protect.
+      final safety = restore ? null : await safetyExport();
+      final copied = <String>[];
+      final store = photos;
+      try {
+        if (store != null && plan.photoDir != null) {
+          for (final name in plan.photosToCopy) {
+            await store.put(File('${plan.photoDir}/$name'), name);
+            copied.add(name);
+          }
+        }
+        final written = await applyImport(_db, plan);
+        return (safety, written);
+      } on Object {
+        for (final name in copied) {
+          await store!.delete(name);
+        }
+        rethrow;
+      }
+    } finally {
+      discard(plan);
+    }
   }
 
   /// A blank workbook with every sheet's headers (F1-02 §1).

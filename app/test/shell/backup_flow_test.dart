@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/data/deletions_repo.dart';
 import 'package:ozone/core/domain/dates.dart';
+import 'package:ozone/core/workbook/backup_zip.dart';
 import 'package:ozone/core/workbook/ozone_export.dart';
 import 'package:ozone/core/workbook/workbook.dart';
 import 'package:ozone/shell/ui/backup/export_screen.dart';
@@ -23,6 +24,13 @@ Future<AppDatabase> seeded(WidgetTester tester) async {
     await BooksRepo(db, d).add(const BookInput(title: 'Dune', status: BookStatus.reading, acquisition: Acquisition.free));
   });
   return db;
+}
+
+/// A picked file: the picker hands over a private copy on disk.
+File picked(String name, List<int> bytes) {
+  final dir = Directory.systemTemp.createTempSync('ozone_pick');
+  addTearDown(() => dir.deleteSync(recursive: true));
+  return File('${dir.path}/$name')..writeAsBytesSync(bytes);
 }
 
 /// Lets file and database work finish (they run on real async), then settles.
@@ -63,7 +71,12 @@ void main() {
     expect(find.text('OZONE-2026-10-13.xlsx'), findsNothing, reason: 'named by the real date, not the test date');
     expect(find.textContaining('This file isn’t encrypted.'), findsOneWidget);
     expect(File(savedPath!).existsSync(), isTrue);
-    final book = await tester.runAsync(() async => XlsxCodec.decode(await File(savedPath!).readAsBytes()));
+    expect(savedPath, endsWith('.zip'), reason: 'backups are a .zip since 1.2.0 (F4-Q1)');
+    final book = await tester.runAsync(() async {
+      final out = Directory.systemTemp.createTempSync('unzip');
+      addTearDown(() => out.deleteSync(recursive: true));
+      return XlsxCodec.decode(BackupZip.unpack(savedPath!, out.path).workbook);
+    });
     expect(rowCounts(book!)['Expenses'], 1);
     await tester.tap(find.text('Done'));
     await work(tester);
@@ -82,7 +95,7 @@ void main() {
       e.rows.add([null, 'Coffee', 'Café Uno', 450.0, LocalDate(2026, 10, 1), 'No', null, null, null]);
       return XlsxCodec.encode(book);
     });
-    await pumpApp(tester, db: db, overrides: [pickWorkbookProvider.overrideWithValue(() async => ('OZONE-2026-09-02.xlsx', bytes!))]);
+    await pumpApp(tester, db: db, overrides: [pickWorkbookProvider.overrideWithValue(() async => ('OZONE-2026-09-02.xlsx', picked('OZONE-2026-09-02.xlsx', bytes!)))]);
     await openData(tester);
     await tester.tap(find.text('Choose a file…'));
     await work(tester);
@@ -109,7 +122,7 @@ void main() {
   testWidgets('a file that isn’t OZONE’s is refused in words', (tester) async {
     final db = await seeded(tester);
     final bytes = XlsxCodec.encode(Workbook([WbSheet('Budget', ['A', 'B'], [['x', 'y']])]));
-    await pumpApp(tester, db: db, overrides: [pickWorkbookProvider.overrideWithValue(() async => ('budget.xlsx', bytes))]);
+    await pumpApp(tester, db: db, overrides: [pickWorkbookProvider.overrideWithValue(() async => ('budget.xlsx', picked('budget.xlsx', bytes)))]);
     await openData(tester);
     await tester.tap(find.text('Choose a file…'));
     await work(tester);
@@ -124,7 +137,7 @@ void main() {
     final db = memoryDb();
     final reminders = FakeReminderPlatform();
     await pumpApp(tester, db: db, initialLocation: '/welcome', reminders: reminders, overrides: [
-      pickWorkbookProvider.overrideWithValue(() async => ('OZONE-2026-10-13.xlsx', bytes!)),
+      pickWorkbookProvider.overrideWithValue(() async => ('OZONE-2026-10-13.xlsx', picked('OZONE-2026-10-13.xlsx', bytes!))),
     ]);
     expect(find.text('Start fresh'), findsOneWidget);
     await tester.tap(find.text('Restore from a workbook'));

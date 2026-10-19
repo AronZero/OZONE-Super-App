@@ -28,6 +28,10 @@ part 'database.g.dart';
   NoteTags,
   NoteDrafts,
   Vault,
+  Recipes,
+  RecipeIngredients,
+  RecipeSteps,
+  Kitchen,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -44,8 +48,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// v1: every F1-01 table. v2 (M7): search keys and the triggers that keep the
   /// search index in step; the index is rebuilt for existing data.
+  /// v3 (M11): the Recipe tables and their search triggers (F4-01 §1).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -61,9 +66,19 @@ class AppDatabase extends _$AppDatabase {
               ]));
         },
         onUpgrade: (m, from, to) async {
+          // Tables first: installing the search triggers needs every indexed table.
+          if (from < 3) {
+            await m.createTable(recipes);
+            await m.createTable(recipeIngredients);
+            await m.createTable(recipeSteps);
+            await m.createTable(kitchen); // createTable also makes each table's indexes
+          }
           if (from < 2) {
             await SearchIndex.install(this);
             await SearchIndex.rebuild(this);
+          } else if (from < 3) {
+            // Adds only the recipe triggers; the others exist already (IF NOT EXISTS).
+            await SearchIndex.install(this);
           }
           await into(appMeta).insertOnConflictUpdate(AppMetaCompanion.insert(key: 'schema_version', value: '$to'));
         },

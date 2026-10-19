@@ -22,20 +22,26 @@ import '../../../core/ui/amounts.dart';
 import '../../../core/ui/motion.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
-/// Picks a `.xlsx` (F2-03 §2: the system picker; the file is read once into memory).
-Future<(String, List<int>)?> pickWorkbook() async {
+/// Picks a backup `.zip` or a `.xlsx` workbook (F2-03 §2, F4-01 §6: the
+/// system picker). The picker hands over a private copy, which is read from
+/// disk so a large backup never sits in memory.
+Future<(String, File)?> pickWorkbook() async {
   const group = XTypeGroup(
-    label: 'OZONE workbook',
-    extensions: ['xlsx'],
-    mimeTypes: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    label: 'OZONE backup',
+    extensions: ['zip', 'xlsx'],
+    mimeTypes: ['application/zip', 'application/x-zip-compressed', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
   );
   final f = await ExternalActivity.run(() => openFile(acceptedTypeGroups: const [group]));
   if (f == null) return null;
-  return (f.name, await f.readAsBytes());
+  if (f.path.isNotEmpty && File(f.path).existsSync()) return (f.name, File(f.path));
+  // No file path from this picker: keep a private copy for the import.
+  final copy = File('${(await Directory.systemTemp.createTemp('ozone_pick')).path}/${f.name}');
+  await copy.writeAsBytes(await f.readAsBytes(), flush: true);
+  return (f.name, copy);
 }
 
 /// The file picker; tests replace it.
-final pickWorkbookProvider = Provider<Future<(String, List<int>)?> Function()>((ref) => pickWorkbook);
+final pickWorkbookProvider = Provider<Future<(String, File)?> Function()>((ref) => pickWorkbook);
 
 /// W1 · Import preview and the whole import pipeline (F1-03 §2), also used by
 /// Welcome › Restore (§3) and Safety exports › Import.
@@ -73,14 +79,16 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   @override
   void dispose() {
     _otherPw.dispose();
+    // Leaving the preview without importing: its unpacked photos go.
+    if (_plan != null && _phase != _Phase.applying && _phase != _Phase.done) ref.read(backupServiceProvider).discard(_plan!);
     super.dispose();
   }
 
   Future<void> _start() async {
     setState(() => _phase = _Phase.picking);
-    final (String, List<int>)? picked;
+    final (String, File)? picked;
     if (widget.file != null) {
-      picked = (widget.file!.uri.pathSegments.last, await widget.file!.readAsBytes());
+      picked = (widget.file!.uri.pathSegments.last, widget.file!);
     } else {
       picked = await ref.read(pickWorkbookProvider)();
     }
@@ -92,7 +100,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     }
     setState(() => _phase = _Phase.reading);
     try {
-      final plan = await ref.read(backupServiceProvider).read(picked.$2, fileName: picked.$1, today: ref.read(todayProvider), restore: widget.restore);
+      final plan = await ref.read(backupServiceProvider).readFile(picked.$2, fileName: picked.$1, today: ref.read(todayProvider), restore: widget.restore);
       if (mounted) {
         setState(() {
           _plan = plan;
@@ -242,6 +250,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             ]),
           ),
           _CountsTable(counts: {for (final e in counts.entries) if (e.value.newRows + e.value.changed + e.value.same + e.value.check > 0) e.key: e.value}),
+          if (p.photos case final ph? when ph.newPhotos + ph.same + ph.missing > 0)
+            _Note('Photos: ${ph.newPhotos} new · ${ph.same} same${ph.missing > 0 ? ' · ${ph.missing} missing from the file' : ''}'),
           for (final e in p.sheetErrors) AttentionBanner(title: 'A sheet was left out', body: e),
           if (p.importVault)
             _Note('The file’s notes vault comes with it. Its vault password opens the locked notes.'),

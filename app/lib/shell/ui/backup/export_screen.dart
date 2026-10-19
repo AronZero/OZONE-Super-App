@@ -17,7 +17,8 @@ import '../../../core/ui/motion.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// The phone's "Save to" dialog; tests replace it.
-final saveAsProvider = Provider<Future<String?> Function(String path, String name)>((ref) => FilesChannel.saveAs);
+final saveAsProvider = Provider<Future<String?> Function(String path, String name)>(
+    (ref) => (path, name) => FilesChannel.saveAs(path, name, mime: BackupService.mime));
 
 /// W3 · Export progress → done (F1-03 §1, F2-03 §2): per-tool progress, then
 /// the phone's "Save to" dialog, then "Export saved" with the plain warning
@@ -44,6 +45,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     ExportStep.expenses: ('Expenses', 'All years, refunded ones included'),
     ExportStep.library: ('Library', 'Every book'),
     ExportStep.notes: ('Notes', 'Locked ones stay encrypted'),
+    ExportStep.recipes: ('Recipes', 'Ingredients, steps and photos'),
     ExportStep.settings: ('Settings', 'Theme, dashboard, bar, reminders'),
   };
 
@@ -98,7 +100,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   Future<void> _share() async {
     final b = _built!;
-    final r = await ExternalActivity.run(() => SharePlus.instance.share(ShareParams(files: [XFile(b.file.path)], title: b.name)));
+    final r = await ExternalActivity.run(() => SharePlus.instance.share(ShareParams(files: [XFile(b.file.path, mimeType: BackupService.mime)], title: b.name)));
     // Shared somewhere: that counts as a backup too.
     if (r.status == ShareResultStatus.success && _phase != _Phase.saved) {
       await ref.read(backupServiceProvider).recordExport(b);
@@ -126,7 +128,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             Icon(OzIcons.error, size: 18, color: c.attentionInk),
             const SizedBox(width: Space.s),
             Expanded(
-              child: Text('This file isn’t encrypted. Anyone who opens it can read everything in it except locked notes, which stay encrypted.',
+              child: Text('This file isn’t encrypted. Anyone who opens it can read everything in it except locked notes, which stay encrypted. Recipe photos are included.',
                   style: text.bodyMedium!.copyWith(fontSize: 13.5, height: 1.5, fontWeight: FontWeight.w600, color: c.attentionInk)),
             ),
           ]),

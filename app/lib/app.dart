@@ -16,6 +16,7 @@ import 'core/ui/theme/app_theme.dart';
 import 'core/ui/theme/tokens.dart';
 import 'shell/ui/lock_gate/lock_gate.dart';
 import 'tools/notes/state/notes_providers.dart';
+import 'tools/recipe/state/recipe_providers.dart';
 
 /// Root widget: theme from Settings › Appearance, the App lock gate above
 /// everything, the Undo message, and an edge-to-edge status bar.
@@ -38,6 +39,7 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
     WidgetsBinding.instance.addObserver(this);
     // Notes trashed over 30 days ago are deleted on start and on resume (F2-02 §5).
     ref.read(notesRepoProvider).purge();
+    _sweepPhotos();
     // A tap on the month-end reminder opens Update balances (behind the App lock gate).
     ref.read(remindersProvider).onOpen = () {
       _router.go('/finance?tab=savings');
@@ -53,8 +55,12 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
       ref.read(remindersProvider).reschedule();
       ref.read(todayProvider.notifier).refresh();
       ref.read(notesRepoProvider).purge();
+      _sweepPhotos();
     }
   }
+
+  /// Recipe photos no recipe uses go on start and resume (F4-01 §3). Never blocks OZONE.
+  void _sweepPhotos() => unawaited(ref.read(recipesRepoProvider).sweepPhotos().catchError((Object _) {}));
 
   @override
   void dispose() {

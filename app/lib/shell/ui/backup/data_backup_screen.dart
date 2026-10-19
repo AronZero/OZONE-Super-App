@@ -76,13 +76,13 @@ class DataBackupScreen extends ConsumerWidget {
                 const SizedBox(height: Space.m),
                 card(
                   title: 'Export workbook',
-                  body: 'One .xlsx file with every tool, notes (locked ones stay encrypted), gold price history and settings. The file itself isn’t encrypted.',
+                  body: 'One .zip file with every tool, notes (locked ones stay encrypted), recipe photos, gold price history and settings. The file itself isn’t encrypted.',
                   actions: [OzoneButton(label: 'Export now', height: 48, onPressed: () => context.push('/settings/data/export'))],
                 ),
                 const SizedBox(height: Space.m),
                 card(
                   title: 'Import workbook',
-                  body: 'Add or update records from an OZONE workbook. You’ll see a preview first, and nothing is deleted. Also used to restore onto a new phone.',
+                  body: 'Add or update records from an OZONE backup (.zip) or workbook (.xlsx). You’ll see a preview first, and nothing is deleted. Also used to restore onto a new phone.',
                   actions: [
                     OzoneButton(label: 'Choose a file…', primary: false, height: 48, onPressed: () => context.push('/settings/data/import')),
                     Align(

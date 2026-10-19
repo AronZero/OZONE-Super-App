@@ -1,7 +1,7 @@
 ﻿name: ozone
 description: "OZONE: personal offline super app"
 publish_to: 'none'
-version: 1.1.0+14
+version: 1.2.0+15
 
 environment:
   sdk: ^3.13.4
@@ -27,6 +27,11 @@ dependencies:
   share_plus: 13.3.0
   path_provider: 2.1.6
   intl: 0.20.3
+  image_picker: 1.2.3 # recipe photos (F4-03 §1)
+  archive: 3.6.1 # backup .zip (F4-01 §5); already used by excel
+  # Transitive pins: the resolver picked versions under 14 days old (F3-02 §4, 19 Oct 2026).
+  image_picker_ios: 0.8.13+9
+  image_picker_platform_interface: 2.11.1
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
+
 import '../data/database.dart';
 import '../domain/dates.dart';
 import 'cells.dart';
@@ -19,6 +21,10 @@ abstract final class Layout {
   static const folders = ['ID', 'Name', 'Order'];
   static const notes = ['ID', 'Title', 'Folder ID', 'Folder †', 'Tags', 'Pinned', 'Locked', 'Text †', 'Edited', 'Trashed on', 'Created', 'Updated'];
   static const notesContent = ['Note ID', 'Part', 'Parts', 'Content'];
+  static const recipes = ['ID', 'Title', 'Category', 'Servings', 'Prep min', 'Cook min', 'Source', 'Notes', 'Favourite', 'Photo', 'Created', 'Updated'];
+  static const recipeIngredients = ['Recipe ID', 'Recipe †', 'Position', 'Section', 'Amount', 'Amount max', 'Unit', 'Name', 'Key name'];
+  static const recipeSteps = ['Recipe ID', 'Recipe †', 'Position', 'Text'];
+  static const kitchen = ['Key name', 'Updated'];
   static const vault = ['Key', 'Value'];
   static const settings = ['Key', 'Value', 'About †'];
   static const deleted = ['Type', 'ID', 'Deleted on'];
@@ -37,8 +43,9 @@ abstract final class Layout {
     'backup.reminder_days': 'Remind me when the last export is older than this many days',
     'savings.month_end_reminder': 'Month-end balance reminder: on/off and time',
     'gold.stale_days': 'Flag gold prices older than this many days',
-    'lists.hidden': 'Vendors, platforms and types hidden from suggestions',
+    'lists.hidden': 'Vendors, platforms, types and recipe categories hidden from suggestions',
     'notes.view': 'Notes home layout',
+    'recipe.list_sort': 'Recipes list order',
   };
 
   static const readMe = [
@@ -49,11 +56,12 @@ abstract final class Layout {
     'Dates are written as YYYY-MM-DD (for example 2026-10-13). Amounts are pesos with 2 decimals (1,234.56). Grams have up to 3 decimals.',
     'Yes/No columns accept Yes or No. Columns marked † are only there to help you read the file; OZONE ignores them on import.',
     'Importing never deletes anything in OZONE. You see a preview first, and a safety copy is saved before anything changes.',
+    'Recipes: each recipe’s ingredients and steps are on their own sheets, linked by Recipe ID. Photos are in the photos folder of the .zip this workbook came in.',
   ];
 }
 
 /// The steps shown on W3 · Export (and their progress).
-enum ExportStep { savings, gold, expenses, library, notes, settings }
+enum ExportStep { savings, gold, expenses, library, notes, recipes, settings }
 
 /// Everything in the database as a workbook (F1-03 §1): one read transaction,
 /// so the file is a consistent snapshot.
@@ -143,6 +151,30 @@ Future<Workbook> buildWorkbook(
         contentSheet.rows.add([n.id, NumberValue(i + 1), NumberValue(parts.length), parts[i]]);
       }
     }
+    step(ExportStep.recipes);
+    final recipes = await db.select(db.recipes).get();
+    final titles = {for (final r in recipes) r.id: r.title};
+    final ings = await (db.select(db.recipeIngredients)..orderBy([(i) => OrderingTerm.asc(i.recipeId), (i) => OrderingTerm.asc(i.position)])).get();
+    final recipeSteps = await (db.select(db.recipeSteps)..orderBy([(s) => OrderingTerm.asc(s.recipeId), (s) => OrderingTerm.asc(s.position)])).get();
+    Object? qty(int? milli) => milli == null ? null : NumberValue(milli % 1000 == 0 ? milli ~/ 1000 : milli / 1000);
+    final recipesSheet = WbSheet('Recipes', Layout.recipes, [
+      for (final r in recipes)
+        [
+          r.id, r.title, r.category, r.servings == null ? null : NumberValue(r.servings!), r.prepMin == null ? null : NumberValue(r.prepMin!), //
+          r.cookMin == null ? null : NumberValue(r.cookMin!), r.source, r.notes, yesNo(r.isFavourite), r.photoFile, ts(r.createdAt), ts(r.updatedAt),
+        ],
+    ]);
+    final ingredientsSheet = WbSheet('Recipe ingredients', Layout.recipeIngredients, [
+      for (final i in ings)
+        [i.recipeId, titles[i.recipeId], NumberValue(i.position + 1), i.section, qty(i.amountMilli), qty(i.amountMaxMilli), i.unit, i.name, i.keyName],
+    ]);
+    final stepsSheet = WbSheet('Recipe steps', Layout.recipeSteps, [
+      for (final s in recipeSteps) [s.recipeId, titles[s.recipeId], NumberValue(s.position + 1), s.body],
+    ]);
+    final kitchenSheet = WbSheet('Kitchen', Layout.kitchen, [
+      for (final k in await db.select(db.kitchen).get()) [k.keyName, ts(k.updatedAt)],
+    ]);
+
     final v = await (db.select(db.vault)..where((x) => x.id.equals(1))).getSingleOrNull();
     final vaultSheet = v == null
         ? null
@@ -171,7 +203,7 @@ Future<Workbook> buildWorkbook(
 
     final dataSheets = [
       accountsSheet, updatesSheet, goldSheet, pricesSheet, expensesSheet, booksSheet, foldersSheet, notesSheet, contentSheet, //
-      ?vaultSheet, settingsSheet, deletedSheet,
+      recipesSheet, ingredientsSheet, stepsSheet, kitchenSheet, ?vaultSheet, settingsSheet, deletedSheet,
     ];
     return Workbook([
       WbSheet('Read me', ['Read me'], [for (final l in Layout.readMe) [l]]),
@@ -196,5 +228,5 @@ class ExportCancelled implements Exception {
 /// Row counts of the user-facing sheets, for `exports_log.row_counts` and messages.
 Map<String, int> rowCounts(Workbook book) => {
       for (final s in book.sheets)
-        if (!const {'Read me', '_Meta', 'Notes_Content', 'Vault', 'Deleted'}.contains(s.name)) s.name: s.rows.length,
+        if (!const {'Read me', '_Meta', 'Notes_Content', 'Recipe ingredients', 'Recipe steps', 'Vault', 'Deleted'}.contains(s.name)) s.name: s.rows.length,
     };

@@ -65,6 +65,17 @@ abstract final class SearchIndex {
           "CASE WHEN n.is_pinned THEN 'Pinned' END "
           'FROM notes n WHERE n.is_locked = 0 AND n.trashed_at IS NULL AND ({ID} IS NULL OR n.id = {ID})',
     ),
+    // Recipe (F4-01 §7): ingredients, steps, source and notes are searchable; category and key names are extra words.
+    'recipe': _Source(
+      table: 'recipes',
+      select: "SELECT 'recipe', 'recipe', r.id, r.title, "
+          "trim(coalesce((SELECT group_concat(i.name, ' ') FROM recipe_ingredients i WHERE i.recipe_id = r.id), '') || ' ' || "
+          "coalesce((SELECT group_concat(s.text, ' ') FROM recipe_steps s WHERE s.recipe_id = r.id), '') || ' ' || "
+          "coalesce(r.source, '') || ' ' || coalesce(r.notes, '')), "
+          "trim(coalesce(r.category, '') || ' ' || coalesce((SELECT group_concat(i.key_name, ' ') FROM recipe_ingredients i WHERE i.recipe_id = r.id), '')), "
+          "CASE WHEN r.is_favourite THEN 'Favourite' END "
+          'FROM recipes r WHERE ({ID} IS NULL OR r.id = {ID})',
+    ),
   };
 
   /// Statements that drop a record's row and write it again (or not, if it
@@ -98,6 +109,10 @@ abstract final class SearchIndex {
     // A note's tags are searchable words.
     on('note_tag_ai', 'INSERT', 'note_tags', _reindex('note', 'NEW.note_id'));
     on('note_tag_ad', 'DELETE', 'note_tags', _reindex('note', 'OLD.note_id'));
+    // A recipe's ingredients and steps are written after the recipe row (they need it), so they
+    // re-index it as they arrive. Deletes need no trigger: an edit always updates the recipe row too.
+    on('recipe_ingredient_ai', 'INSERT', 'recipe_ingredients', _reindex('recipe', 'NEW.recipe_id'));
+    on('recipe_step_ai', 'INSERT', 'recipe_steps', _reindex('recipe', 'NEW.recipe_id'));
     // Renaming a tag renames it in every note that has it.
     out.add('CREATE TRIGGER IF NOT EXISTS si_tag_au AFTER UPDATE OF name ON tags BEGIN '
         'UPDATE notes SET updated_at = updated_at WHERE id IN (SELECT note_id FROM note_tags WHERE tag_id = NEW.id); END');

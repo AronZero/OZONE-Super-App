@@ -14,6 +14,7 @@ import 'note_sheets.dart';
 import 'notes_parts.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 import '../../../core/ui/motion.dart';
+import '../../../core/ui/components/prompt_name.dart';
 
 String _count(int n) => '$n ${n == 1 ? 'note' : 'notes'}';
 
@@ -33,7 +34,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
 
   Future<void> _renameFolder(NotesData data, FolderRow f) async {
     final others = [for (final o in data.folders) if (o.id != f.id) o.name];
-    final name = await promptName(context, title: 'Rename folder', label: 'Name', action: 'Rename', initial: f.name, parse: (s) => parseFolderName(s, others));
+    final name = await promptName(context, title: 'Rename folder', label: 'Name', action: 'Rename', initial: f.name, accent: notesAccent(context), parse: (s) => parseFolderName(s, others));
     if (name != null && name != f.name) await _repo.renameFolder(f.id, name);
   }
 
@@ -56,6 +57,7 @@ class _FoldersTagsScreenState extends ConsumerState<FoldersTagsScreen> {
       label: 'Tag',
       action: 'Rename',
       initial: t.name,
+      accent: notesAccent(context),
       parse: parseTag,
     );
     if (name == null || name == t.name || !mounted) return;

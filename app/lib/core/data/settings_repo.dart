@@ -125,11 +125,21 @@ abstract final class SettingKeys {
   /// Values hidden from suggestions in Settings › Lists, per list.
   static final listsHidden = SettingKey<Map<String, List<String>>>(
     'lists.hidden',
-    const {'vendor': [], 'platform': [], 'type': []},
+    const {'vendor': [], 'platform': [], 'type': [], 'category': []},
     (j) => {
       for (final e in (j! as Map<String, Object?>).entries)
         e.key: [for (final v in e.value! as List<Object?>) v! as String],
     },
+  );
+
+  /// The one-time "Add it to your bar?" tip on Recipes has been answered (E4 rule). Belongs to this phone.
+  static final recipeBarTipDone = SettingKey<bool>('tips.recipe_bar', false, (j) => j! as bool, inWorkbook: false);
+
+  /// Recipes list order: recent, title or favourites (F4-01 §2).
+  static final recipeListSort = SettingKey<String>(
+    'recipe.list_sort',
+    'recent',
+    (j) => const ['recent', 'title', 'favourites'].contains(j) ? j! as String : 'recent',
   );
 
   static final notesView = SettingKey<NotesView>('notes.view', NotesView.grid, (j) => NotesView.values.byName(j! as String));

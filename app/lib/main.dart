@@ -10,8 +10,10 @@ import 'app.dart';
 import 'core/data/database.dart';
 import 'core/data/deletions_repo.dart';
 import 'core/data/first_run.dart';
+import 'core/data/photo_store.dart';
 import 'core/data/settings_repo.dart';
 import 'core/platform/error_log.dart';
+import 'core/platform/files_channel.dart';
 import 'core/platform/reminders.dart';
 import 'core/security/app_lock_service.dart';
 import 'core/security/biometric_key_store.dart';
@@ -53,11 +55,19 @@ Future<void> main() async {
   // "Hide amounts when OZONE opens" (W3 · Security) starts each launch hidden.
   final amounts = AmountsVisibility(hidden: await SettingsRepo(db).get(SettingKeys.hideAmountsOnOpen));
   final vault = VaultService(db, SettingsRepo(db), DeletionsRepo(db), SecureStorageBiometricKeyStore())..start();
+  // Recipe photos (F4-01 §3): one store shared by the Recipe tool and backups.
+  final photos = PhotoStore(
+    () async => Directory('${(await getApplicationSupportDirectory()).path}/recipe_photos'),
+    FilesChannel.toJpeg,
+  );
   final backup = BackupService(
     db,
+    photos: photos,
     workDir: () async => Directory('${(await getTemporaryDirectory()).path}/exports'),
     safetyDir: () async => Directory('${(await getApplicationSupportDirectory()).path}/safety'),
   );
+  // Folders left by an import that was interrupted (F4-01 §6).
+  await backup.cleanUp().catchError((Object _) {});
   final reminders = Reminders(SettingsRepo(db), LocalNotificationsPlatform());
   // The reminder must never stop OZONE from opening (Needs attention covers a missed one).
   try {
@@ -75,6 +85,7 @@ Future<void> main() async {
       vaultServiceProvider.overrideWithValue(vault),
       amountsVisibilityProvider.overrideWithValue(amounts),
       backupServiceProvider.overrideWithValue(backup),
+      photoStoreProvider.overrideWithValue(photos),
       remindersProvider.overrideWithValue(reminders),
       errorLogProvider.overrideWithValue(errors),
     ],

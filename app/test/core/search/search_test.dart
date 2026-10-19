@@ -168,7 +168,7 @@ void main() {
     await db.close();
   });
 
-  test('migration v1 → v2 builds the index for existing data', () async {
+  test('migration v1 → v3 builds the index for existing data', () async {
     final dir = await Directory.systemTemp.createTemp('ozone_mig');
     addTearDown(() => dir.delete(recursive: true)); // also when the test fails or times out
     final file = File('${dir.path}/ozone.db');
@@ -180,6 +180,9 @@ void main() {
       await db.customStatement('DROP TRIGGER ${t.read<String>('name')}');
     }
     await db.customStatement('DROP TABLE search_keys');
+    for (final table in ['recipe_ingredients', 'recipe_steps', 'kitchen', 'recipes']) {
+      await db.customStatement('DROP TABLE $table'); // added in v3
+    }
     await db.customStatement('DELETE FROM search_index');
     await db.customStatement('PRAGMA user_version = 1');
     await db.close();
@@ -188,10 +191,39 @@ void main() {
     final search = SearchRepo(db, SettingsRepo(db));
     expect((await search.search('dune')).single.entity, 'book');
     final meta = await (db.select(db.appMeta)..where((m) => m.key.equals('schema_version'))).getSingle();
-    expect(meta.value, '2');
+    expect(meta.value, '3');
     // And the triggers are back.
     await BooksRepo(db, DeletionsRepo(db)).add(const BookInput(title: 'Emma', status: BookStatus.notStarted, acquisition: Acquisition.free));
     expect((await search.search('emma')).single.entity, 'book');
     await db.close();
+  });
+
+  test('migration v2 → v3 adds the recipe tables, keeps every row and indexes new recipes', () async {
+    final dir = await Directory.systemTemp.createTemp('ozone_mig3');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/ozone.db');
+    // Make a v2 database: today's schema minus the recipe tables and triggers.
+    var db = AppDatabase(NativeDatabase(file));
+    await BooksRepo(db, DeletionsRepo(db)).add(const BookInput(title: 'Dune', status: BookStatus.notStarted, acquisition: Acquisition.free));
+    final triggers = await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'trigger' AND name LIKE 'si_recipe%'").get();
+    for (final t in triggers) {
+      await db.customStatement('DROP TRIGGER ${t.read<String>('name')}');
+    }
+    for (final table in ['recipe_ingredients', 'recipe_steps', 'kitchen', 'recipes']) {
+      await db.customStatement('DROP TABLE $table');
+    }
+    await db.customStatement('PRAGMA user_version = 2');
+    await db.close();
+
+    db = AppDatabase(NativeDatabase(file));
+    addTearDown(db.close);
+    final search = SearchRepo(db, SettingsRepo(db));
+    expect((await search.search('dune')).single.entity, 'book');
+    final meta = await (db.select(db.appMeta)..where((m) => m.key.equals('schema_version'))).getSingle();
+    expect(meta.value, '3');
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await db.into(db.recipes).insert(RecipesCompanion.insert(id: 'r1', title: 'Chicken adobo', createdAt: now, updatedAt: now));
+    await db.into(db.recipeIngredients).insert(RecipeIngredientsCompanion.insert(recipeId: 'r1', position: 0, name: 'bay leaves', keyName: 'bay leaves'));
+    expect((await search.search('bay')).single.entity, 'recipe');
   });
 }

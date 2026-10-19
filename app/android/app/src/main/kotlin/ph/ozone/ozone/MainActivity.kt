@@ -22,7 +22,16 @@ class MainActivity : FlutterFragmentActivity() {
         // Export "Save to" (docs/spec/F2-03 §2).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "ozone/files").setMethodCallHandler { call, result ->
             when (call.method) {
-                "saveAs" -> files.saveAs(call.argument<String>("path")!!, call.argument<String>("name")!!, result)
+                "saveAs" -> files.saveAs(call.argument<String>("path")!!, call.argument<String>("name")!!, call.argument<String>("mime"), result)
+                // Recipe photos as JPEG (docs/spec/F4-01 §3), off the main thread.
+                "toJpeg" -> Thread {
+                    try {
+                        JpegConverter.convert(call.argument<String>("from")!!, call.argument<String>("to")!!, call.argument<Int>("maxSide")!!, call.argument<Int>("quality")!!)
+                        runOnUiThread { result.success(null) }
+                    } catch (e: Exception) {
+                        runOnUiThread { result.error("convert_failed", e.message, null) }
+                    }
+                }.start()
                 else -> result.notImplemented()
             }
         }

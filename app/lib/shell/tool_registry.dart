@@ -6,6 +6,7 @@ import '../core/ui/theme/tokens.dart';
 import '../tools/finance/finance_tool.dart';
 import '../tools/library/library_tool.dart';
 import '../tools/notes/notes_tool.dart';
+import '../tools/recipe/recipe_tool.dart';
 
 /// One "Needs attention" line on Home and the screen that fixes it.
 class AttentionItem {
@@ -98,7 +99,7 @@ List<RouteBase> _noRoutes(GlobalKey<NavigatorState> root) => const [];
 List<AttentionItem> _noAttention(WidgetRef ref) => const [];
 
 /// All tools, in default bar order. Adding a tool = one line here.
-const List<ToolDefinition> toolRegistry = [financeTool, libraryTool, notesTool];
+const List<ToolDefinition> toolRegistry = [financeTool, libraryTool, notesTool, recipeTool];
 
 /// Default bar: Home · up to 3 tools · Tools (docs/03).
 const List<String> defaultBarTools = ['finance', 'library', 'notes'];

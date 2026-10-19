@@ -117,6 +117,7 @@ class _Grid extends StatelessWidget {
     'finance': 'Savings · Gold · Expenses',
     'library': 'Books and reading',
     'notes': 'Notes, folders and the vault',
+    'recipe': 'Ingredients and steps',
   };
 
   @override

@@ -58,14 +58,14 @@ void main() {
 
     // Export through the backup service.
     final built = await container.read(backupServiceProvider).build();
-    final file = await built.file.copy('${support.path}/flow-export.xlsx');
+    final file = await built.file.copy('${support.path}/flow-export.zip');
     expect(built.counts['Accounts'], 1);
 
     // Wipe the records, as on a new phone.
     final db = container.read(databaseProvider);
     await db.transaction(() async {
       // drift deletes, so the open screens hear about it.
-      for (final drift.TableInfo<drift.Table, dynamic> t in [db.noteTags, db.noteDrafts, db.notes, db.tags, db.folders, db.balanceUpdates, db.savingsAccounts, db.goldItems, db.karatPrices, db.expenses, db.books, db.deletions]) {
+      for (final drift.TableInfo<drift.Table, dynamic> t in [db.noteTags, db.noteDrafts, db.notes, db.tags, db.folders, db.balanceUpdates, db.savingsAccounts, db.goldItems, db.karatPrices, db.expenses, db.books, db.recipeIngredients, db.recipeSteps, db.recipes, db.kitchen, db.deletions]) {
         await db.delete(t).go();
       }
     });

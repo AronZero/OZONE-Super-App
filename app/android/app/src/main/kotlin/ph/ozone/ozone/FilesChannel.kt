@@ -17,7 +17,7 @@ class FilesChannel(private val activity: Activity) {
     private var pending: MethodChannel.Result? = null
     private var source: File? = null
 
-    fun saveAs(path: String, name: String, result: MethodChannel.Result) {
+    fun saveAs(path: String, name: String, mime: String?, result: MethodChannel.Result) {
         if (pending != null) {
             result.error("busy", "A save is already open", null)
             return
@@ -26,7 +26,7 @@ class FilesChannel(private val activity: Activity) {
         source = File(path)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = XLSX
+            type = mime ?: XLSX
             putExtra(Intent.EXTRA_TITLE, name)
             putExtra(
                 DocumentsContract.EXTRA_INITIAL_URI,

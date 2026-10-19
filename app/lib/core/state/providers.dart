@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../data/database.dart';
 import '../data/deletions_repo.dart';
+import '../data/photo_store.dart';
 import '../data/settings_repo.dart';
 import '../platform/error_log.dart';
+import '../platform/files_channel.dart';
 import '../platform/reminders.dart';
 import '../search/search_repo.dart';
 import '../security/app_lock_service.dart';
@@ -16,6 +21,12 @@ import 'undo.dart';
 final databaseProvider = Provider<AppDatabase>((ref) => throw UnimplementedError('databaseProvider must be overridden'));
 
 final settingsRepoProvider = Provider<SettingsRepo>((ref) => SettingsRepo(ref.watch(databaseProvider)));
+/// Recipe photos in app-private storage (F4-01 §3). Tests override it with a temporary folder.
+final photoStoreProvider = Provider<PhotoStore>((ref) => PhotoStore(
+      () async => Directory('${(await getApplicationSupportDirectory()).path}/recipe_photos'),
+      FilesChannel.toJpeg,
+    ));
+
 final deletionsRepoProvider = Provider<DeletionsRepo>((ref) => DeletionsRepo(ref.watch(databaseProvider)));
 
 final themeChoiceProvider = StreamProvider<ThemeChoice>(

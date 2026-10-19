@@ -22,6 +22,8 @@ Versions are pinned **exactly** (no `^`) in `pubspec.yaml`, and `pubspec.lock` i
 | share_plus | 13.3.0 | ~2 mo | fluttercommunity.dev | BSD-3 | "Share or save a copy" |
 | path_provider | 2.1.6 | ~4 mo | flutter.dev | BSD-3 | App folders |
 | intl | 0.20.3 | ~3 mo | dart.dev | BSD-3 | Date and number formatting (en_PH) |
+| image_picker | 1.2.3 | 110 d (19 Oct) | flutter.dev | BSD-3 | Recipe photos: camera app and system photo picker (added 19 Oct 2026, M11; sub-packages image_picker_ios 0.8.13+9 and image_picker_platform_interface 2.11.1 pinned for the 14-day rule, F4-03 §1) |
+| archive | 3.6.1 | ~2 yr | loki3d.com | MIT | Backup `.zip` (made direct 19 Oct 2026, M11; same version excel already used) |
 
 ## 2. Development-only packages (never shipped)
 

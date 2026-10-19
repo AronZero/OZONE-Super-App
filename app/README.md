@@ -73,6 +73,10 @@ flutter drive --profile -d <device> --driver=test_driver/perf_driver.dart --targ
 - Database: `lib/core/data/tables.dart` (schema v1, every F1-01 table) and `database.dart` (opens `ozone.db`; creates the
   FTS5 `search_index`). A schema change needs a new `schemaVersion`, a migration step and a migration test.
 - `MainActivity.kt` has a small `ozone/platform` channel: `setSecure` (FLAG_SECURE for app lock) and `openSecuritySettings`.
+  The `ozone/files` channel has `saveAs` (with a MIME type: backups are `application/zip`) and `toJpeg` (`JpegConverter.kt`:
+  recipe photos → upright JPEG, longest side 1,600 px, quality 85, off the main thread).
+- Recipe photos live in app support `recipe_photos/<uuid>.jpg` (`PhotoStore`). Widget tests get a temporary store from
+  `pumpApp` (`testPhotos()` copies instead of converting).
 - Widget tests use an in-memory database (`test/helpers/harness.dart`). Close it with `closeApp()`, which closes the
   database inside the test clock. `tester.runAsync(db.close)` hangs.
 - Emulator for PC testing: AVD `OZONE_A03_API33` (Android 13, 720 × 1600, 3 GB), test PIN 1234.

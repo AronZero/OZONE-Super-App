@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ozone/app.dart';
 import 'package:ozone/core/data/database.dart';
 import 'package:ozone/core/data/deletions_repo.dart';
+import 'package:ozone/core/data/photo_store.dart';
 import 'package:ozone/core/data/settings_repo.dart';
 import 'package:ozone/core/domain/dates.dart';
 import 'package:ozone/core/platform/reminders.dart';
@@ -92,14 +93,22 @@ class FakeReminderPlatform implements ReminderPlatform {
   Future<void> cancel() async => scheduled = null;
 }
 
+/// A photo store in a temporary folder whose converter just copies.
+PhotoStore testPhotos() {
+  final root = Directory.systemTemp.createTempSync('ozone_photos');
+  addTearDown(() => root.deleteSync(recursive: true));
+  return PhotoStore(() async => Directory(root.path), (from, to, {required maxSide, required quality}) async => File(from).copySync(to));
+}
+
 /// A backup service writing to a temporary folder, encoding in place.
-BackupService testBackup(AppDatabase db) {
+BackupService testBackup(AppDatabase db, {PhotoStore? photos}) {
   final root = Directory.systemTemp.createTempSync('ozone_backup');
   addTearDown(() => root.deleteSync(recursive: true));
   return BackupService(
     db,
     workDir: () async => Directory('${root.path}/exports'),
     safetyDir: () async => Directory('${root.path}/safety'),
+    photos: photos,
     heavy: <R>(R Function() work) async => work(),
   );
 }
@@ -141,12 +150,14 @@ Future<(AppDatabase, AppLockService)> pumpApp(
   final v = vault ?? testVault(d, fastKdf: true);
   final lock = AppLockService(SettingsRepo(d), FakeDeviceAuth());
   await tester.runAsync(lock.start);
+  final photos = testPhotos();
   await tester.pumpWidget(ProviderScope(
     overrides: [
       databaseProvider.overrideWithValue(d),
       appLockServiceProvider.overrideWithValue(lock),
       vaultServiceProvider.overrideWithValue(v),
-      backupServiceProvider.overrideWithValue(testBackup(d)),
+      backupServiceProvider.overrideWithValue(testBackup(d, photos: photos)),
+      photoStoreProvider.overrideWithValue(photos),
       ...overrides,
       remindersProvider.overrideWithValue(Reminders(SettingsRepo(d), reminders ?? FakeReminderPlatform())),
       todayProvider.overrideWith(() => FixedToday(today ?? LocalDate(2026, 10, 13))),

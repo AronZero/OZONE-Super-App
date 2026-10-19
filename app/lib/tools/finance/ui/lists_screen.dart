@@ -42,7 +42,7 @@ class _ListsScreenState extends ConsumerState<ListsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SegmentTabs(
-                    labels: const ['Vendors', 'Platforms', 'Types'],
+                    labels: const ['Vendors', 'Platforms', 'Types', 'Categories'],
                     selected: ListField.values.indexOf(_field),
                     onSelected: (i) => setState(() => _field = ListField.values[i]),
                   ),

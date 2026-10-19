@@ -158,6 +158,13 @@ class ToolTint {
     accentDark: Color(0xFFC2AEF0),
     tileDark: Color(0xFF2A2438),
   );
+  /// Recipe: olive, tint 7 of board E4 (decision R-1).
+  static const recipe = ToolTint(
+    accentLight: Color(0xFF565F14),
+    tileLight: Color(0xFFECEEDC),
+    accentDark: Color(0xFFC7CF85),
+    tileDark: Color(0xFF2B2E1A),
+  );
 }
 
 /// Spacing on a 4 dp base (docs/05).

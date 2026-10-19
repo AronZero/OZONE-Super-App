@@ -7,6 +7,10 @@ import '../domain/dates.dart';
 import '../domain/delta.dart';
 import '../domain/ids.dart';
 import '../domain/validation.dart';
+import '../../tools/recipe/domain/amounts.dart';
+import '../../tools/recipe/domain/ingredient_words.dart';
+import '../../tools/recipe/domain/units.dart';
+import '../data/photo_store.dart';
 import 'cells.dart';
 import 'ozone_export.dart';
 import 'workbook.dart';
@@ -78,7 +82,18 @@ class FileVault {
 }
 
 class ImportPlan {
-  ImportPlan({required this.fileName, required this.formatVersion, required this.sheetCount, required this.rows, required this.sheetErrors, this.fileVault, required this.importVault});
+  ImportPlan({
+    required this.fileName,
+    required this.formatVersion,
+    required this.sheetCount,
+    required this.rows,
+    required this.sheetErrors,
+    this.fileVault,
+    required this.importVault,
+    this.filePhotos,
+    this.photoDir,
+    this.phonePhotos = const {},
+  });
   final String fileName;
   final int formatVersion;
   final int sheetCount;
@@ -91,8 +106,33 @@ class ImportPlan {
   /// The phone has no vault and the file has one: it comes with the notes.
   final bool importVault;
 
+  /// Photos in the backup .zip, unpacked in [photoDir]; null for a plain .xlsx (F4-01 §6).
+  final Set<String>? filePhotos;
+  final String? photoDir;
+
+  /// Photo files already on the phone.
+  final Set<String> phonePhotos;
+
+  /// The preview line under Recipes: "Photos: 14 new · 2 same · 1 missing".
+  ({int newPhotos, int same, int missing})? get photos {
+    if (filePhotos == null) return null;
+    var n = 0, s = 0;
+    for (final r in rows.where((r) => r.table == 'recipes' && r.apply)) {
+      final p = r.fields['photo_file'] as String?;
+      if (p == null || !filePhotos!.contains(p)) continue;
+      phonePhotos.contains(p) ? s++ : n++;
+    }
+    return (newPhotos: n, same: s, missing: rows.where((r) => r.entity == 'recipe_photo').length);
+  }
+
+  /// Photos to copy into the phone's store when the plan is applied.
+  Set<String> get photosToCopy => {
+        for (final r in rows.where((r) => r.table == 'recipes' && r.apply))
+          if (r.fields['photo_file'] case final String p when (filePhotos?.contains(p) ?? false) && !phonePhotos.contains(p)) p,
+      };
+
   /// The sheet order of the preview.
-  static const sheets = ['Accounts', 'Balance updates', 'Gold items', 'Gold prices', 'Expenses', 'Books', 'Folders', 'Notes', 'Settings'];
+  static const sheets = ['Accounts', 'Balance updates', 'Gold items', 'Gold prices', 'Expenses', 'Books', 'Folders', 'Notes', 'Recipes', 'Kitchen', 'Settings'];
 
   Map<String, SheetCounts> get counts {
     final out = {for (final s in sheets) s: SheetCounts()};
@@ -132,7 +172,16 @@ class ImportRefused implements Exception {
 }
 
 /// Step 1–3: check the file, read the rows, match and classify.
-Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fileName, required LocalDate today, bool restore = false}) async {
+Future<ImportPlan> planImport(
+  AppDatabase db,
+  Workbook book, {
+  required String fileName,
+  required LocalDate today,
+  bool restore = false,
+  Set<String>? filePhotos,
+  String? photoDir,
+  Set<String> phonePhotos = const {},
+}) async {
   // ── 1 · Check the file ────────────────────────────────────────────────────
   final meta = <String, String>{};
   final metaSheet = book.sheet('_Meta');
@@ -142,7 +191,7 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
       if (k != null) meta[k] = text(r['value']) ?? '';
     }
   }
-  const shaped = ['Accounts', 'Balance updates', 'Gold items', 'Expenses', 'Books', 'Notes'];
+  const shaped = ['Accounts', 'Balance updates', 'Gold items', 'Expenses', 'Books', 'Notes', 'Recipes'];
   if (metaSheet == null || meta['format'] != 'ozone-workbook') {
     if (!shaped.any((s) => book.sheet(s) != null)) {
       throw const ImportRefused('This isn’t an OZONE workbook. It has none of OZONE’s sheets (Accounts, Expenses, Books, Notes…).');
@@ -350,6 +399,92 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
       'trashed_at': stamp(r, 'Trashed on'),
     }, tags: locked ? const [] : [for (final t in tagsCell(r['tags'])) t.toLowerCase()]);
   });
+  // Recipes (F4-01 §4): ingredients and steps travel with their recipe as one
+  // canonical payload, so a recipe is New, Same or Changed as a whole.
+  String childKey(Map<String, Object?> r) => text(r['recipeid']) ?? '\u0000t:${text(r['recipe'])?.toLowerCase() ?? ''}';
+  int position(Map<String, Object?> r) {
+    final p = r['position'];
+    final n = p is num ? p : num.tryParse(text(p) ?? '');
+    if (n == null || n < 1 || n != n.roundToDouble()) throw _RowError('Position "${text(p) ?? ''}" isn’t a whole number from 1');
+    return n.toInt();
+  }
+
+  int? qty(Object? v, String what) {
+    if (isBlank(v)) return null;
+    if (v is num) {
+      if (v <= 0 || v * 1000 > Amount.max) throw _RowError('$what must be more than 0');
+      return (v * 1000).round();
+    }
+    final p = readAmount(text(v)!);
+    if (p == null || p.rest.isNotEmpty || p.unit != null || p.amount!.maxMilli != null) throw _RowError('$what "${text(v)}" isn’t a number');
+    return p.amount!.milli;
+  }
+
+  final ingredientsOf = <String, List<(int, List<Object?>)>>{};
+  final stepsOf = <String, List<(int, String)>>{};
+  final childErrors = <String, String>{};
+  void child(String sheet, List<String> required, void Function(Map<String, Object?> r) parse) {
+    final s = usable(sheet, required);
+    if (s == null) return;
+    for (final (rowNo, r) in s.records()) {
+      try {
+        parse(r);
+      } on _RowError catch (e) {
+        childErrors.putIfAbsent(childKey(r), () => '$sheet row $rowNo: ${e.message}');
+      }
+    }
+  }
+
+  child('Recipe ingredients', ['Position', 'Name'], (r) {
+    final name = str(r, 'Name', max: 200) ?? (throw _RowError('Name is empty'));
+    final lo = qty(r['amount'], 'Amount');
+    final hi = qty(r['amountmax'], 'Amount max');
+    if (hi != null && (lo == null || hi <= lo)) throw _RowError('Amount max must be larger than Amount');
+    final u = text(r['unit']);
+    final unit = u == null ? null : (Units.of(u) ?? (throw _RowError('Unit "$u" isn’t one OZONE knows')));
+    final key = (str(r, 'Key name') ?? keyNameFor(name)).toLowerCase();
+    (ingredientsOf[childKey(r)] ??= []).add((position(r), [str(r, 'Section', max: 60), lo, hi, unit, name, key]));
+  });
+  child('Recipe steps', ['Position', 'Text'], (r) {
+    final body = str(r, 'Text', max: 2000) ?? (throw _RowError('Text is empty'));
+    (stepsOf[childKey(r)] ??= []).add((position(r), body));
+  });
+
+  read('Recipes', 'recipes', 'recipe', ['Title'], (r) => lbl(r, 'Title'), (n, r) {
+    final title = str(r, 'Title', max: 200) ?? (throw _RowError('Title is empty'));
+    final key = text(r['id']) ?? '\u0000t:${title.toLowerCase()}';
+    if (childErrors[key] != null) throw _RowError(childErrors[key]!);
+    final ings = [...?ingredientsOf[key]]..sort((a, b) => a.$1.compareTo(b.$1));
+    if (ings.isEmpty) throw _RowError('the recipe has no rows in Recipe ingredients');
+    if (ings.length > 100) throw _RowError('the recipe has more than 100 ingredients');
+    final steps = [...?stepsOf[key]]..sort((a, b) => a.$1.compareTo(b.$1));
+    if (steps.length > 60) throw _RowError('the recipe has more than 60 steps');
+    int? whole(String col, int min, int max) {
+      final v = r[headerKey(col)];
+      if (isBlank(v)) return null;
+      final x = v is num ? v : num.tryParse(text(v)!);
+      if (x == null || x != x.roundToDouble() || x < min || x > max) throw _RowError('$col "${text(v)}" isn’t a whole number from $min to $max');
+      return x.toInt();
+    }
+
+    final photo = text(r['photo']);
+    return row('Recipes', n, 'recipes', 'recipe', title, r, {
+      'title': title,
+      'category': str(r, 'Category', max: 40),
+      'servings': whole('Servings', 1, 100),
+      'prep_min': whole('Prep min', 0, 6000),
+      'cook_min': whole('Cook min', 0, 6000),
+      'source': str(r, 'Source', max: 200),
+      'notes': str(r, 'Notes', max: 2000),
+      'is_favourite': must(yesNoCell(r['favourite'], what: 'Favourite')),
+      'photo_file': photo != null && PhotoStore.namePattern.hasMatch(photo) ? photo : null,
+      'children': recipeChildren([for (final i in ings) i.$2], [for (final s in steps) s.$2]),
+    });
+  });
+  read('Kitchen', 'kitchen', 'kitchen', ['Key name'], (r) => lbl(r, 'Key name'), (n, r) {
+    final key = (str(r, 'Key name') ?? (throw _RowError('Key name is empty'))).toLowerCase();
+    return ImportRow(sheet: 'Kitchen', rowNo: n, table: 'kitchen', entity: 'kitchen', label: key, fileId: key);
+  });
   read('Settings', 'settings', 'setting', ['Key', 'Value'], (r) => lbl(r, 'Key'), (n, r) {
     final key = text(r['key'])!;
     if (!Layout.settingKeys.containsKey(key)) throw _RowError('"$key" isn’t a setting OZONE keeps in workbooks');
@@ -393,7 +528,7 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
     return out;
   }
 
-  const boolCols = {'is_unchanged', 'is_refunded', 'on_kindle', 'is_pinned', 'is_locked'};
+  const boolCols = {'is_unchanged', 'is_refunded', 'on_kindle', 'is_pinned', 'is_locked', 'is_favourite'};
   Object? norm(String col, Object? v) => boolCols.contains(col) ? (v == true || v == 1) : v;
 
   final tagNames = {for (final t in await db.select(db.tags).get()) t.id: t.name};
@@ -445,7 +580,47 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
     'books': ['title', 'author', 'size_kb', 'on_kindle', 'status', 'acquisition', 'acquired_date', 'amount', 'rating_half', 'remarks'],
     'folders': ['name', 'sort_order'],
     'notes': ['folder_id', 'title', 'content', 'plain_text', 'is_pinned', 'is_locked', 'cipher', 'trashed_at'],
+    'recipes': ['title', 'category', 'servings', 'prep_min', 'cook_min', 'source', 'notes', 'is_favourite', 'photo_file', 'children'],
   };
+
+  // The phone's recipes with their children in the same canonical form.
+  Future<Map<String, Map<String, Object?>>> loadRecipes() async {
+    final out = await load('recipes', ['title', 'category', 'servings', 'prep_min', 'cook_min', 'source', 'notes', 'is_favourite', 'photo_file']);
+    final ings = <String, List<List<Object?>>>{};
+    for (final i in await (db.select(db.recipeIngredients)..orderBy([(x) => OrderingTerm.asc(x.position)])).get()) {
+      (ings[i.recipeId] ??= []).add([i.section, i.amountMilli, i.amountMaxMilli, i.unit, i.name, i.keyName]);
+    }
+    final steps = <String, List<String>>{};
+    for (final s in await (db.select(db.recipeSteps)..orderBy([(x) => OrderingTerm.asc(x.position)])).get()) {
+      (steps[s.recipeId] ??= []).add(s.body);
+    }
+    for (final MapEntry(key: id, value: m) in out.entries) {
+      m['children'] = recipeChildren(ings[id] ?? const [], steps[id] ?? const []);
+    }
+    return out;
+  }
+
+  final phoneRecipes = await loadRecipes();
+  // Photos (F4-01 §6): a .xlsx carries none, so the phone's photo stays. In a
+  // .zip, a photo that's missing or broken keeps the phone's photo and is listed.
+  for (final r in [...rows.where((r) => r.table == 'recipes' && r.cls != RowClass.error)]) {
+    final mine = r.fileId == null ? null : phoneRecipes[r.fileId]?['photo_file'] as String?;
+    final p = r.fields['photo_file'] as String?;
+    if (filePhotos == null) {
+      r.fields['photo_file'] = mine;
+    } else if (p != null && !filePhotos.contains(p)) {
+      r.fields['photo_file'] = mine;
+      rows.add(ImportRow(
+        sheet: 'Recipes',
+        rowNo: r.rowNo,
+        table: 'recipe_photos',
+        entity: 'recipe_photo',
+        label: r.label,
+        cls: RowClass.error,
+        reason: 'Photo for ${r.label} is missing from the file',
+      ));
+    }
+  }
 
   /// Natural keys (F1-03 §2). Unique keys (balance update, gold price, folder) mean the same record.
   String? naturalKey(String table, Map<String, Object?> f) => switch (table) {
@@ -456,14 +631,20 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
         'savings_accounts' => (f['name'] as String).toLowerCase(),
         'folders' => (f['name'] as String).toLowerCase(),
         'gold_items' => '${(f['name'] as String).toLowerCase()}|${f['purchase_date']}|${f['weight_mg']}',
+        'recipes' => (f['title'] as String).toLowerCase(),
         _ => null,
       };
   const uniqueKey = {'balance_updates', 'karat_prices', 'folders'};
 
   String show(Object? v) => v == null ? '—' : (v is bool ? yesNo(v) : (v is String && v.length > 60 ? '${v.substring(0, 57)}…' : '$v'));
+  String showChildren(Object? v) {
+    final m = jsonDecode(v! as String) as Map<String, Object?>;
+    final i = (m['i']! as List).length, s = (m['s']! as List).length;
+    return '$i ${i == 1 ? 'ingredient' : 'ingredients'}, $s ${s == 1 ? 'step' : 'steps'}';
+  }
 
   for (final MapEntry(key: table, value: cols) in columns.entries) {
-    final phone = table == 'folders' ? phoneFolders : await load(table, cols);
+    final phone = table == 'folders' ? phoneFolders : (table == 'recipes' ? phoneRecipes : await load(table, cols));
     final byKey = <String, String>{};
     for (final MapEntry(key: id, value: f) in phone.entries) {
       final k = naturalKey(table, f);
@@ -515,7 +696,13 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
       for (final c in cols) {
         if (c == 'plain_text') continue; // follows content
         final a = norm(c, mine[c]), b = norm(c, r.fields[c]);
-        if (a != b) diffs.add((_labels[c] ?? c, show(a), show(b)));
+        if (a == b) continue;
+        if (c == 'children') {
+          final (x, y) = (showChildren(a), showChildren(b));
+          diffs.add((_labels[c]!, x, x == y ? '$y (changed)' : y));
+        } else {
+          diffs.add((_labels[c] ?? c, show(a), show(b)));
+        }
       }
       if (table == 'notes') {
         final ft = [...r.tags]..sort();
@@ -560,6 +747,15 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
     }
   }
 
+  // Kitchen: a key the phone already has is Same; the rest are New (F4-01 §6).
+  final phoneKitchen = {for (final k in await db.select(db.kitchen).get()) k.keyName};
+  for (final r in rows.where((r) => r.table == 'kitchen' && r.cls != RowClass.error)) {
+    final have = phoneKitchen.contains(r.fileId);
+    r
+      ..cls = have ? RowClass.same : RowClass.newRow
+      ..apply = !have;
+  }
+
   // Settings: one row per key; a difference is Changed (Keep mine), except on restore.
   final phoneSettings = {for (final s in await db.select(db.settings).get()) s.key: s.value};
   for (final r in rows.where((r) => r.table == 'settings' && r.cls != RowClass.error)) {
@@ -588,8 +784,15 @@ Future<ImportPlan> planImport(AppDatabase db, Workbook book, {required String fi
     sheetErrors: sheetErrors,
     fileVault: fileVault,
     importVault: importVault,
+    filePhotos: filePhotos,
+    photoDir: photoDir,
+    phonePhotos: phonePhotos,
   );
 }
+
+/// A recipe's ingredients ([section, amount, max, unit, name, key name] each)
+/// and steps as one string, the same for the phone and the file.
+String recipeChildren(List<List<Object?>> ingredients, List<String> steps) => jsonEncode({'i': ingredients, 's': steps});
 
 const _labels = {
   'name': 'Name', 'platform': 'Platform', 'type': 'Type', 'archived_at': 'Archived on', 'remarks': 'Remarks', //
@@ -600,6 +803,8 @@ const _labels = {
   'title': 'Title', 'author': 'Author', 'size_kb': 'Size KB', 'on_kindle': 'On Kindle', 'acquisition': 'Acquisition',
   'acquired_date': 'Acquired on', 'rating_half': 'Rating (half stars)', 'sort_order': 'Order',
   'folder_id': 'Folder', 'content': 'Text', 'is_pinned': 'Pinned', 'is_locked': 'Locked', 'cipher': 'Locked content', 'trashed_at': 'Trashed',
+  'category': 'Category', 'servings': 'Servings', 'prep_min': 'Prep min', 'cook_min': 'Cook min', 'source': 'Source', 'notes': 'Notes',
+  'is_favourite': 'Favourite', 'photo_file': 'Photo', 'children': 'Ingredients and steps',
 };
 
 class _RowError implements Exception {
@@ -612,10 +817,11 @@ class _RowError implements Exception {
 Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Function()? clock}) async {
   final now = (clock ?? () => DateTime.now().toUtc().millisecondsSinceEpoch)();
   final written = <String, int>{};
-  const order = ['folders', 'savings_accounts', 'balance_updates', 'karat_prices', 'gold_items', 'expenses', 'books', 'notes', 'settings'];
+  const order = ['folders', 'savings_accounts', 'balance_updates', 'karat_prices', 'gold_items', 'expenses', 'books', 'notes', 'recipes', 'kitchen', 'settings'];
   final tables = <String, TableInfo<Table, dynamic>>{
     'folders': db.folders, 'savings_accounts': db.savingsAccounts, 'balance_updates': db.balanceUpdates, 'karat_prices': db.karatPrices, //
-    'gold_items': db.goldItems, 'expenses': db.expenses, 'books': db.books, 'notes': db.notes, 'settings': db.settings,
+    'gold_items': db.goldItems, 'expenses': db.expenses, 'books': db.books, 'notes': db.notes, 'recipes': db.recipes, 'kitchen': db.kitchen,
+    'settings': db.settings,
   };
   Object? sql(Object? v) => v is bool ? (v ? 1 : 0) : v;
 
@@ -644,7 +850,13 @@ Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Funct
           written[r.sheet] = (written[r.sheet] ?? 0) + 1;
           continue;
         }
+        if (table == 'kitchen') {
+          await db.into(db.kitchen).insert(KitchenCompanion.insert(keyName: r.fileId!, updatedAt: now), mode: InsertMode.insertOrIgnore);
+          written[r.sheet] = (written[r.sheet] ?? 0) + 1;
+          continue;
+        }
         final f = Map<String, Object?>.of(r.fields);
+        final children = f.remove('children') as String?;
         if (table == 'expenses') f['refunded_at'] = f['is_refunded'] == true ? now : null;
         if (table == 'notes') {
           if (f['is_pinned'] == true) f['pinned_at'] = r.updated ?? now;
@@ -677,6 +889,7 @@ Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Funct
             updates: {info},
           );
         }
+        if (table == 'recipes') await _writeRecipeChildren(db, id, children!);
         if (table == 'notes' && f['is_locked'] != true) {
           await db.customUpdate('DELETE FROM note_tags WHERE note_id = ?', variables: [Variable.withString(id)], updates: {db.noteTags});
           for (final name in r.tags) {
@@ -691,6 +904,31 @@ Future<Map<String, int>> applyImport(AppDatabase db, ImportPlan plan, {int Funct
     }
   });
   return written;
+}
+
+/// Steps first, then ingredients, so the search triggers see the whole recipe (F4-01 §7).
+Future<void> _writeRecipeChildren(AppDatabase db, String id, String children) async {
+  final m = jsonDecode(children) as Map<String, Object?>;
+  await db.customUpdate('DELETE FROM recipe_ingredients WHERE recipe_id = ?', variables: [Variable.withString(id)], updates: {db.recipeIngredients});
+  await db.customUpdate('DELETE FROM recipe_steps WHERE recipe_id = ?', variables: [Variable.withString(id)], updates: {db.recipeSteps});
+  final steps = (m['s']! as List).cast<String>();
+  for (var p = 0; p < steps.length; p++) {
+    await db.into(db.recipeSteps).insert(RecipeStepsCompanion.insert(recipeId: id, position: p, body: steps[p]));
+  }
+  final ings = (m['i']! as List).cast<List<Object?>>();
+  for (var p = 0; p < ings.length; p++) {
+    final i = ings[p];
+    await db.into(db.recipeIngredients).insert(RecipeIngredientsCompanion.insert(
+          recipeId: id,
+          position: p,
+          section: Value(i[0] as String?),
+          amountMilli: Value(i[1] as int?),
+          amountMaxMilli: Value(i[2] as int?),
+          unit: Value(i[3] as String?),
+          name: i[4]! as String,
+          keyName: i[5]! as String,
+        ));
+  }
 }
 
 Variable<Object> _v(Object? v) => switch (v) {

@@ -143,6 +143,7 @@ void main() {
       final book = await exported(db);
       expect(book.sheets.map((s) => s.name), [
         'Read me', '_Meta', 'Accounts', 'Balance updates', 'Gold items', 'Gold prices', 'Expenses', 'Books', 'Folders', 'Notes', 'Notes_Content', //
+        'Recipes', 'Recipe ingredients', 'Recipe steps', 'Kitchen',
         'Vault', 'Settings', 'Deleted',
       ]);
       final meta = {for (final (_, r) in book.sheet('_Meta')!.records()) r['key']: r['value']};

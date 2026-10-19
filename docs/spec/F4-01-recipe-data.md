@@ -39,8 +39,9 @@ Indexes: `recipes(title)`, `recipes(category)`, `recipe_ingredients(key_name)`.
 
 - One optional photo per recipe. Files live in app-private storage: `<app support>/recipe_photos/<uuid>.jpg`. `photo_file` holds
   only `<uuid>.jpg`. Android auto-backup stays off (F2-03 §3); on iOS the folder is excluded from backup.
-- Every photo is stored as JPEG, **longest side at most 1,600 px, quality 85** (about 200–400 KB). Pictures from the gallery or
-  camera are resized by image_picker; a scanned photo reused as the recipe photo is resized by the files channel (F4-03 §1).
+- Every photo is stored as JPEG, **longest side at most 1,600 px, quality 85** (about 200–400 KB), turned upright. Every
+  picture, from the gallery, the camera or a scan, is converted by the files channel with the phone's own encoder (F4-03 §1),
+  so PNG and HEIC pictures become JPEGs too (built in M11).
 - Changing a photo writes a **new** file name, so the old and new photos never share a name (import relies on this).
 - The old file is deleted when the recipe saves. A removed or replaced photo is kept until its Undo expires.
 - **Orphan sweep** on start and resume: delete files in `recipe_photos/` that no recipe uses and that are older than 10 minutes.
