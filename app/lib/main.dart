@@ -91,6 +91,6 @@ Future<void> main() async {
       remindersProvider.overrideWithValue(reminders),
       errorLogProvider.overrideWithValue(errors),
     ],
-    child: OzoneApp(initialLocation: welcome ? '/welcome' : (fromReminder ? '/finance/savings/update' : '/home')),
+    child: OzoneApp(initialLocation: welcome ? '/welcome' : (fromReminder ? '/finance/savings/update' : '/home'), splash: true),
   ));
 }

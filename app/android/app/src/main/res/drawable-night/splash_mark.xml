@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash mark (decision UR4-1): the launcher foreground, used by Android 12+'s splash. drawable-night holds the dark-mode colours so the animated splash takes over without a colour change. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <group android:scaleX="0.8" android:scaleY="0.8" android:translateX="14" android:translateY="11.208">
+        <path android:fillColor="#8DBEF2" android:pathData="M26,39.52a24,24 0 1,0 48,0a24,24 0 1,0 -48,0Z"/>
+        <path android:fillColor="#B9A3EE" android:pathData="M38.1,60.478a24,24 0 1,0 48,0a24,24 0 1,0 -48,0Z"/>
+        <path android:fillColor="#6CCFCB" android:pathData="M13.9,60.478a24,24 0 1,0 48,0a24,24 0 1,0 -48,0Z"/>
+        <path android:fillColor="#A4A2EC" android:pathData="M74,39.636A24,24 0 0,0 50,39.752A24,24 0 0,1 61.9,60.362A24,24 0 0,0 74,39.636Z"/>
+        <path android:fillColor="#74B4DA" android:pathData="M26,39.636A24,24 0 0,1 50,39.752A24,24 0 0,0 38.1,60.362A24,24 0 0,1 26,39.636Z"/>
+        <path android:fillColor="#A6B6DC" android:pathData="M38.1,60.362A24,24 0 0,0 50,81.205A24,24 0 0,0 61.9,60.362A24,24 0 0,1 38.1,60.362Z"/>
+        <path android:fillColor="#EEF4FB" android:pathData="M50,39.752A24,24 0 0,0 38.1,60.362A24,24 0 0,0 61.9,60.362A24,24 0 0,0 50,39.752Z"/>
+    </group>
+</vector>

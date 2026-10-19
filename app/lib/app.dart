@@ -15,16 +15,20 @@ import 'core/ui/motion.dart';
 import 'core/ui/theme/app_theme.dart';
 import 'core/ui/theme/tokens.dart';
 import 'shell/ui/lock_gate/lock_gate.dart';
+import 'shell/ui/splash/splash_overlay.dart';
 import 'tools/notes/state/notes_providers.dart';
 import 'tools/recipe/state/recipe_providers.dart';
 
 /// Root widget: theme from Settings › Appearance, the App lock gate above
 /// everything, the Undo message, and an edge-to-edge status bar.
 class OzoneApp extends ConsumerStatefulWidget {
-  const OzoneApp({super.key, this.initialLocation = '/home'});
+  const OzoneApp({super.key, this.initialLocation = '/home', this.splash = false});
 
   /// '/welcome' on first run; Update balances when opened from the month-end reminder.
   final String initialLocation;
+
+  /// Play the splash (UR4-1). Only a fresh start passes true (main.dart).
+  final bool splash;
 
   @override
   ConsumerState<OzoneApp> createState() => _OzoneAppState();
@@ -132,6 +136,7 @@ class _OzoneAppState extends ConsumerState<OzoneApp> with WidgetsBindingObserver
                 valueListenable: lock.locked,
                 builder: (context, locked, _) => locked ? LockGate(service: lock) : const SizedBox.shrink(),
               ),
+              if (widget.splash) const SplashOverlay(),
             ],
           ),
         );

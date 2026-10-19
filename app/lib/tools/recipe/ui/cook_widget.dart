@@ -38,7 +38,10 @@ class CookWidget extends ConsumerWidget {
 
     if (result == null || rows.isEmpty) {
       final empty = result == null || result.kitchenEmpty;
-      return Container(
+      // Its own node, so TalkBack doesn't read it with the widget above.
+      return Semantics(
+        container: true,
+        child: Container(
         padding: const EdgeInsets.fromLTRB(18, Space.l, 18, Space.l),
         decoration: BoxDecoration(color: recipeCard(context), borderRadius: BorderRadius.circular(Radii.card)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -53,6 +56,7 @@ class CookWidget extends ConsumerWidget {
           const SizedBox(height: Space.m),
           OzoneButton(label: 'Pick ingredients', height: 48, color: recipeAccent(context), foreground: c.onAccent, onPressed: openCook),
         ]),
+        ),
       );
     }
 

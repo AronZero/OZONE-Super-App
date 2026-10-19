@@ -5,6 +5,7 @@ import '../../../core/ui/components/components.dart';
 import '../../../core/ui/theme/app_theme.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../ozone_mark.dart';
+import '../splash/splash_overlay.dart';
 import '../../../core/ui/theme/oz_icons.dart';
 
 /// App lock gate (W3 · App lock gate). Covers everything until the phone's own
@@ -24,8 +25,26 @@ class _LockGateState extends State<LockGate> {
   @override
   void initState() {
     super.initState();
-    // Ask straight away, so unlocking is one step.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _unlock());
+    // Ask straight away, so unlocking is one step; after the splash, so the prompt never covers it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (splashActive.value) {
+        splashActive.addListener(_afterSplash);
+      } else {
+        _unlock();
+      }
+    });
+  }
+
+  void _afterSplash() {
+    if (splashActive.value) return;
+    splashActive.removeListener(_afterSplash);
+    if (mounted) _unlock();
+  }
+
+  @override
+  void dispose() {
+    splashActive.removeListener(_afterSplash);
+    super.dispose();
   }
 
   Future<void> _unlock() async {

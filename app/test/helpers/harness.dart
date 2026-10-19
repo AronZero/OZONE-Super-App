@@ -145,10 +145,12 @@ Future<(AppDatabase, AppLockService)> pumpApp(
   FakeReminderPlatform? reminders,
   String initialLocation = '/home',
   List<Override> overrides = const [],
+  FakeDeviceAuth? auth,
+  bool splash = false,
 }) async {
   final d = db ?? memoryDb();
   final v = vault ?? testVault(d, fastKdf: true);
-  final lock = AppLockService(SettingsRepo(d), FakeDeviceAuth());
+  final lock = AppLockService(SettingsRepo(d), auth ?? FakeDeviceAuth());
   await tester.runAsync(lock.start);
   final photos = testPhotos();
   await tester.pumpWidget(ProviderScope(
@@ -162,9 +164,10 @@ Future<(AppDatabase, AppLockService)> pumpApp(
       remindersProvider.overrideWithValue(Reminders(SettingsRepo(d), reminders ?? FakeReminderPlatform())),
       todayProvider.overrideWith(() => FixedToday(today ?? LocalDate(2026, 10, 13))),
     ],
-    child: OzoneApp(initialLocation: initialLocation),
+    child: OzoneApp(initialLocation: initialLocation, splash: splash),
   ));
-  await settle(tester);
+  // With the splash, the test drives the frames itself.
+  if (!splash) await settle(tester);
   return (d, lock);
 }
 
