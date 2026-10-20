@@ -99,11 +99,6 @@ in any spreadsheet app, and your recipe photos.
 
 <br clear="right">
 
-<p>
-  <img src="docs/screenshots/recipes-cook.png" alt="What can I cook?" width="200">
-  <img src="docs/screenshots/recipes.png" alt="Recipes list" width="200">
-</p>
-
 ### Across the app
 
 <p>
